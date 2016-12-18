@@ -1,3 +1,3 @@
 package es
 
-const DuplicateEntry string = "Ya existe el {campo}"
+const DuplicateEntry string = "Ya existe el {campo} {valor}"

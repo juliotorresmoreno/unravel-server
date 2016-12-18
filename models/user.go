@@ -1,41 +1,35 @@
 package models
 
 import (
-	"time"
-	"github.com/jinzhu/gorm"
 	"github.com/asaskevich/govalidator"
-	"golang.org/x/crypto/bcrypt"
+	"../services"
 )
 
-//xorm:"lusers"
-type Users struct {
-	gorm.Model
-	Id uint `gorm:"primary_key"`
-	Nombres string `valid:"required,alphaSpaces"`
-	Apellidos string `valid:"required,alphaSpaces"`
-	Email string `gorm:"unique" valid:"required,email"`
-	Usuario string `gorm:"unique" valid:"required,alphanum"`
-	Passwd string `valid:"required,password"`
+type User struct {
+	Id		uint `xorm:"bigint not null primary"`
+	Nombres 	string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
+	Apellidos	string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
+	Email 		string `xorm:"varchar(200) not null unique" gorm:"unique" valid:"required,email"`
+	Usuario		string `xorm:"varchar(100) not null unique" valid:"required,alphanum"`
+	Passwd		string `xorm:"varchar(100) not null" valid:"required,password"`
 }
 
 func init() {
-	engine.AutoMigrate(&Users{})
-	engine.Model(&Users{}).Update("CreatedAt", time.Now())
+	orm.Sync2(new(User))
 }
 
-func(u Users) Add() (int64, error) {
+func(u User) Add() (int64, error) {
 	_, err := govalidator.ValidateStruct(u)
 	if err != nil {
-		return 0, err
+		return 0, normalize(err, u)
 	}
-	password := []byte(u.Passwd)
-	hashedPassword, _ := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	u.Passwd = string(hashedPassword)
+	u.Passwd = services.Encript(u.Passwd)
 
-	resp:= engine.Create(&u)
-	if(len(resp.GetErrors()) > 0) {
-		return resp.RowsAffected, normalize(resp.GetErrors()[0], u)
+	affected, err := orm.Insert(u)
+	if err != nil {
+		return affected, normalize(err, u)
 	} else {
-		return resp.RowsAffected, nil
+		return affected, nil
 	}
 }
+

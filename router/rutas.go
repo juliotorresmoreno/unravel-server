@@ -11,7 +11,11 @@ func GetHandler() http.Handler {
 	webroot := http.FileServer(http.Dir("webroot"))
 	mux := mux.NewRouter().StrictSlash(false)
 	mux.Handle("/", webroot)
+
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
+	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
+
+	mux.HandleFunc("/api/v1/friends", auth.Login).Methods("POST")
 
 	mux.HandleFunc("/test", test.Test).Methods("GET")
 	return mux
