@@ -44,35 +44,43 @@ func Session(w http.ResponseWriter, r *http.Request)  {
 	w.Write(respuesta)
 }
 
+func autenticate(user *models.User) (string, responses.Login) {
+	_token := helper.GenerateRandomString(100)
+	cache := models.GetCache()
+	cache.Set(string(_token), user.Usuario, time.Duration(config.SESSION_DURATION) * time.Second)
+
+	respuesta := responses.Login{
+		Success: true,
+		Session: responses.Session{
+			Usuario: user.Usuario,
+			Nombres: user.Nombres,
+			Apellidos: user.Apellidos,
+			Token: _token,
+		},
+	}
+
+	return _token, respuesta
+}
+
 func Login(w http.ResponseWriter, r *http.Request)  {
 	var usuario string = r.PostFormValue("usuario")
 	var passwd string = r.PostFormValue("passwd")
 	var respuesta []byte
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
-	cache := models.GetCache()
 	err := orm.Where("Usuario = ?", usuario).Find(&users)
 	w.Header().Set("Content-Type", "application/json")
 
 	if err == nil && len(users) > 0 && helper.IsValid(users[0].Passwd, passwd) {
-		_token := helper.GenerateRandomString(100)
+		w.WriteHeader(http.StatusOK)
+		_token, _session := autenticate(&users[0])
 		http.SetCookie(w, &http.Cookie{
 			HttpOnly: true,
 			MaxAge: config.SESSION_DURATION,
 			Value: "token=" + _token,
 			Path: "/",
 		})
-		w.WriteHeader(http.StatusOK)
-		respuesta, _ = json.Marshal(responses.Login{
-			Success: true,
-			Session: responses.Session{
-				Usuario: users[0].Usuario,
-				Nombres: users[0].Nombres,
-				Apellidos: users[0].Apellidos,
-				Token: _token,
-			},
-		})
-		cache.Set(string(_token), users[0].Usuario, time.Duration(config.SESSION_DURATION) * time.Second)
+		respuesta, _ = json.Marshal(_session)
 		w.Write(respuesta)
 		return
 	}
@@ -89,8 +97,6 @@ func Login(w http.ResponseWriter, r *http.Request)  {
 
 func Registrar(w http.ResponseWriter, r *http.Request)  {
 	var user models.User
-	w.WriteHeader(http.StatusOK)
-
 	if r.PostFormValue("Passwd") != r.PostFormValue("PasswdConfirm") {
 		respuesta, _ := json.Marshal(responses.Error{
 			Success:false,
@@ -106,23 +112,24 @@ func Registrar(w http.ResponseWriter, r *http.Request)  {
 	user.Email = r.PostFormValue("email")
 	user.Passwd = r.PostFormValue("passwd")
 
-	if affected, err := user.Add(); err != nil && err.Error() != "" {
+	if _, err := user.Add(); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		respuesta, _ := json.Marshal(responses.Error{
 			Success:false,
 			Error:err.Error(),
 		})
 		w.Write(respuesta)
-	} else if affected == 0 {
-		respuesta, _ := json.Marshal(responses.Error{
-			Success:false,
-			Error: "No se insertaron registros.",
-		})
-		w.Write(respuesta)
 	} else {
-		respuesta, _ := json.Marshal(responses.Success{
-			Success:false,
-			Message: "No se insertaron registros.",
+		w.WriteHeader(http.StatusOK)
+		_token, _session := autenticate(&user)
+		http.SetCookie(w, &http.Cookie{
+			HttpOnly: true,
+			MaxAge: config.SESSION_DURATION,
+			Value: "token=" + _token,
+			Path: "/",
 		})
+		respuesta, _ := json.Marshal(_session)
 		w.Write(respuesta)
 	}
 }
