@@ -4,28 +4,24 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"../controllers/auth"
+	"../controllers/friends"
 	"../test"
 )
 
 func GetHandler() http.Handler {
 	webroot := http.FileServer(http.Dir("webroot"))
 	mux := mux.NewRouter().StrictSlash(false)
-	mux.Handle("/", webroot)
 
+	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
+	mux.HandleFunc("/api/v1/auth/session", auth.Session).Methods("GET")
 
-	mux.HandleFunc("/api/v1/friends", auth.Login).Methods("POST")
+	mux.HandleFunc("/api/v1/friends", friends.ListFriends).Methods("GET")
 
 	mux.HandleFunc("/test", test.Test).Methods("GET")
+
+	mux.Handle("/", webroot)
+	mux.Handle("/{all}", webroot)
 	return mux
 }
-
-//func (e mensaje) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-//	fmt.Fprintf(w, e.msg)
-//}
-
-/*mux.Handle("/api/users", getUsers).Methods("GET")
-mux.Handle("/api/users", postUsers).Methods("POST")
-mux.Handle("/api/users", putUsers).Methods("PUT")
-mux.Handle("/api/users", deleteUsers).Methods("DELETE")*/

@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/asaskevich/govalidator"
-	"../services"
+	"../helper"
 )
 
 type User struct {
@@ -23,7 +23,7 @@ func(u User) Add() (int64, error) {
 	if err != nil {
 		return 0, normalize(err, u)
 	}
-	u.Passwd = services.Encript(u.Passwd)
+	u.Passwd = helper.Encript(u.Passwd)
 
 	affected, err := orm.Insert(u)
 	if err != nil {
