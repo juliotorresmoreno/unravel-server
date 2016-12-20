@@ -4,15 +4,18 @@ import (
 	"net/http"
 	"encoding/json"
 	"../../models"
+	"../../ws"
 	"../responses"
 )
 
-func ListFriends(w http.ResponseWriter, r *http.Request)  {
+func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub)  {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
-	err := orm.Find(&users)
+
+	err := orm.Where("Usuario != ?", session.Usuario).Find(&users)
 	if err != nil {
 		respuesta, _ := json.Marshal(responses.Error{Success:false,Error:err.Error()})
 		w.Write(respuesta)

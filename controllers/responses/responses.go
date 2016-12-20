@@ -22,6 +22,19 @@ type Success struct {
 	Message string `json:"message"`
 }
 
+type Mensaje struct {
+	Usuario string `json:"usuario"`
+	Nombres string `json:"nombres"`
+	Apellidos string `json:"apellidos"`
+	Mensaje string `json:"mensaje"`
+	Fecha int64 `json:"fecha"`
+}
+
+type SuccessData struct {
+	Success bool `json:"success"`
+	Data []Mensaje `json:"data"`
+}
+
 type Friend struct {
 	Usuario string `json:"usuario"`
 	Nombres string `json:"nombres"`

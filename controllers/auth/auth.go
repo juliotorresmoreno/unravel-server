@@ -72,14 +72,15 @@ func Login(w http.ResponseWriter, r *http.Request)  {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err == nil && len(users) > 0 && helper.IsValid(users[0].Passwd, passwd) {
-		w.WriteHeader(http.StatusOK)
 		_token, _session := autenticate(&users[0])
 		http.SetCookie(w, &http.Cookie{
 			HttpOnly: true,
 			MaxAge: config.SESSION_DURATION,
-			Value: "token=" + _token,
+			Name: "token",
+			Value: _token,
 			Path: "/",
 		})
+		w.WriteHeader(http.StatusOK)
 		respuesta, _ = json.Marshal(_session)
 		w.Write(respuesta)
 		return
@@ -121,14 +122,15 @@ func Registrar(w http.ResponseWriter, r *http.Request)  {
 		})
 		w.Write(respuesta)
 	} else {
-		w.WriteHeader(http.StatusOK)
 		_token, _session := autenticate(&user)
 		http.SetCookie(w, &http.Cookie{
 			HttpOnly: true,
 			MaxAge: config.SESSION_DURATION,
-			Value: "token=" + _token,
+			Name: "token",
+			Value: _token,
 			Path: "/",
 		})
+		w.WriteHeader(http.StatusOK)
 		respuesta, _ := json.Marshal(_session)
 		w.Write(respuesta)
 	}

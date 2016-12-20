@@ -3,15 +3,18 @@ package models
 import (
 	"github.com/asaskevich/govalidator"
 	"../helper"
+	"time"
 )
 
 type User struct {
 	Id		uint `xorm:"bigint not null autoincr pk"`
 	Nombres 	string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	Apellidos	string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
-	Email 		string `xorm:"varchar(200) not null unique" gorm:"unique" valid:"required,email"`
+	Email 		string `xorm:"varchar(200) not null unique" valid:"required,email"`
 	Usuario		string `xorm:"varchar(100) not null unique index" valid:"required,alphanum"`
 	Passwd		string `xorm:"varchar(100) not null" valid:"required,password"`
+	CreateAt       time.Time `xorm:"created"`
+	UpdateAt       time.Time `xorm:"updated"`
 }
 
 func(u User) TableName() string {
@@ -20,6 +23,7 @@ func(u User) TableName() string {
 
 func init() {
 	orm.Sync2(new(User))
+	orm.Sync2(new(Chat))
 }
 
 func(u User) Add() (int64, error) {
@@ -36,4 +40,3 @@ func(u User) Add() (int64, error) {
 		return affected, nil
 	}
 }
-

@@ -48,14 +48,18 @@ func Test(w http.ResponseWriter, r *http.Request)  {
 	params = []byte("nombres=nombres&apellidos=apellidos&" +
 		  "email=email@dominio.com&usuario=username&" +
 		  "passwd=123456&passwdConfirm=123456")
-	test(w, url, params)
+	//test(w, url, params)
 
 	url = "http://localhost:8080/api/v1/auth/login"
 	params = []byte("usuario=username&passwd=123456")
-	test(w, url, params)
+	//test(w, url, params)
 
 	url = "http://localhost:8080/api/v1/auth/login"
 	params = []byte("usuario=username&passwd=12345678")
+	//test(w, url, params)
+
+	url = "http://localhost:8080/api/v1/chats/mensaje"
+	params = []byte("tipo=usuario&usuario=dmonsalve&mensaje=hola+mundo")
 
 	test(w, url, params)
 }
