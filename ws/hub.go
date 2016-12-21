@@ -23,6 +23,5 @@ func (hub Hub) Send(user string, mensaje []byte)  {
 		for conection := range client.clients {
 			conection.conn.WriteMessage(websocket.TextMessage, mensaje)
 		}
-		println("asdas")
 	}
 }

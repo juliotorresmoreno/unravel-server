@@ -41,7 +41,6 @@ func test(w http.ResponseWriter, url string, params []byte) {
 func Test(w http.ResponseWriter, r *http.Request)  {
 	var url string
 	var params []byte
-	//w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 
 	url = "http://localhost:8080/api/v1/auth/registrar"

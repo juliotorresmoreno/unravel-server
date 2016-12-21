@@ -10,7 +10,7 @@ func GetCookie(r *http.Request, name string) string {
 	var s []string = strings.Split(c, ";")
 	var t []string
 	for i := 0; i < len(s); i++ {
-		t = strings.Split(s[i], "=")
+		t = strings.Split(strings.Trim(s[i], " "), "=")
 		if t[0] == name {
 			return t[1]
 		}

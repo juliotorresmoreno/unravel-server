@@ -27,11 +27,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		usuario, _ := session.Result()
 
 		if session.Err() != nil {
-			r, _ := json.Marshal(responses.Error{
-				Success:false,
-				Error:session.Err().Error(),
-			})
-			w.Write(r)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
@@ -40,6 +36,8 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 
 		err := orm.Where("Usuario = ?", usuario).Find(&users)
 		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
 			respuesta, _ := json.Marshal(responses.Error{Success:false,Error:err.Error()})
 			w.Write(respuesta)
 			return
