@@ -74,13 +74,22 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/session", auth.Session).Methods("GET")
 
-	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub)).Methods("GET")
-	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.List, hub)).Methods("GET")
-	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub)).Methods("POST")
 
+	// friends
+	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub)).Methods("GET")
+
+
+	// chat
+	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub)).Methods("POST")
+	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.Videollamada, hub)).Methods("POST")
+	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.List, hub)).Methods("GET")
+
+
+	// test
 	mux.HandleFunc("/test", test.Test).Methods("GET")
 
 
+	// websocket
 	mux.HandleFunc("/ws", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 		ws.ServeWs(hub, w, r, session)
 	}, hub))

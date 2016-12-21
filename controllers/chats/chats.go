@@ -19,7 +19,6 @@
 		usuario := vars["user"]
 
 		c := "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
-		//c := "(usuario_emisor = ? and )"
 		_ = orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Find(&q)
 		l := len(q)
 		e := make([]responses.Mensaje, len(q))
@@ -52,6 +51,19 @@
 			Data: e,
 		})
 		w.Write(resp)
+	}
+
+	func Videollamada(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub)  {
+		usuario := r.PostFormValue("usuario")
+		resp, _ := json.Marshal(map[string]string{
+			"action": "videollamada",
+			"usuario": session.Usuario,
+			"usuarioReceptor": usuario,
+			"fecha": strconv.Itoa(int(time.Now().Unix())),
+		})
+		hub.Send(session.Usuario, resp)
+		hub.Send(usuario, resp)
+		w.WriteHeader(http.StatusOK)
 	}
 
 	func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub)  {
