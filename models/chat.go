@@ -2,19 +2,22 @@ package models
 
 import (
 	"time"
+
 	"github.com/asaskevich/govalidator"
 )
 
+// Chat modelo de los chats
 type Chat struct {
-	Id		uint `xorm:"bigint not null autoincr pk"`
-	UsuarioEmisor   string `xorm:"varchar(100) not null index"`
-	UsuarioReceptor string `xorm:"varchar(100) not null index"`
-	Message		string `xorm:"text not null" valid:"required"`
-	CreateAt       time.Time `xorm:"created"`
-	UpdateAt       time.Time `xorm:"updated"`
+	ID              uint      `xorm:"bigint not null autoincr pk"`
+	UsuarioEmisor   string    `xorm:"varchar(100) not null index"`
+	UsuarioReceptor string    `xorm:"varchar(100) not null index"`
+	Message         string    `xorm:"text not null" valid:"required"`
+	CreateAt        time.Time `xorm:"created"`
+	UpdateAt        time.Time `xorm:"updated"`
 }
 
-func(u Chat) TableName() string {
+// TableName establece el nombre de la tabla del modelo
+func (u Chat) TableName() string {
 	return "chats"
 }
 
@@ -22,7 +25,8 @@ func init() {
 	orm.Sync2(new(Chat))
 }
 
-func(u Chat) Add() (int64, error) {
+// Add agrega un nuevo chat
+func (u Chat) Add() (int64, error) {
 	_, err := govalidator.ValidateStruct(u)
 	if err != nil {
 		return 0, normalize(err, u)
@@ -36,5 +40,5 @@ func(u Chat) Add() (int64, error) {
 		}
 		return affected, nil
 	}
-	return 0, werror{Msg:"El usuario no existe"}
+	return 0, werror{Msg: "El usuario no existe"}
 }

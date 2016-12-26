@@ -11,8 +11,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Note Modelo de prueba
 type Note struct {
-	Id          int
+	ID          int
 	Title       string
 	Descripcion string
 	CreatedAt   time.Time
@@ -44,7 +45,7 @@ func postNoteHandler(w http.ResponseWriter, r *http.Request) {
 	note.CreatedAt = time.Now()
 	id++
 	key := strconv.Itoa(id)
-	note.Id = id
+	note.ID = id
 	noteStore[key] = note
 	w.Header().Set("Content-Type", "application/json")
 	j, err := json.Marshal(note)
@@ -64,7 +65,7 @@ func putNoteHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	if note, ok := noteStore[key]; ok {
-		noteUpdate.Id = note.Id
+		noteUpdate.ID = note.ID
 		noteUpdate.CreatedAt = note.CreatedAt
 		delete(noteStore, key)
 		noteStore[key] = noteUpdate
