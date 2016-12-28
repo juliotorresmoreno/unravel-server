@@ -9,7 +9,7 @@ import (
 
 // User modelo de usuario
 type User struct {
-	ID        uint      `xorm:"bigint not null autoincr pk"`
+	Id        uint      `xorm:"bigint not null autoincr pk"`
 	Nombres   string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	Apellidos string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	Email     string    `xorm:"varchar(200) not null unique" valid:"required,email"`

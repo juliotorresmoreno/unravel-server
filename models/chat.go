@@ -8,7 +8,7 @@ import (
 
 // Chat modelo de los chats
 type Chat struct {
-	ID              uint      `xorm:"bigint not null autoincr pk"`
+	Id              uint      `xorm:"bigint not null autoincr pk"`
 	UsuarioEmisor   string    `xorm:"varchar(100) not null index"`
 	UsuarioReceptor string    `xorm:"varchar(100) not null index"`
 	Message         string    `xorm:"text not null" valid:"required"`

@@ -1,20 +1,20 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"./router"
+	"github.com/gorilla/handlers"
 )
 
 func main() {
-	server := &http.Server{
+	var server = &http.Server{
 		Addr:           ":8080",
-		Handler:        router.GetHandler(),
+		Handler:        handlers.CORS()(router.GetHandler()),
 		ReadTimeout:    30 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Println("Listening")
-	log.Println(server.ListenAndServe())
+	println("Listening")
+	println(server.ListenAndServe())
 }

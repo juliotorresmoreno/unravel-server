@@ -1,19 +1,21 @@
 package router
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
-	"../controllers/auth"
-	"../controllers/friends"
-	"../controllers/chats"
-	"../controllers/responses"
-	"../test"
-	"../models"
-	"../helper"
-	"../config"
-	"../ws"
 	"encoding/json"
+	"net/http"
+	"os"
 	"time"
+
+	"../config"
+	"../controllers/auth"
+	"../controllers/chats"
+	"../controllers/friends"
+	"../controllers/responses"
+	"../helper"
+	"../models"
+	"../test"
+	"../ws"
+	"github.com/gorilla/mux"
 )
 
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub) func(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +40,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			respuesta, _ := json.Marshal(responses.Error{Success:false,Error:err.Error()})
+			respuesta, _ := json.Marshal(responses.Error{Success: false, Error: err.Error()})
 			w.Write(respuesta)
 			return
 		}
@@ -47,14 +49,14 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			cache.Set(
 				string(_token),
 				users[0].Usuario,
-				time.Duration(config.SESSION_DURATION) * time.Second,
+				time.Duration(config.SESSION_DURATION)*time.Second,
 			)
 			http.SetCookie(w, &http.Cookie{
 				HttpOnly: true,
-				MaxAge: config.SESSION_DURATION,
-				Name: "token",
-				Value: _token,
-				Path: "/",
+				MaxAge:   config.SESSION_DURATION,
+				Name:     "token",
+				Value:    _token,
+				Path:     "/",
 			})
 			fn(w, r, &users[0], hub)
 		} else {
@@ -64,37 +66,42 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 	}
 }
 
+func publicHandler(w http.ResponseWriter, r *http.Request) {
+	var publicPath = "./webroot"
+	var path = publicPath + "/" + r.URL.Path
+	if f, err := os.Stat(path); err == nil && !f.IsDir() {
+		http.ServeFile(w, r, path)
+		return
+	}
+	http.ServeFile(w, r, publicPath+"/index.html")
+}
+
+// GetHandler aca se establecen las rutas del router
 func GetHandler() http.Handler {
-	webroot := http.FileServer(http.Dir("webroot"))
-	mux := mux.NewRouter().StrictSlash(false)
-	hub := ws.GetHub()
+	var mux = mux.NewRouter().StrictSlash(false)
+	var hub = ws.GetHub()
 
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/session", auth.Session).Methods("GET")
 
-
 	// friends
 	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub)).Methods("GET")
-
 
 	// chat
 	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub)).Methods("POST")
 	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.Videollamada, hub)).Methods("POST")
 	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.List, hub)).Methods("GET")
 
-
 	// test
 	mux.HandleFunc("/test", test.Test).Methods("GET")
-
 
 	// websocket
 	mux.HandleFunc("/ws", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 		ws.ServeWs(hub, w, r, session)
 	}, hub))
 
-	mux.Handle("/", webroot)
-	mux.Handle("/{all}", webroot)
+	mux.PathPrefix("/").HandlerFunc(publicHandler)
 	return mux
 }

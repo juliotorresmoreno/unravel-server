@@ -1,14 +1,14 @@
 package models
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"../config"
-	"github.com/asaskevich/govalidator"
 	"regexp"
-	"../lang/es"
 	"strings"
+
+	"../config"
+	"../lang/es"
+	"github.com/asaskevich/govalidator"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
-	"fmt"
 	"gopkg.in/redis.v5"
 )
 
@@ -51,10 +51,12 @@ func init() {
 	})
 }
 
+// GetCache Obtiene la cache
 func GetCache() *redis.Client {
 	return cache
 }
 
+// GetXORM Obtiene el orm con acceso a la base de datos
 func GetXORM() *xorm.Engine {
 	return orm
 }
@@ -62,11 +64,11 @@ func GetXORM() *xorm.Engine {
 func normalize(Error error, data interface{}) error {
 	var message string
 	if rDuplicateEntry.MatchString(Error.Error()) {
-		fmt.Println(Error)
-		values := strings.Split(Error.Error(), "'")
-		message = strings.Replace(es.DuplicateEntry, "{campo}", strings.Split(values[3], "_")[2], 1)
+		var values = strings.Split(Error.Error(), "'")
+		var campo = strings.Split(values[3], "_")[2]
+		message = strings.Replace(es.DuplicateEntry, "{campo}", campo, 1)
 		message = strings.Replace(message, "{valor}", values[1], 1)
-		return werror{Msg:message}
+		return werror{Msg: campo + ": " + message}
 	}
 	return Error
 }
