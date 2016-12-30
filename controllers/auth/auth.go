@@ -11,6 +11,23 @@ import (
 	"../responses"
 )
 
+// Logout cerrarr session
+func Logout(w http.ResponseWriter, r *http.Request) {
+	var cache = models.GetCache()
+	var _token = helper.GetCookie(r, "token")
+	_ = cache.Del(_token)
+	http.SetCookie(w, &http.Cookie{
+		MaxAge: config.SESSION_DURATION * -1,
+		Secure: false,
+		Name:   "token",
+		Value:  "",
+		Path:   "/",
+	})
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{\"success\":true}"))
+}
+
 // Session obtiene la session actual del usuario logueado
 func Session(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -80,11 +97,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err == nil && len(users) > 0 && helper.IsValid(users[0].Passwd, passwd) {
 		_token, _session := autenticate(&users[0])
 		http.SetCookie(w, &http.Cookie{
-			MaxAge: config.SESSION_DURATION,
-			Secure: false,
-			Name:   "token",
-			Value:  _token,
-			Path:   "/",
+			MaxAge:   config.SESSION_DURATION,
+			Secure:   false,
+			HttpOnly: true,
+			Name:     "token",
+			Value:    _token,
+			Path:     "/",
 		})
 		w.WriteHeader(http.StatusOK)
 		respuesta, _ = json.Marshal(_session)
@@ -139,11 +157,12 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 		var _token, _session = autenticate(&user)
 		var respuesta, _ = json.Marshal(_session)
 		http.SetCookie(w, &http.Cookie{
-			MaxAge: config.SESSION_DURATION,
-			Secure: false,
-			Name:   "token",
-			Value:  _token,
-			Path:   "/",
+			MaxAge:   config.SESSION_DURATION,
+			HttpOnly: true,
+			Secure:   true,
+			Name:     "token",
+			Value:    _token,
+			Path:     "/",
 		})
 		w.WriteHeader(http.StatusCreated)
 		w.Write(respuesta)

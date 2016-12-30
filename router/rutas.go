@@ -20,13 +20,13 @@ import (
 
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cache := models.GetCache()
-		_token := helper.GetCookie(r, "token")
+		var cache = models.GetCache()
+		var _token = helper.GetCookie(r, "token")
 		if _token == "" {
 			_token = r.URL.Query().Get("token")
 		}
-		session := cache.Get(_token)
-		usuario, _ := session.Result()
+		var session = cache.Get(_token)
+		var usuario, _ = session.Result()
 
 		if session.Err() != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -85,6 +85,7 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/session", auth.Session).Methods("GET")
+	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
 
 	// friends
 	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub)).Methods("GET")
