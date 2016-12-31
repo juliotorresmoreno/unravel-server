@@ -10,6 +10,7 @@ import (
 	"../controllers/auth"
 	"../controllers/chats"
 	"../controllers/friends"
+	"../controllers/profile"
 	"../controllers/responses"
 	"../helper"
 	"../models"
@@ -87,6 +88,9 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/auth/session", auth.Session).Methods("GET")
 	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
 
+	// profile
+	mux.HandleFunc("/api/v1/profile", protect(profile.Update, hub)).Methods("POST", "PUT")
+
 	// friends
 	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub)).Methods("GET")
 
@@ -103,6 +107,10 @@ func GetHandler() http.Handler {
 		ws.ServeWs(hub, w, r, session)
 	}, hub))
 
-	mux.PathPrefix("/").HandlerFunc(publicHandler)
+	mux.PathPrefix("/api/v1").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Not found."))
+	})
+	mux.PathPrefix("/").HandlerFunc(publicHandler).Methods("GET")
 	return mux
 }
