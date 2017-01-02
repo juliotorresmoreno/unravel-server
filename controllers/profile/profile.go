@@ -42,3 +42,23 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		return
 	}
 }
+
+// Profile consulta de perfil.
+func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var perfil = make([]models.Profile, 0)
+	var orm = models.GetXORM()
+	var err = orm.Where("Usuario = ?", session.Usuario).Find(&perfil)
+	if err != nil {
+		w.WriteHeader(http.StatusNotAcceptable)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if len(perfil) == 1 {
+		json, _ := json.Marshal(perfil[0])
+		w.Write(json)
+		return
+	}
+	w.Write([]byte("{\"success\": true, \"data\": {}}"))
+}
