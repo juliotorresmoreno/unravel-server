@@ -63,6 +63,7 @@ func GetXORM() *xorm.Engine {
 
 func normalize(Error error, data interface{}) error {
 	var message string
+	println(Error.Error())
 	if rDuplicateEntry.MatchString(Error.Error()) {
 		var values = strings.Split(Error.Error(), "'")
 		var campo = strings.Split(values[3], "_")[2]
@@ -73,6 +74,21 @@ func normalize(Error error, data interface{}) error {
 	return Error
 }
 
+// Update valida y actualiza un nuevo registro en base de datos
+func Update(id uint, u interface{}) (int64, error) {
+	_, err := govalidator.ValidateStruct(u)
+	if err != nil {
+		return 0, normalize(err, u)
+	}
+
+	affected, err := orm.Id(id).Update(u)
+	if err != nil {
+		return affected, normalize(err, u)
+	}
+	return affected, nil
+}
+
+// Add valida y crea un nuevo registro en base de datos
 func Add(u interface{}) (int64, error) {
 	_, err := govalidator.ValidateStruct(u)
 	if err != nil {
@@ -82,7 +98,6 @@ func Add(u interface{}) (int64, error) {
 	affected, err := orm.Insert(u)
 	if err != nil {
 		return affected, normalize(err, u)
-	} else {
-		return affected, nil
 	}
+	return affected, nil
 }

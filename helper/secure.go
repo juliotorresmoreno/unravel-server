@@ -1,17 +1,19 @@
 package helper
 
-import(
-	"math/rand"
-	"golang.org/x/crypto/bcrypt"
-	"time"
+import (
 	"encoding/base64"
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
+// getLetterRandom genera una letra aleatoria
 func getLetterRandom() string {
-	var r int = rand.Intn(60)
-	var b []byte = make([]byte, 1)
+	var r = rand.Intn(60)
+	var b = make([]byte, 1)
 	if r < 10 {
 		b[0] = byte(r + 48)
 	} else if r < 35 {
@@ -22,22 +24,30 @@ func getLetterRandom() string {
 	}
 	return string(b)
 }
-func GenerateRandomString(s int) (string) {
-	var r string = base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(time.Now().Unix()))))
+
+// GenerateRandomString genera un conjunto de caracteres aleatorios
+func GenerateRandomString(s int) string {
+	var r = base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(time.Now().Unix()))))
 	r = strings.Replace(r, "==", "", 1)
-	l:= len(r)
-	for i:= 0; i < s - l; i++ {
+	l := len(r)
+	for i := 0; i < s-l; i++ {
 		r += getLetterRandom()
 	}
 	return r
 }
 
-
-func Encript(password string) (string) {
+// Encript genera un hash aleatorio de la contraseña
+func Encript(password string) string {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hashedPassword)
 }
 
-func IsValid(hash string, password string) (bool) {
+// IsValid Verifica si la contraseña y el hash corresponden, es decir, si esa es la contraseña en bd
+func IsValid(hash string, password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+}
+
+// IsValidPermision valida si el permiso mencionado corresponde a uno de los permitidos
+func IsValidPermision(permiso string) bool {
+	return permiso == "private" || permiso == "friends" || permiso == "public"
 }

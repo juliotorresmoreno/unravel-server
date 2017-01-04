@@ -15,14 +15,17 @@ import (
 func Logout(w http.ResponseWriter, r *http.Request) {
 	var cache = models.GetCache()
 	var _token = helper.GetCookie(r, "token")
-	_ = cache.Del(_token)
-	http.SetCookie(w, &http.Cookie{
-		MaxAge: config.SESSION_DURATION * -1,
-		Secure: false,
-		Name:   "token",
-		Value:  "",
-		Path:   "/",
-	})
+	if _token != "" {
+		_ = cache.Del(_token)
+		http.SetCookie(w, &http.Cookie{
+			MaxAge:   0,
+			Secure:   false,
+			HttpOnly: true,
+			Name:     "token",
+			Value:    "",
+			Path:     "/",
+		})
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("{\"success\":true}"))
@@ -52,17 +55,21 @@ func Session(w http.ResponseWriter, r *http.Request) {
 		w.Write(respuesta)
 		return
 	}
-	respuesta, _ := json.Marshal(responses.Login{
-		Success: true,
-		Session: responses.Session{
-			Usuario:   users[0].Usuario,
-			Nombres:   users[0].Nombres,
-			Apellidos: users[0].Apellidos,
-			Token:     _token,
-		},
-	})
 	w.WriteHeader(http.StatusOK)
-	w.Write(respuesta)
+	if len(users) == 1 {
+		respuesta, _ := json.Marshal(responses.Login{
+			Success: true,
+			Session: responses.Session{
+				Usuario:   users[0].Usuario,
+				Nombres:   users[0].Nombres,
+				Apellidos: users[0].Apellidos,
+				Token:     _token,
+			},
+		})
+		w.Write(respuesta)
+		return
+	}
+	w.Write([]byte("{\"success\":false}"))
 }
 
 func autenticate(user *models.User) (string, responses.Login) {
@@ -125,9 +132,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // Registrar aca es donde registramos los usuarios en bd
 func Registrar(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.PostFormValue("passwd") != "" && r.PostFormValue("passwd") != r.PostFormValue("passwdConfirm") {
@@ -159,7 +163,7 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
 			MaxAge:   config.SESSION_DURATION,
 			HttpOnly: true,
-			Secure:   true,
+			Secure:   false,
 			Name:     "token",
 			Value:    _token,
 			Path:     "/",
