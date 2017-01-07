@@ -24,6 +24,8 @@ func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, h
 			str = str + " OR (nombres LIKE '%" + v + "%' OR apellidos LIKE '%" + v + "%')"
 		}
 		str = str + ")"
+	} else if u := r.URL.Query().Get("u"); u != "" {
+		str = "Usuario != ? AND Usuario = '" + u + "'"
 	} else {
 		str = "Usuario != ?"
 	}

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"../../helper"
 	"../../models"
 	"../../ws"
@@ -497,10 +499,16 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 
 // Profile consulta de perfil.
 func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var usuario string
 	var perfil = make([]models.Profile, 0)
 	var orm = models.GetXORM()
-	var err = orm.Where("Usuario = ?", session.Usuario).Find(&perfil)
-	if err != nil {
+	if vars["user"] != "" {
+		usuario = vars["user"]
+	} else {
+		usuario = session.Usuario
+	}
+	if err := orm.Where("Usuario = ?", usuario).Find(&perfil); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		w.Write([]byte(err.Error()))
 		return
@@ -512,5 +520,9 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		w.Write(json)
 		return
 	}
-	w.Write([]byte("{\"success\": true, \"data\": {}}"))
+	w.Write([]byte("{}"))
+}
+
+func truncar(p models.Profile) {
+
 }

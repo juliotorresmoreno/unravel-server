@@ -90,6 +90,7 @@ func GetHandler() http.Handler {
 
 	// profile
 	mux.HandleFunc("/api/v1/profile", protect(profile.Profile, hub)).Methods("GET")
+	mux.HandleFunc("/api/v1/profile/{user}", protect(profile.Profile, hub)).Methods("GET")
 	mux.HandleFunc("/api/v1/profile", protect(profile.Update, hub)).Methods("POST", "PUT")
 
 	// friends
