@@ -11,7 +11,7 @@ import (
 	"../responses"
 )
 
-// Logout cerrarr session
+// Logout cerrar session
 func Logout(w http.ResponseWriter, r *http.Request) {
 	var cache = models.GetCache()
 	var _token = helper.GetCookie(r, "token")

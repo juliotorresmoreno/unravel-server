@@ -12,7 +12,7 @@ func main() {
 	var server = &http.Server{
 		Addr:           ":8080",
 		Handler:        handlers.CORS()(router.GetHandler()),
-		ReadTimeout:    30 * time.Second,
+		ReadTimeout:    10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	println("Listening")
