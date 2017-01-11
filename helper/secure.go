@@ -10,6 +10,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func PuedoVer(relacion string, permiso string) bool {
+	if permiso == "private" {
+		return false
+	}
+	if permiso == "public" {
+		return true
+	}
+	if relacion == "friends" {
+		return true
+	}
+	return false
+}
+
 // getLetterRandom genera una letra aleatoria
 func getLetterRandom() string {
 	var r = rand.Intn(60)

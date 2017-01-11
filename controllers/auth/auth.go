@@ -9,12 +9,17 @@ import (
 	"../../helper"
 	"../../models"
 	"../responses"
+	"../../ws"
+	"strings"
 )
 
 // Logout cerrar session
 func Logout(w http.ResponseWriter, r *http.Request) {
 	var cache = models.GetCache()
-	var _token = helper.GetCookie(r, "token")
+	var _token string = helper.GetCookie(r, "token")
+	if strings.Trim(_token, " ") == "" {
+		_token = r.URL.Query().Get("token")
+	}
 	if _token != "" {
 		_ = cache.Del(_token)
 		http.SetCookie(w, &http.Cookie{
@@ -24,6 +29,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 			Name:     "token",
 			Value:    "",
 			Path:     "/",
+			Expires:  time.Now(),
 		})
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -32,44 +38,29 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 // Session obtiene la session actual del usuario logueado
-func Session(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	var cache = models.GetCache()
-	var _token = helper.GetCookie(r, "token")
-	var session = cache.Get(_token)
-
-	if session.Err() != nil {
+func Session(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	if session == nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("{\"success\":false}"))
+		w.Write([]byte("{\"success\": false}"))
 		return
 	}
-	usuario, _ := session.Result()
-	users := make([]models.User, 0)
-	orm := models.GetXORM()
-	err := orm.Where("Usuario = ?", usuario).Find(&users)
-
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ := json.Marshal(responses.Error{Success: false, Error: err.Error()})
-		w.Write(respuesta)
-		return
+	var _token string = helper.GetCookie(r, "token")
+	if _token == "" {
+		_token = r.URL.Query().Get("token")
 	}
+	var respuesta, _ = json.Marshal(responses.Login{
+		Success: true,
+		Session: responses.Session{
+			Usuario:   session.Usuario,
+			Nombres:   session.Nombres,
+			Apellidos: session.Apellidos,
+			Token: _token,
+		},
+	})
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if len(users) == 1 {
-		respuesta, _ := json.Marshal(responses.Login{
-			Success: true,
-			Session: responses.Session{
-				Usuario:   users[0].Usuario,
-				Nombres:   users[0].Nombres,
-				Apellidos: users[0].Apellidos,
-				Token:     _token,
-			},
-		})
-		w.Write(respuesta)
-		return
-	}
-	w.Write([]byte("{\"success\":false}"))
+	w.Write(respuesta)
 }
 
 func autenticate(user *models.User) (string, responses.Login) {

@@ -19,7 +19,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub) func(w http.ResponseWriter, r *http.Request) {
+func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var cache = models.GetCache()
 		var _token = helper.GetCookie(r, "token")
@@ -30,7 +30,11 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		var usuario, _ = session.Result()
 
 		if session.Err() != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			if rechazar {
+				w.WriteHeader(http.StatusUnauthorized)
+			} else {
+				fn(w, r, nil, hub)
+			}
 			return
 		}
 
@@ -61,7 +65,11 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			})
 			fn(w, r, &users[0], hub)
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
+			if rechazar {
+				w.WriteHeader(http.StatusUnauthorized)
+			} else {
+				fn(w, r, nil, hub)
+			}
 		}
 
 	}
@@ -85,21 +93,21 @@ func GetHandler() http.Handler {
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
-	mux.HandleFunc("/api/v1/auth/session", auth.Session).Methods("GET")
+	mux.HandleFunc("/api/v1/auth/session", protect(auth.Session, hub, false)).Methods("GET")
 	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
 
 	// profile
-	mux.HandleFunc("/api/v1/profile", protect(profile.Profile, hub)).Methods("GET")
-	mux.HandleFunc("/api/v1/profile/{user}", protect(profile.Profile, hub)).Methods("GET")
-	mux.HandleFunc("/api/v1/profile", protect(profile.Update, hub)).Methods("POST", "PUT")
+	mux.HandleFunc("/api/v1/profile", protect(profile.Profile, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/profile/{user}", protect(profile.Profile, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/profile", protect(profile.Update, hub, true)).Methods("POST", "PUT")
 
 	// friends
-	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub)).Methods("GET")
+	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub, true)).Methods("GET")
 
 	// chat
-	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.Videollamada, hub)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.List, hub)).Methods("GET")
+	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")
+	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.Videollamada, hub, true)).Methods("POST")
+	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.List, hub, true)).Methods("GET")
 
 	// test
 	mux.HandleFunc("/test", test.Test).Methods("GET")
@@ -107,7 +115,7 @@ func GetHandler() http.Handler {
 	// websocket
 	mux.HandleFunc("/ws", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 		ws.ServeWs(hub, w, r, session)
-	}, hub))
+	}, hub, true))
 
 	mux.PathPrefix("/api/v1").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
