@@ -76,3 +76,8 @@ func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, h
 	w.WriteHeader(http.StatusOK)
 	w.Write(respuesta)
 }
+
+// Add agregar amigo
+func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	w.WriteHeader(http.StatusOK)
+}

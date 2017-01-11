@@ -11,22 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Estruct1 struct {
-	Nombre string
-}
-
-type Estruct2 struct {
-	Estruct1
-}
-
-func (o Estruct1) saludo() {
-
-}
-
-func (o Estruct2) saludo() {
-	println(o.Nombre)
-}
-
 // Note Modelo de prueba
 type Note struct {
 	ID          int
@@ -116,15 +100,4 @@ func main() {
 	}
 	log.Println("Listening")
 	log.Println(server.ListenAndServe())
-}
-
-func test() {
-	var ch chan int
-	ej := func() {
-		for {
-			println(ch)
-		}
-	}
-	go ej()
-	ch <- 23
 }
