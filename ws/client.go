@@ -3,10 +3,10 @@ package ws
 import (
 	"log"
 	"net/http"
-	"github.com/gorilla/websocket"
-	"../models"
-)
 
+	"../models"
+	"github.com/gorilla/websocket"
+)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
