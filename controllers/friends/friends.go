@@ -9,68 +9,16 @@ import (
 	"../../models"
 	"../../ws"
 	"../responses"
-	"errors"
 )
-
-func getFriends(session *models.User) ([]responses.Friend, error) {
-	var defecto = make([]responses.Friend, 0)
-	var relaciones = make([]models.Relacion, 0)
-	var users = make([]models.User, 0)
-	var orm = models.GetXORM()
-	var str string = "usuario_solicita = ? or usuario_solicitado = ?"
-	if err := orm.Where(str, session.Usuario, session.Usuario).Find(&relaciones); err != nil {
-		return defecto, errors.New("Error desconocido")
-	}
-	var data string = ""
-	for _, el := range relaciones {
-		if el.UsuarioSolicitado == session.Usuario {
-			data += "\"" + el.UsuarioSolicita + "\", "
-		} else {
-			data += "\"" + el.UsuarioSolicitado + "\", "
-		}
-	}
-	data = data[0:len(data)-2]
-	str = "Usuario in (" + data + ")"
-	if err := orm.Where(str).Find(&users); err != nil {
-		return defecto, errors.New("Error desconocido")
-	}
-	return listUserToListFriends(users, relaciones), nil
-}
-
-func listUserToListFriends(users []models.User, relacion []models.Relacion) []responses.Friend {
-	var lengthUsers = len(users)
-	var lengthRelacion = len(relacion)
-	list := make([]responses.Friend, lengthUsers)
-	for i := 0; i < lengthUsers; i++ {
-		list[i] = responses.Friend{
-			Usuario:    users[i].Usuario,
-			Nombres:    users[i].Nombres,
-			Apellidos:  users[i].Apellidos,
-			Estado:     "",
-			Registrado: users[i].CreateAt,
-		}
-		for j := 0; j < lengthRelacion; j++ {
-			solicita := relacion[j].UsuarioSolicita
-			solicitado := relacion[j].UsuarioSolicitado
-			if users[i].Usuario == solicita || users[i].Usuario == solicitado {
-				if relacion[j].EstadoRelacion == models.EstadoSolicitado {
-					list[i].Estado = "Solicitado"
-				} else {
-					list[i].Estado = "Amigos"
-				}
-			}
-		}
-	}
-	return list
-}
 
 //ListFriends listado de amigos o personas con las que se puede chatear
 func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var friends, _ = getFriends(session)
+	var friends, _ = models.GetFriends(session.Usuario)
 	respuesta, _ := json.Marshal(responses.ListFriends{
 		Success: true,
 		Data:    friends,
 	})
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(respuesta)
 }
@@ -112,9 +60,9 @@ func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 
 	lengthUsers := len(users)
 	lengthRelacion := len(relacion)
-	list := make([]responses.Friend, lengthUsers)
+	list := make([]models.Friend, lengthUsers)
 	for i := 0; i < lengthUsers; i++ {
-		list[i] = responses.Friend{
+		list[i] = models.Friend{
 			Usuario:    users[i].Usuario,
 			Nombres:    users[i].Nombres,
 			Apellidos:  users[i].Apellidos,
@@ -133,6 +81,7 @@ func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 			}
 		}
 	}
+	w.Header().Set("Content-Type", "application/json")
 	respuesta, _ := json.Marshal(responses.ListFriends{
 		Success: true,
 		Data:    list,

@@ -518,9 +518,20 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	if len(perfil) == 1 {
 		var jsonData []byte
 		if usuario != session.Usuario {
-			jsonData, _ = json.Marshal(truncar(perfil[0], "friends"))
+			estado := map[int8]string {
+				-1: "Desconocidos",
+				models.EstadoSolicitado: "Solicitado",
+				models.EstadoAceptado: "Amigos",
+			}[models.IsFriend(session.Usuario, perfil[0].Usuario)]
+			jsonData, _ = json.Marshal(map[string]interface{} {
+					"success": true,
+					"data": truncar(perfil[0], estado),
+				})
 		} else {
-			jsonData, _ = json.Marshal(perfil[0])
+			jsonData, _ = json.Marshal(map[string]interface{} {
+				"success": true,
+				"data": perfil[0],
+			})
 		}
 		w.Write(jsonData)
 		return
@@ -530,6 +541,8 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 
 func truncar(p models.Profile, relacion string) map[string]string {
 	var r = make(map[string]string)
+
+	r["estado"] = relacion
 
 	if helper.PuedoVer(relacion, p.PermisoEmail) {
 		r["email"] = p.Email
@@ -584,5 +597,6 @@ func truncar(p models.Profile, relacion string) map[string]string {
 	if helper.PuedoVer(relacion, p.PermisoCreenciasPoliticas) {
 		r["creencias_politicas"] = p.CreenciasPoliticas
 	}
+
 	return r
 }

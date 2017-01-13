@@ -10,6 +10,7 @@ import (
 	"../controllers/auth"
 	"../controllers/chats"
 	"../controllers/friends"
+	"../controllers/users"
 	"../controllers/profile"
 	"../controllers/responses"
 	"../helper"
@@ -38,11 +39,10 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			return
 		}
 
-		users := make([]models.User, 0)
-		orm := models.GetXORM()
+		var users = make([]models.User, 0)
+		var orm = models.GetXORM()
 
-		err := orm.Where("Usuario = ?", usuario).Find(&users)
-		if err != nil {
+		if err := orm.Where("Usuario = ?", usuario).Find(&users); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			respuesta, _ := json.Marshal(responses.Error{Success: false, Error: err.Error()})
@@ -104,6 +104,9 @@ func GetHandler() http.Handler {
 	// friends
 	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/friends/add", protect(friends.Add, hub, true)).Methods("POST", "PUT")
+
+	// users
+	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
 
 	// chat
 	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")

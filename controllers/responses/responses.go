@@ -1,6 +1,6 @@
 package responses
 
-import "time"
+import "../../models"
 
 type Error struct {
 	Success bool   `json:"success"`
@@ -37,15 +37,7 @@ type SuccessData struct {
 	Data    []Mensaje `json:"data"`
 }
 
-type Friend struct {
-	Usuario    string    `json:"usuario"`
-	Nombres    string    `json:"nombres"`
-	Apellidos  string    `json:"apellidos"`
-	Estado     string    `json:"estado"`
-	Registrado time.Time `json:"registrado"`
-}
-
 type ListFriends struct {
-	Success bool     `json:"success"`
-	Data    []Friend `json:"data"`
+	Success bool `json:"success"`
+	Data    []models.Friend `json:"data"`
 }
