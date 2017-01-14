@@ -8,15 +8,17 @@ import (
 
 	"../../models"
 	"../../ws"
-	"errors"
+	//"errors"
 )
 
 
-func findUsers(session *models.User, query string) ([]models.User, error) {
+func findUsers(session *models.User, query string, id string) ([]models.User, error) {
 	var users = make([]models.User, 0)
 	var orm = models.GetXORM()
 	var str string
-	if query != "" {
+	if id != "" {
+		str = "Usuario != ? AND Usuario = '" + id + "'"
+	} else if query != "" {
 		w := strings.Split(query, " ")
 		str = "usuario != ? AND (false"
 		for _, v := range w {
@@ -27,7 +29,7 @@ func findUsers(session *models.User, query string) ([]models.User, error) {
 		str = "Usuario != ?"
 	}
 	if err := orm.Where(str, session.Usuario).Find(&users); err != nil {
-		return users, errors.New("Error desconocido")
+		return users, err //errors.New("Error desconocido")
 	}
 	return users, nil
 }
@@ -39,7 +41,7 @@ func relacioUsers(session *models.User, users []models.User) ([]models.Friend, e
 	var str string
 	str = "usuario_solicita = ? OR usuario_solicitado = ?"
 	if err := orm.Where(str, session.Usuario, session.Usuario).Find(&relacion); err != nil {
-		return list, errors.New("Error desconocido")
+		return list, err//errors.New("Error desconocido")
 	}
 
 	lengthUsers := len(users)
@@ -62,6 +64,8 @@ func relacioUsers(session *models.User, users []models.User) ([]models.Friend, e
 				} else {
 					list[i].Estado = "Amigos"
 				}
+			} else {
+				list[i].Estado = "Desconocido"
 			}
 		}
 	}
@@ -74,7 +78,7 @@ func Find(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	var list = make([]models.Friend, 0)
 	var users = make([]models.User, 0)
 	var err error
-	if users, err = findUsers(session, r.URL.Query().Get("q")); err != nil {
+	if users, err = findUsers(session, r.URL.Query().Get("q"), r.URL.Query().Get("u")); err != nil {
 		respuesta, _ := json.Marshal(map[string]interface{}{
 			"success": false,
 			"error": err.Error(),
