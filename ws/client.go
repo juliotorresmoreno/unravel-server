@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"log"
 	"net/http"
 
 	"../models"
@@ -11,6 +10,9 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 type Client struct {
@@ -23,10 +25,20 @@ type user struct {
 	clients map[*Client]bool
 }
 
+// ServeWs aca es donde establenemos la conexion websocket con el usuario
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, session *models.User) {
 	conn, err := upgrader.Upgrade(w, r, nil)
+	conn.SetPongHandler(func(appData string) error {
+		return nil
+	})
+	conn.SetPingHandler(func(appData string) error {
+		return nil
+	})
+	conn.SetCloseHandler(func(code int, text string) error {
+		return nil
+	})
 	if err != nil {
-		log.Println(err)
+		println(err)
 		return
 	}
 	client := &Client{conn: conn, session: session}

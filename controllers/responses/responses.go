@@ -1,6 +1,9 @@
 package responses
 
-import "../../models"
+import (
+	"../../models"
+	"time"
+)
 
 type Error struct {
 	Success bool   `json:"success"`
@@ -25,11 +28,11 @@ type Success struct {
 }
 
 type Mensaje struct {
-	Usuario   string `json:"usuario"`
-	Nombres   string `json:"nombres"`
-	Apellidos string `json:"apellidos"`
-	Mensaje   string `json:"mensaje"`
-	Fecha     int64  `json:"fecha"`
+	Action          string `json:"action"`
+	Usuario   	string `json:"usuario"`
+	UsuarioReceptor string `json:"usuarioReceptor"`
+	Mensaje   	string `json:"mensaje"`
+	Fecha     	time.Time  `json:"fecha"`
 }
 
 type SuccessData struct {

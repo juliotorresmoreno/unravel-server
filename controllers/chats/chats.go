@@ -25,26 +25,13 @@ func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	l := len(q)
 	e := make([]responses.Mensaje, len(q))
 	if l > 0 {
-		u := make([]models.User, 0)
-		orm.Where("usuario = ?", usuario).Find(&u)
-
 		for i := 0; i < l; i++ {
-			if q[i].UsuarioEmisor != session.Usuario {
-				e[i] = responses.Mensaje{
-					Usuario:   u[0].Usuario,
-					Nombres:   u[0].Nombres,
-					Apellidos: u[0].Apellidos,
-					Mensaje:   q[i].Message,
-					Fecha:     q[i].CreateAt.Unix(),
-				}
-			} else {
-				e[i] = responses.Mensaje{
-					Usuario:   session.Usuario,
-					Nombres:   session.Nombres,
-					Apellidos: session.Apellidos,
-					Mensaje:   q[i].Message,
-					Fecha:     q[i].CreateAt.Unix(),
-				}
+			e[i] = responses.Mensaje{
+				Action:          "mensaje",
+				Usuario:   	 q[i].UsuarioEmisor,
+				UsuarioReceptor: q[i].UsuarioReceptor,
+				Mensaje:   	 q[i].Message,
+				Fecha:     	 q[i].CreateAt,
 			}
 		}
 	}
@@ -105,12 +92,12 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 			Message: "Enviado correctamente.",
 		})
 		w.Write(resp)
-		resp, _ = json.Marshal(map[string]string{
+		resp, _ = json.Marshal(map[string]interface{} {
 			"action":          "mensaje",
 			"usuario":         session.Usuario,
 			"usuarioReceptor": usuario,
 			"mensaje":         mensaje,
-			"fecha":           strconv.Itoa(int(time.Now().Unix())),
+			"fecha":           time.Now(),
 		})
 		hub.Send(session.Usuario, resp)
 		hub.Send(usuario, resp)
