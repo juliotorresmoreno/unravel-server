@@ -406,7 +406,6 @@ func updateCreenciasPoliticas(w http.ResponseWriter, r *http.Request, session *m
 // Update actualiza los datos del perfil
 func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var perfil models.Profile = getProfile(session)
-	//time.Sleep(3 * time.Second)
 	if r.PostFormValue("nombres") != "" && r.PostFormValue("apellidos") != "" {
 		updateProfile(w, r, session, hub)
 		return
@@ -518,11 +517,7 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	if len(perfil) == 1 {
 		var jsonData []byte
 		if usuario != session.Usuario {
-			estado := map[int8]string {
-				-1: "Desconocidos",
-				models.EstadoSolicitado: "Solicitado",
-				models.EstadoAceptado: "Amigos",
-			}[models.IsFriend(session.Usuario, perfil[0].Usuario)]
+			var estado = models.IsFriend(session.Usuario, perfil[0].Usuario)
 			jsonData, _ = json.Marshal(map[string]interface{} {
 					"success": true,
 					"data": truncar(perfil[0], estado),
@@ -539,16 +534,21 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	w.Write([]byte("{}"))
 }
 
-func truncar(p models.Profile, relacion string) map[string]string {
+func truncar(p models.Profile, relacion int8) map[string]string {
 	var r = make(map[string]string)
 
-	r["estado"] = relacion
+	r["estado"] = map[int8]string {
+		models.EstadoAceptado: "Amigos",
+		models.EstadoSolicitado: "Solicitado",
+		models.EstadoDesconocido: "Desconocido",
+	} [relacion]
 
 	if helper.PuedoVer(relacion, p.PermisoEmail) {
 		r["email"] = p.Email
 	}
 	if helper.PuedoVer(relacion, p.PermisoNacimientoDia) {
-		r["nacimiento_mes"] = p.NacimientoDia
+		r["nacimiento_mes"] = p.NacimientoMes
+		r["nacimiento_dia"] = p.NacimientoDia
 	}
 	if helper.PuedoVer(relacion, p.PermisoNacimientoAno) {
 		r["nacimiento_ano"] = p.NacimientoAno

@@ -12,6 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var leido = models.Chat{Leido: 1}
+
 // List obtiene la conversacion con el usuario solicitado
 func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	w.Header().Set("Content-Type", "application/json")
@@ -21,7 +23,8 @@ func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	usuario := vars["user"]
 
 	c := "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
-	_ = orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Find(&q)
+	orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Limit(10).OrderBy("id desc").Find(&q)
+	orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Cols("leido").Update(leido)
 	l := len(q)
 	e := make([]responses.Mensaje, len(q))
 	if l > 0 {

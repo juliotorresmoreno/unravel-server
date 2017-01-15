@@ -104,6 +104,7 @@ func GetHandler() http.Handler {
 	// friends
 	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/friends/add", protect(friends.Add, hub, true)).Methods("POST", "PUT")
+	mux.HandleFunc("/api/v1/friends/reject", protect(friends.RejectFriend, hub, true)).Methods("POST", "DELETE")
 
 	// users
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")

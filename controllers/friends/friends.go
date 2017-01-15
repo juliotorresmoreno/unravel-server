@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"strings"
-
 	"../../models"
 	"../../ws"
 	"../responses"
@@ -25,67 +23,12 @@ func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, h
 
 // FindUser Busqueda de personas
 func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var users = make([]models.User, 0)
-	var relacion = make([]models.Relacion, 0)
-	var orm = models.GetXORM()
-	var str string
-	if q := r.URL.Query().Get("q"); q != "" {
-		w := strings.Split(q, " ")
-		str = "usuario != ? AND (false"
-		for _, v := range w {
-			str = str + " OR (nombres LIKE '%" + v + "%' OR apellidos LIKE '%" + v + "%')"
-		}
-		str = str + ")"
-	} else if u := r.URL.Query().Get("u"); u != "" {
-		str = "Usuario != ? AND Usuario = '" + u + "'"
-	} else {
-		str = "Usuario != ?"
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := orm.Where(str, session.Usuario).Find(&users); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		respuesta, _ := json.Marshal(responses.Error{Success: false, Error: err.Error()})
-		w.Write(respuesta)
-		return
-	}
-
-	str = "usuario_solicita = ? OR usuario_solicitado = ?"
-	if err := orm.Where(str, session.Usuario, session.Usuario).Find(&relacion); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		respuesta, _ := json.Marshal(responses.Error{Success: false, Error: err.Error()})
-		w.Write(respuesta)
-		return
-	}
-
-	lengthUsers := len(users)
-	lengthRelacion := len(relacion)
-	list := make([]models.Friend, lengthUsers)
-	for i := 0; i < lengthUsers; i++ {
-		list[i] = models.Friend{
-			Usuario:    users[i].Usuario,
-			Nombres:    users[i].Nombres,
-			Apellidos:  users[i].Apellidos,
-			Estado:     "",
-			Registrado: users[i].CreateAt,
-		}
-		for j := 0; j < lengthRelacion; j++ {
-			solicita := relacion[j].UsuarioSolicita
-			solicitado := relacion[j].UsuarioSolicitado
-			if users[i].Usuario == solicita || users[i].Usuario == solicitado {
-				if relacion[j].EstadoRelacion == models.EstadoSolicitado {
-					list[i].Estado = "Solicitado"
-				} else {
-					list[i].Estado = "Amigos"
-				}
-			}
-		}
-	}
-	w.Header().Set("Content-Type", "application/json")
+	var users, _ = models.FindUser(session.Usuario, r.URL.Query().Get("q"), r.URL.Query().Get("u"))
 	respuesta, _ := json.Marshal(responses.ListFriends{
 		Success: true,
-		Data:    list,
+		Data:    users,
 	})
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(respuesta)
 }
@@ -104,16 +47,46 @@ func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.H
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	if len(relaciones) == 1 && relaciones[0].EstadoRelacion == 0 && relaciones[0].UsuarioSolicita == usuario {
 		relaciones[0].EstadoRelacion = 1
 		models.Update(relaciones[0].Id, relaciones[0])
 		w.WriteHeader(http.StatusOK)
+		respuesta, _ := json.Marshal(map[string]interface{} {
+			"success": true,
+			"relacion": relaciones[0],
+			"estado": "Amigos",
+		})
+		w.Write(respuesta)
+	} else if len(relaciones) == 1 {
+		w.WriteHeader(http.StatusOK)
+		respuesta, _ := json.Marshal(map[string]interface{} {
+			"success": true,
+			"relacion": relaciones[0],
+			"estado": "Amigos",
+		})
+		w.Write(respuesta)
 	} else if len(relaciones) == 0 {
-		models.Add(models.Relacion{
+		relacion := models.Relacion{
 			UsuarioSolicita: session.Usuario,
 			UsuarioSolicitado: usuario,
 			EstadoRelacion: 0,
-		})
+		}
+		models.Add(relacion)
 		w.WriteHeader(http.StatusOK)
+		respuesta, _ := json.Marshal(map[string]interface{} {
+			"success": true,
+			"relacion": &relacion,
+			"estado": "Solicitado",
+		})
+		w.Write(respuesta)
 	}
+}
+
+// FindUser Busqueda de personas
+func RejectFriend(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	models.RejectFriends(session.Usuario, r.PostFormValue("user"))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{\"success\": true}"))
 }

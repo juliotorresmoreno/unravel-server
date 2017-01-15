@@ -10,14 +10,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func PuedoVer(relacion string, permiso string) bool {
+func PuedoVer(relacion int8, permiso string) bool {
 	if permiso == "private" {
 		return false
 	}
 	if permiso == "public" {
 		return true
 	}
-	if relacion == "friends" {
+	if relacion == 1 {
 		return true
 	}
 	return false

@@ -12,6 +12,7 @@ type Chat struct {
 	UsuarioEmisor   string    `xorm:"varchar(100) not null index"`
 	UsuarioReceptor string    `xorm:"varchar(100) not null index"`
 	Message         string    `xorm:"text not null" valid:"required"`
+	Leido 		uint8     `json:"leido"`
 	CreateAt        time.Time `xorm:"created"`
 	UpdateAt        time.Time `xorm:"updated"`
 }
