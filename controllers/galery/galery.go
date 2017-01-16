@@ -11,6 +11,22 @@ import (
 	"strings"
 )
 
+// Upload sube las imagenes
+func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	//w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	//w.Write([]byte("{\"success\": true}"))
+
+	var galeria = r.PostFormValue("galery")
+	var name = r.PostFormValue("name")
+	var file = r.PostFormValue("file")
+
+	println(name, galeria)
+	println(len(file))
+	w.Write([]byte(file))
+}
+
+// Create crea la nueva galeria
 func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var nombre = strings.Trim(r.PostFormValue("nombre"), " ")
 	var permiso = r.PostFormValue("permiso")

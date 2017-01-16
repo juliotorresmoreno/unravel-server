@@ -9,7 +9,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  8,
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
@@ -55,6 +55,7 @@ func (c *Client) listen() {
 	defer func() {
 		c.conn.Close()
 		delete(hub.clients[c.session.Usuario].clients, c)
+		println("Conexion cerrada")
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
