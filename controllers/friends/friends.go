@@ -36,7 +36,7 @@ func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 // Add agregar amigo
 func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var usuario = r.PostFormValue("user")
-	if (usuario == "") {
+	if (usuario == "" || usuario == session.Usuario) {
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}

@@ -6,6 +6,7 @@ import (
 
 type Hub struct {
 	clients map[string]*user
+	broadcast chan []byte
 }
 
 var hub *Hub

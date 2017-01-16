@@ -12,6 +12,7 @@ import (
 	"../controllers/friends"
 	"../controllers/users"
 	"../controllers/profile"
+	"../controllers/galery"
 	"../controllers/responses"
 	"../helper"
 	"../models"
@@ -108,6 +109,9 @@ func GetHandler() http.Handler {
 
 	// users
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
+
+	// galery
+	mux.HandleFunc("/api/v1/galery/create", protect(galery.Create, hub, true)).Methods("POST")
 
 	// chat
 	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")

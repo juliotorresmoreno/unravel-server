@@ -10,4 +10,6 @@ const DB_DB string = "webapp"
 const REDIS_HOST string = "localhost"
 const REDIS_PORT string = "6379"
 
+const PATH = "/var/www/gwebapp"
+
 const SESSION_DURATION int = 7200

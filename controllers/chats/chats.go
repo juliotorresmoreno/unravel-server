@@ -17,14 +17,30 @@ var leido = models.Chat{Leido: 1}
 // List obtiene la conversacion con el usuario solicitado
 func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	w.Header().Set("Content-Type", "application/json")
-	vars := mux.Vars(r)
-	orm := models.GetXORM()
-	q := make([]models.Chat, 0)
-	usuario := vars["user"]
+	var vars = mux.Vars(r)
+	var orm = models.GetXORM()
+	var q = make([]models.Chat, 0)
+	var usuario = vars["user"]
+	var antesDe = r.URL.Query().Get("antesDe")
+	var despuesDe = r.URL.Query().Get("despuesDe")
 
-	c := "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
-	orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Limit(10).OrderBy("id desc").Find(&q)
-	orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Cols("leido").Update(leido)
+	var c = "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
+	if antesDe == "" && despuesDe == "" {
+		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Limit(10).OrderBy("id desc").Find(&q)
+		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Cols("leido").Update(leido)
+	} else if antesDe != "" {
+		tmp, _ := time.Parse(time.RFC3339, antesDe)
+		tiempo := tmp.String()[0:19]
+		c = "(" + c + ") AND create_at < ?"
+		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Limit(10).OrderBy("id desc").Find(&q)
+		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Cols("leido").Update(leido)
+	} else if despuesDe != "" {
+		tmp, _ := time.Parse(time.RFC3339, despuesDe)
+		tiempo := tmp.String()[0:19]
+		c = "(" + c + ") AND create_at > ?"
+		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Limit(10).OrderBy("id desc").Find(&q)
+		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Cols("leido").Update(leido)
+	}
 	l := len(q)
 	e := make([]responses.Mensaje, len(q))
 	if l > 0 {

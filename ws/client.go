@@ -5,15 +5,22 @@ import (
 
 	"../models"
 	"github.com/gorilla/websocket"
+	"time"
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
+	ReadBufferSize:  8,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
+
+const (
+	writeWait = 10 * time.Second
+	pongWait = 60 * time.Second
+	maxMessageSize = 8
+)
 
 type Client struct {
 	conn    *websocket.Conn
@@ -28,15 +35,6 @@ type user struct {
 // ServeWs aca es donde establenemos la conexion websocket con el usuario
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, session *models.User) {
 	conn, err := upgrader.Upgrade(w, r, nil)
-	conn.SetPongHandler(func(appData string) error {
-		return nil
-	})
-	conn.SetPingHandler(func(appData string) error {
-		return nil
-	})
-	conn.SetCloseHandler(func(code int, text string) error {
-		return nil
-	})
 	if err != nil {
 		println(err)
 		return
@@ -49,4 +47,25 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, session *models.U
 		}
 	}
 	hub.clients[session.Usuario].clients[client] = true
+	client.listen()
+}
+
+
+func (c *Client) listen() {
+	defer func() {
+		c.conn.Close()
+		delete(hub.clients[c.session.Usuario].clients, c)
+	}()
+	c.conn.SetReadLimit(maxMessageSize)
+	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	for {
+		if _, _, err := c.conn.ReadMessage(); err != nil {
+			break
+		}
+		if err := c.conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+			break
+		}
+	}
 }
