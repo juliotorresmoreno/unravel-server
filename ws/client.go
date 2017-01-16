@@ -47,7 +47,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, session *models.U
 		}
 	}
 	hub.clients[session.Usuario].clients[client] = true
-	client.listen()
+	//client.listen()
 }
 
 
@@ -62,9 +62,7 @@ func (c *Client) listen() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		if _, _, err := c.conn.ReadMessage(); err != nil {
-			break
-		}
+		c.conn.ReadMessage()
 		if err := c.conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 			break
 		}

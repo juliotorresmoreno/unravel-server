@@ -10,10 +10,10 @@ import (
 	"../controllers/auth"
 	"../controllers/chats"
 	"../controllers/friends"
-	"../controllers/users"
-	"../controllers/profile"
 	"../controllers/galery"
+	"../controllers/profile"
 	"../controllers/responses"
+	"../controllers/users"
 	"../helper"
 	"../models"
 	"../test"
@@ -68,6 +68,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		} else {
 			if rechazar {
 				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
 			} else {
 				fn(w, r, nil, hub)
 			}
@@ -111,6 +112,7 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
 
 	// galery
+	mux.HandleFunc("/api/v1/galery", protect(galery.Listar, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery/create", protect(galery.Create, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/galery/upload", protect(galery.Upload, hub, true)).Methods("POST")
 

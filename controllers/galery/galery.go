@@ -9,6 +9,8 @@ import (
 	"../../config"
 	"os"
 	"strings"
+	"io/ioutil"
+	"encoding/json"
 )
 
 // Upload sube las imagenes
@@ -58,4 +60,22 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\": true}"))
+}
+
+// Listar lista las galerias existentes
+func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var usuario = config.PATH + "/" + session.Usuario
+	var files, _ = ioutil.ReadDir(usuario)
+	var length = len(files)
+	var list = make([]string, length)
+	for i := 0; i < length; i++ {
+		list[i] = files[i].Name()
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	respuesta, _ := json.Marshal(map[string]interface{} {
+		"success": true,
+		"data": list,
+	})
+	w.Write([]byte(respuesta))
 }
