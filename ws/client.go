@@ -47,24 +47,5 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, session *models.U
 		}
 	}
 	hub.clients[session.Usuario].clients[client] = true
-	//client.listen()
-}
-
-
-func (c *Client) listen() {
-	defer func() {
-		c.conn.Close()
-		delete(hub.clients[c.session.Usuario].clients, c)
-		println("Conexion cerrada")
-	}()
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-	for {
-		c.conn.ReadMessage()
-		if err := c.conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-			break
-		}
-	}
+	client.conn.ReadMessage()
 }

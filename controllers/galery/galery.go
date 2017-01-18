@@ -2,22 +2,20 @@ package galery
 
 import (
 	"net/http"
+	"os"
+	"strings"
+	"io/ioutil"
+	"encoding/json"
 
 	"../../helper"
 	"../../models"
 	"../../ws"
 	"../../config"
-	"os"
-	"strings"
-	"io/ioutil"
-	"encoding/json"
 )
 
 // Upload sube las imagenes
 func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	//w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	//w.Write([]byte("{\"success\": true}"))
 
 	var galeria = r.PostFormValue("galery")
 	var name = r.PostFormValue("name")
@@ -67,9 +65,15 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	var usuario = config.PATH + "/" + session.Usuario
 	var files, _ = ioutil.ReadDir(usuario)
 	var length = len(files)
-	var list = make([]string, length)
+	var list = make([]interface{}, length)
 	for i := 0; i < length; i++ {
-		list[i] = files[i].Name()
+		permiso, _ := ioutil.ReadFile(usuario + "/" + files[i].Name() + "/permiso")
+		descripcion, _ := ioutil.ReadFile(usuario + "/" + files[i].Name() + "/descripcion")
+		list[i] = map[string]interface{} {
+			"name": files[i].Name(),
+			"permiso": string(permiso),
+			"descripcion": string(descripcion),
+		}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
