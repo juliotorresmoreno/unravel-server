@@ -1,14 +1,14 @@
 package router
 
 import (
+	"encoding/json"
+	"net/http"
 	"time"
+
 	"../config"
+	"../helper"
 	"../models"
 	"../ws"
-	"../helper"
-	"../controllers/responses"
-	"net/http"
-	"encoding/json"
 )
 
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +37,10 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		if err := orm.Where("Usuario = ?", usuario).Find(&users); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			respuesta, _ := json.Marshal(responses.Error{Success: false, Error: err.Error()})
+			respuesta, _ := json.Marshal(map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
+			})
 			w.Write(respuesta)
 			return
 		}

@@ -8,7 +8,6 @@ import (
 
 	"../../models"
 	"../../ws"
-	"../responses"
 	"github.com/gorilla/mux"
 )
 
@@ -42,21 +41,21 @@ func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Cols("leido").Update(leido)
 	}
 	l := len(q)
-	e := make([]responses.Mensaje, len(q))
+	e := make([]map[string]interface{}, len(q))
 	if l > 0 {
 		for i := 0; i < l; i++ {
-			e[i] = responses.Mensaje{
-				Action:          "mensaje",
-				Usuario:   	 q[i].UsuarioEmisor,
-				UsuarioReceptor: q[i].UsuarioReceptor,
-				Mensaje:   	 q[i].Message,
-				Fecha:     	 q[i].CreateAt,
+			e[i] = map[string]interface{}{
+				"action":          "mensaje",
+				"usuario":         q[i].UsuarioEmisor,
+				"usuarioReceptor": q[i].UsuarioReceptor,
+				"mensaje":         q[i].Message,
+				"fecha":           q[i].CreateAt,
 			}
 		}
 	}
-	resp, _ := json.Marshal(responses.SuccessData{
-		Success: true,
-		Data:    e,
+	resp, _ := json.Marshal(map[string]interface{}{
+		"success": true,
+		"data":    e,
 	})
 	w.Write(resp)
 }
@@ -85,9 +84,9 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 
 	if tipo == "usuario" {
 		if usuario == session.Usuario {
-			resp, _ := json.Marshal(responses.Error{
-				Success: false,
-				Error:   "No puedes enviarte un mensaje a ti mismo",
+			resp, _ := json.Marshal(map[string]interface{}{
+				"success": false,
+				"error":   "No puedes enviarte un mensaje a ti mismo",
 			})
 			w.Write(resp)
 			return
@@ -99,19 +98,19 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		}
 		_, err := chat.Add()
 		if err != nil {
-			resp, _ := json.Marshal(responses.Error{
-				Success: false,
-				Error:   err.Error(),
+			resp, _ := json.Marshal(map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
 			})
 			w.Write(resp)
 			return
 		}
-		resp, _ := json.Marshal(responses.Success{
-			Success: true,
-			Message: "Enviado correctamente.",
+		resp, _ := json.Marshal(map[string]interface{}{
+			"success": true,
+			"message": "Enviado correctamente.",
 		})
 		w.Write(resp)
-		resp, _ = json.Marshal(map[string]interface{} {
+		resp, _ = json.Marshal(map[string]interface{}{
 			"action":          "mensaje",
 			"usuario":         session.Usuario,
 			"usuarioReceptor": usuario,
@@ -122,9 +121,9 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		hub.Send(usuario, resp)
 		return
 	}
-	resp, _ := json.Marshal(responses.Error{
-		Success: false,
-		Error:   "Not implemented",
+	resp, _ := json.Marshal(map[string]interface{}{
+		"success": false,
+		"error":   "Not implemented",
 	})
 	w.Write(resp)
 }

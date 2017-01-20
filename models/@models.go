@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 
@@ -16,14 +17,6 @@ var orm *xorm.Engine
 var cache *redis.Client
 
 var rDuplicateEntry *regexp.Regexp
-
-type werror struct {
-	Msg string
-}
-
-func (e werror) Error() string {
-	return e.Msg
-}
 
 func init() {
 	var dsn string
@@ -69,35 +62,39 @@ func normalize(Error error, data interface{}) error {
 		var campo = strings.Split(values[3], "_")[2]
 		message = strings.Replace(es.DuplicateEntry, "{campo}", campo, 1)
 		message = strings.Replace(message, "{valor}", values[1], 1)
-		return werror{Msg: campo + ": " + message}
+		return errors.New(campo + ": " + message)
 	}
 	return Error
 }
 
 // Update valida y actualiza un nuevo registro en base de datos
-func Update(id uint, u interface{}) (int64, error) {
-	_, err := govalidator.ValidateStruct(u)
+func Update(id uint, self interface{}) (int64, error) {
+	_, err := govalidator.ValidateStruct(self)
 	if err != nil {
-		return 0, normalize(err, u)
+		return 0, normalize(err, self)
 	}
 
-	affected, err := orm.Id(id).Update(u)
+	affected, err := orm.Id(id).Update(self)
 	if err != nil {
-		return affected, normalize(err, u)
+		return affected, normalize(err, self)
 	}
 	return affected, nil
 }
 
 // Add valida y crea un nuevo registro en base de datos
-func Add(u interface{}) (int64, error) {
-	_, err := govalidator.ValidateStruct(u)
+func Add(self interface{}) (int64, error) {
+	_, err := govalidator.ValidateStruct(self)
 	if err != nil {
-		return 0, normalize(err, u)
+		return 0, normalize(err, self)
 	}
-
-	affected, err := orm.Insert(u)
+	affected, err := orm.Insert(self)
 	if err != nil {
-		return affected, normalize(err, u)
+		return affected, normalize(err, self)
 	}
 	return affected, nil
+}
+
+type model interface {
+	TableName() string
+	getID() uint
 }

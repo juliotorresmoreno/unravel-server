@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -12,13 +13,13 @@ type Chat struct {
 	UsuarioEmisor   string    `xorm:"varchar(100) not null index"`
 	UsuarioReceptor string    `xorm:"varchar(100) not null index"`
 	Message         string    `xorm:"text not null" valid:"required"`
-	Leido 		uint8     `json:"leido"`
+	Leido           uint8     `json:"leido"`
 	CreateAt        time.Time `xorm:"created"`
 	UpdateAt        time.Time `xorm:"updated"`
 }
 
 // TableName establece el nombre de la tabla del modelo
-func (u Chat) TableName() string {
+func (self Chat) TableName() string {
 	return "chats"
 }
 
@@ -27,19 +28,18 @@ func init() {
 }
 
 // Add agrega un nuevo chat
-func (u Chat) Add() (int64, error) {
-	_, err := govalidator.ValidateStruct(u)
-	if err != nil {
-		return 0, normalize(err, u)
+func (self Chat) Add() (int64, error) {
+	if _, err := govalidator.ValidateStruct(self); err != nil {
+		return 0, normalize(err, self)
 	}
-	q := make([]User, 0)
-	_ = orm.Where("Usuario = ?", u.UsuarioReceptor).Find(&q)
+	var q = make([]User, 0)
+	orm.Where("Usuario = ?", self.UsuarioReceptor).Find(&q)
 	if len(q) == 1 {
-		affected, err := orm.Insert(u)
+		affected, err := orm.Insert(self)
 		if err != nil {
-			return affected, normalize(err, u)
+			return affected, normalize(err, self)
 		}
 		return affected, nil
 	}
-	return 0, werror{Msg: "El usuario no existe"}
+	return 0, errors.New("El usuario no existe")
 }

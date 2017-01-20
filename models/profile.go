@@ -49,7 +49,7 @@ type Profile struct {
 }
 
 // TableName establece el nombre de la tabla que usara el modelo
-func (u Profile) TableName() string {
+func (self Profile) TableName() string {
 	return "profile"
 }
 

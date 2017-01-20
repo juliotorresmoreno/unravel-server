@@ -6,15 +6,14 @@ import (
 
 	"../../models"
 	"../../ws"
-	"../responses"
 )
 
 //ListFriends listado de amigos o personas con las que se puede chatear
 func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var friends, _ = models.GetFriends(session.Usuario)
-	respuesta, _ := json.Marshal(responses.ListFriends{
-		Success: true,
-		Data:    friends,
+	respuesta, _ := json.Marshal(map[string]interface{}{
+		"success": true,
+		"data":    friends,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -24,9 +23,9 @@ func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, h
 // FindUser Busqueda de personas
 func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var users, _ = models.FindUser(session.Usuario, r.URL.Query().Get("q"), r.URL.Query().Get("u"))
-	respuesta, _ := json.Marshal(responses.ListFriends{
-		Success: true,
-		Data:    users,
+	respuesta, _ := json.Marshal(map[string]interface{}{
+		"success": true,
+		"data":    users,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -36,7 +35,7 @@ func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 // Add agregar amigo
 func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var usuario = r.PostFormValue("user")
-	if (usuario == "" || usuario == session.Usuario) {
+	if usuario == "" || usuario == session.Usuario {
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
@@ -52,32 +51,32 @@ func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.H
 		relaciones[0].EstadoRelacion = 1
 		models.Update(relaciones[0].Id, relaciones[0])
 		w.WriteHeader(http.StatusOK)
-		respuesta, _ := json.Marshal(map[string]interface{} {
-			"success": true,
+		respuesta, _ := json.Marshal(map[string]interface{}{
+			"success":  true,
 			"relacion": relaciones[0],
-			"estado": "Amigos",
+			"estado":   "Amigos",
 		})
 		w.Write(respuesta)
 	} else if len(relaciones) == 1 {
 		w.WriteHeader(http.StatusOK)
-		respuesta, _ := json.Marshal(map[string]interface{} {
-			"success": true,
+		respuesta, _ := json.Marshal(map[string]interface{}{
+			"success":  true,
 			"relacion": relaciones[0],
-			"estado": "Amigos",
+			"estado":   "Amigos",
 		})
 		w.Write(respuesta)
 	} else if len(relaciones) == 0 {
 		relacion := models.Relacion{
-			UsuarioSolicita: session.Usuario,
+			UsuarioSolicita:   session.Usuario,
 			UsuarioSolicitado: usuario,
-			EstadoRelacion: 0,
+			EstadoRelacion:    0,
 		}
 		models.Add(relacion)
 		w.WriteHeader(http.StatusOK)
-		respuesta, _ := json.Marshal(map[string]interface{} {
-			"success": true,
+		respuesta, _ := json.Marshal(map[string]interface{}{
+			"success":  true,
 			"relacion": &relacion,
-			"estado": "Solicitado",
+			"estado":   "Solicitado",
 		})
 		w.Write(respuesta)
 	}

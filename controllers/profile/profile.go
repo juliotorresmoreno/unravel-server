@@ -9,7 +9,6 @@ import (
 	"../../helper"
 	"../../models"
 	"../../ws"
-	"../responses"
 )
 
 func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
@@ -20,9 +19,9 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 	if user.Nombres != "" && user.Apellidos != "" {
 		if _, err := user.Update(); err != nil {
 			w.WriteHeader(http.StatusNotAcceptable)
-			var respuesta, _ = json.Marshal(responses.Error{
-				Success: false,
-				Error:   err.Error(),
+			var respuesta, _ = json.Marshal(map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
 			})
 			w.Write(respuesta)
 		}
@@ -518,14 +517,14 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		var jsonData []byte
 		if usuario != session.Usuario {
 			var estado = models.IsFriend(session.Usuario, perfil[0].Usuario)
-			jsonData, _ = json.Marshal(map[string]interface{} {
-					"success": true,
-					"data": truncar(perfil[0], estado),
-				})
-		} else {
-			jsonData, _ = json.Marshal(map[string]interface{} {
+			jsonData, _ = json.Marshal(map[string]interface{}{
 				"success": true,
-				"data": perfil[0],
+				"data":    truncar(perfil[0], estado),
+			})
+		} else {
+			jsonData, _ = json.Marshal(map[string]interface{}{
+				"success": true,
+				"data":    perfil[0],
 			})
 		}
 		w.Write(jsonData)
@@ -537,11 +536,11 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 func truncar(p models.Profile, relacion int8) map[string]string {
 	var r = make(map[string]string)
 
-	r["estado"] = map[int8]string {
-		models.EstadoAceptado: "Amigos",
-		models.EstadoSolicitado: "Solicitado",
+	r["estado"] = map[int8]string{
+		models.EstadoAceptado:    "Amigos",
+		models.EstadoSolicitado:  "Solicitado",
 		models.EstadoDesconocido: "Desconocido",
-	} [relacion]
+	}[relacion]
 
 	if helper.PuedoVer(relacion, p.PermisoEmail) {
 		r["email"] = p.Email

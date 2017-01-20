@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"strings"
+
 	"../../config"
 	"../../helper"
 	"../../models"
-	"../responses"
 	"../../ws"
-	"strings"
 )
 
 // Logout cerrar session
@@ -49,13 +49,13 @@ func Session(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	if _token == "" {
 		_token = r.URL.Query().Get("token")
 	}
-	var respuesta, _ = json.Marshal(responses.Login{
-		Success: true,
-		Session: responses.Session{
-			Usuario:   session.Usuario,
-			Nombres:   session.Nombres,
-			Apellidos: session.Apellidos,
-			Token: _token,
+	var respuesta, _ = json.Marshal(map[string]interface{}{
+		"success": true,
+		"session": map[string]string{
+			"usuario":   session.Usuario,
+			"nombres":   session.Nombres,
+			"apellidos": session.Apellidos,
+			"token":     _token,
 		},
 	})
 	w.Header().Set("Content-Type", "application/json")
@@ -63,18 +63,18 @@ func Session(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	w.Write(respuesta)
 }
 
-func autenticate(user *models.User) (string, responses.Login) {
+func autenticate(user *models.User) (string, map[string]interface{}) {
 	_token := helper.GenerateRandomString(100)
 	cache := models.GetCache()
 	cache.Set(string(_token), user.Usuario, time.Duration(config.SESSION_DURATION)*time.Second)
 
-	respuesta := responses.Login{
-		Success: true,
-		Session: responses.Session{
-			Usuario:   user.Usuario,
-			Nombres:   user.Nombres,
-			Apellidos: user.Apellidos,
-			Token:     _token,
+	respuesta := map[string]interface{}{
+		"success": true,
+		"session": map[string]string{
+			"usuario":   user.Usuario,
+			"nombres":   user.Nombres,
+			"apellidos": user.Apellidos,
+			"token":     _token,
 		},
 	}
 
@@ -110,13 +110,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ = json.Marshal(responses.Error{Success: false, Error: err.Error()})
+		respuesta, _ = json.Marshal(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
 		w.Write(respuesta)
 		return
 	}
 
 	w.WriteHeader(http.StatusUnauthorized)
-	respuesta, _ = json.Marshal(responses.Error{Success: false, Error: "Usuario o contraseña invalido"})
+	respuesta, _ = json.Marshal(map[string]interface{}{
+		"success": false,
+		"error":   "Usuario o contraseña invalido",
+	})
 	w.Write(respuesta)
 }
 
@@ -127,9 +133,9 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 
 	if r.PostFormValue("passwd") != "" && r.PostFormValue("passwd") != r.PostFormValue("passwdConfirm") {
 		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ := json.Marshal(responses.Error{
-			Success: false,
-			Error:   "Passwd: Debe validar la contraseña.",
+		respuesta, _ := json.Marshal(map[string]interface{}{
+			"success": false,
+			"error":   "Passwd: Debe validar la contraseña.",
 		})
 		w.Write(respuesta)
 		return
@@ -143,9 +149,9 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := user.Add(); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
-		var respuesta, _ = json.Marshal(responses.Error{
-			Success: false,
-			Error:   err.Error(),
+		var respuesta, _ = json.Marshal(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
 		})
 		w.Write(respuesta)
 	} else {
