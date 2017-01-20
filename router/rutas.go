@@ -42,6 +42,7 @@ func GetHandler() http.Handler {
 	// galery
 	mux.HandleFunc("/api/v1/galery", protect(galery.ListarGalerias, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/galery/{galery}/{imagen}", protect(galery.ViewImagen, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery/create", protect(galery.Create, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/galery/upload", protect(galery.Upload, hub, true)).Methods("POST")
 

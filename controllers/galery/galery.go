@@ -65,7 +65,7 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		return
 	}
 
-	var galeria = config.PATH + "/" + session.Usuario + "/" + nombre
+	var galeria = config.PATH + "/" + session.Usuario + "/" + strings.Trim(nombre, "\n")
 	if _, err := os.Stat(galeria); err != nil {
 		if err = os.MkdirAll(galeria, 0755); err != nil {
 			w.WriteHeader(http.StatusNotAcceptable)
@@ -110,7 +110,7 @@ func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User
 	w.Write([]byte(respuesta))
 }
 
-// Listar imagenes de la galerias existente
+// ListarImagenes imagenes de la galerias existente
 func ListarImagenes(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var vars = mux.Vars(r)
 	var galeria = vars["galery"]
@@ -136,4 +136,24 @@ func ListarImagenes(w http.ResponseWriter, r *http.Request, session *models.User
 		"data":    list,
 	})
 	w.Write([]byte(respuesta))
+}
+
+// ViewImagen ver imagen
+func ViewImagen(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var galeria = vars["galery"]
+	var imagen = vars["imagen"]
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var path = config.PATH + "/" + usuario + "/" + galeria + "/" + imagen
+	if f, err := os.Stat(path); err == nil && !f.IsDir() {
+		http.ServeFile(w, r, path)
+		return
+	}
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("Not found"))
 }
