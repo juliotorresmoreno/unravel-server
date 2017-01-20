@@ -8,6 +8,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gorilla/mux"
+
+	"fmt"
+
 	"../../config"
 	"../../helper"
 	"../../models"
@@ -18,15 +22,27 @@ import (
 func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var galery = strings.Trim(r.FormValue("galery"), " ")
 	var galeria = config.PATH + "/" + session.Usuario + "/" + galery
-	f, _, err := r.FormFile("file")
+	file, header, err := r.FormFile("file")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		println(err.Error())
 		return
 	}
-	g, _ := os.Create(galeria + "/TempFile")
-	defer g.Close()
-	_, err = io.Copy(g, f)
+	var _name = strings.TrimLeft(header.Filename, ".")
+	var index = 1
+	var name = _name
+	for {
+		if _, err := os.Stat(galeria + "/" + name); err != nil {
+			break
+		}
+		name = fmt.Sprintln(index, _name)
+		index++
+	}
+	println(name)
+
+	save, _ := os.Create(galeria + "/" + name)
+	defer save.Close()
+	_, err = io.Copy(save, file)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		println(err.Error())
@@ -70,8 +86,8 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	w.Write([]byte("{\"success\": true}"))
 }
 
-// Listar lista las galerias existentes
-func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+// ListarGalerias lista las galerias existentes
+func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var usuario = config.PATH + "/" + session.Usuario
 	var files, _ = ioutil.ReadDir(usuario)
 	var length = len(files)
@@ -83,6 +99,34 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 			"name":        files[i].Name(),
 			"permiso":     string(permiso),
 			"descripcion": string(descripcion),
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	respuesta, _ := json.Marshal(map[string]interface{}{
+		"success": true,
+		"data":    list,
+	})
+	w.Write([]byte(respuesta))
+}
+
+// Listar imagenes de la galerias existente
+func ListarImagenes(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var galeria = vars["galery"]
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var path = config.PATH + "/" + usuario
+	var files, _ = ioutil.ReadDir(path + "/" + galeria)
+	var length = len(files)
+	var list = make([]string, 0)
+	for i := 0; i < length; i++ {
+		if files[i].Name() != "descripcion" && files[i].Name() != "permiso" {
+			list = append(list, strings.Trim(files[i].Name(), "\n"))
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")

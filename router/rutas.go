@@ -15,8 +15,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
-
 // GetHandler aca se establecen las rutas del router
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
@@ -42,7 +40,8 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
 
 	// galery
-	mux.HandleFunc("/api/v1/galery", protect(galery.Listar, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/galery", protect(galery.ListarGalerias, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery/create", protect(galery.Create, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/galery/upload", protect(galery.Upload, hub, true)).Methods("POST")
 
