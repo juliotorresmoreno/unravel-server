@@ -67,6 +67,5 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 				fn(w, r, nil, hub)
 			}
 		}
-
 	}
 }
