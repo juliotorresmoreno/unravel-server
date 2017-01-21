@@ -1,15 +1,54 @@
 package config
 
-const DB_HOST string = "localhost"
-const DB_USER string = "root"
-const DB_PORT string = "4000"
-//const DB_PSWD string = "wDoXDboSkLvgKeSp"
-const DB_PSWD string = ""
-const DB_DB string = "webapp"
+import (
+	"encoding/json"
+	"io/ioutil"
+)
 
-const REDIS_HOST string = "localhost"
-const REDIS_PORT string = "6379"
+var (
+	DB_HOST string = "localhost"
+	DB_USER string
+	DB_PORT string
+	DB_PSWD string
+	DB_DB   string
 
-const PATH = "/var/www/gwebapp"
+	REDIS_HOST string = "localhost"
+	REDIS_PORT string = "6379"
 
-const SESSION_DURATION int = 7200
+	PATH string
+
+	SESSION_DURATION int = 7200
+)
+
+type configuration struct {
+	DbHost          string
+	DbUser          string
+	DbPort          string
+	DbPswd          string
+	DbDb            string
+	RedisHost       string
+	RedisPort       string
+	Path            string
+	SessionDuration int
+}
+
+func init() {
+	var text, err = ioutil.ReadFile("./config/config.json")
+	if err != nil {
+		panic(err)
+	}
+	var data = &configuration{}
+	err = json.Unmarshal(text, data)
+	if err != nil {
+		panic(err)
+	}
+	DB_HOST = data.DbHost
+	DB_USER = data.DbUser
+	DB_PORT = data.DbPort
+	DB_PSWD = data.DbPswd
+	DB_DB = data.DbDb
+	REDIS_HOST = data.RedisHost
+	REDIS_PORT = data.RedisPort
+	PATH = data.Path
+	SESSION_DURATION = data.SessionDuration
+}

@@ -1,0 +1,14 @@
+{
+    "dbHost": "localhost",
+    "dbUser": "root",
+    "dbPort": "4000",
+    "dbPswd": "",
+    "dbDb": "webapp",
+
+    "redisHost": "localhost",
+    "redisPort": "6379",
+
+    "path": "/var/www/gwebapp",
+    
+    "sessionDuration": 7200
+}
