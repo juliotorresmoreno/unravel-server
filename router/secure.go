@@ -14,12 +14,11 @@ import (
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var cache = models.GetCache()
-		var _token = helper.GetCookie(r, "token")
-		if _token == "" {
-			_token = r.URL.Query().Get("token")
-		}
+		var _token = helper.GetToken(r)
 		var session = cache.Get(_token)
 		var usuario, _ = session.Result()
+		var users = make([]models.User, 0)
+		var orm = models.GetXORM()
 
 		if session.Err() != nil {
 			if rechazar {
@@ -30,9 +29,6 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			}
 			return
 		}
-
-		var users = make([]models.User, 0)
-		var orm = models.GetXORM()
 
 		if err := orm.Where("Usuario = ?", usuario).Find(&users); err != nil {
 			w.Header().Set("Content-Type", "application/json")

@@ -3,6 +3,7 @@ package helper
 import (
 	"encoding/base64"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -63,4 +64,13 @@ func IsValid(hash string, password string) bool {
 // IsValidPermision valida si el permiso mencionado corresponde a uno de los permitidos
 func IsValidPermision(permiso string) bool {
 	return permiso == "private" || permiso == "friends" || permiso == "public"
+}
+
+// GetToken retorna el token
+func GetToken(r *http.Request) string {
+	var _token = GetCookie(r, "token")
+	if _token == "" {
+		return r.URL.Query().Get("token")
+	}
+	return _token
 }
