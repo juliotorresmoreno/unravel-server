@@ -1,4 +1,8 @@
 
+.idea
+.vendor
+.vscode
+
 webroot
 
 debug
