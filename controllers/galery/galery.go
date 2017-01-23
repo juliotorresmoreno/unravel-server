@@ -18,6 +18,28 @@ import (
 	"../../ws"
 )
 
+// FotoPerfil establece la foto de perfil.
+func FotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var path = config.PATH + "/" + session.Usuario
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		println(err.Error())
+		return
+	}
+	var name = "fotoPerfil"
+	save, _ := os.Create(path + "/" + name)
+	defer save.Close()
+	_, err = io.Copy(save, file)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		println(err.Error())
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("{\"success\": true}"))
+}
+
 // Upload sube las imagenes
 func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var galery = strings.Trim(r.FormValue("galery"), " ")

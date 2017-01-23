@@ -25,6 +25,9 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 			} else {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 				fn(w, r, nil, hub)
 			}
 			return
@@ -63,6 +66,9 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 			} else {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 				fn(w, r, nil, hub)
 			}
 		}
