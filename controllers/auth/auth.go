@@ -90,7 +90,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	orm := models.GetXORM()
 	err := orm.Where("Usuario = ?", usuario).Find(&users)
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", " *")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 
 	if err == nil && len(users) > 0 && helper.IsValid(users[0].Passwd, passwd) {
 		_token, _session := autenticate(&users[0])

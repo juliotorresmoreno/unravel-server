@@ -41,6 +41,9 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			return
 		}
 		if len(users) == 1 {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 			cache := models.GetCache()
 			cache.Set(
 				string(_token),

@@ -56,7 +56,6 @@ func GetXORM() *xorm.Engine {
 
 func normalize(Error error, data interface{}) error {
 	var message string
-	println(Error.Error())
 	if rDuplicateEntry.MatchString(Error.Error()) {
 		var values = strings.Split(Error.Error(), "'")
 		var campo = strings.Split(values[3], "_")[2]
