@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -150,6 +151,19 @@ func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User
 	w.Write([]byte(respuesta))
 }
 
+func listarImagenes(usuario, galeria string) []string {
+	var path = config.PATH + "/" + usuario
+	var files, _ = ioutil.ReadDir(path + "/" + galeria)
+	var length = len(files)
+	var imagenes = make([]string, 0)
+	for i := 0; i < length; i++ {
+		if files[i].Name() != "descripcion" && files[i].Name() != "permiso" {
+			imagenes = append(imagenes, strings.Trim(files[i].Name(), "\n"))
+		}
+	}
+	return imagenes
+}
+
 // ListarImagenes imagenes de la galerias existente
 func ListarImagenes(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var vars = mux.Vars(r)
@@ -160,20 +174,12 @@ func ListarImagenes(w http.ResponseWriter, r *http.Request, session *models.User
 	} else {
 		usuario = session.Usuario
 	}
-	var path = config.PATH + "/" + usuario
-	var files, _ = ioutil.ReadDir(path + "/" + galeria)
-	var length = len(files)
-	var list = make([]string, 0)
-	for i := 0; i < length; i++ {
-		if files[i].Name() != "descripcion" && files[i].Name() != "permiso" {
-			list = append(list, strings.Trim(files[i].Name(), "\n"))
-		}
-	}
+	var imagenes = listarImagenes(usuario, galeria)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
-		"data":    list,
+		"data":    imagenes,
 	})
 	w.Write([]byte(respuesta))
 }
@@ -196,4 +202,21 @@ func ViewImagen(w http.ResponseWriter, r *http.Request, session *models.User, hu
 	}
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Not found"))
+}
+
+// ViewPreview ver imagen
+func ViewPreview(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var galeria = vars["galery"]
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var token = helper.GetToken(r)
+	var imagenes = listarImagenes(usuario, galeria)
+	var aleatorio = rand.Intn(len(imagenes))
+	var url = "http://" + r.Host + "/api/v1/galery/" + usuario + "/" + galeria + "/" + imagenes[aleatorio] + "?token=" + token
+	http.Redirect(w, r, url, http.StatusOK)
 }
