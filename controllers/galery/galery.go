@@ -19,7 +19,25 @@ import (
 )
 
 // FotoPerfil establece la foto de perfil.
-func FotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var path = config.PATH + "/" + usuario + "/fotoPerfil"
+	if f, err := os.Stat(path); err == nil && !f.IsDir() {
+		http.ServeFile(w, r, path)
+		return
+	}
+	w.Header().Set("location", "/static/svg/user-3.svg")
+	w.WriteHeader(http.StatusOK)
+}
+
+// FotoPerfil establece la foto de perfil.
+func SetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var path = config.PATH + "/" + session.Usuario
 	file, _, err := r.FormFile("file")
 	if err != nil {
