@@ -34,7 +34,8 @@ func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 		return
 	}
 	w.Header().Set("location", "/static/svg/user-3.svg")
-	w.WriteHeader(http.StatusOK)
+	//http.Redirect(w, r, url, http.StatusFound)
+	w.WriteHeader(http.StatusFound)
 }
 
 // FotoPerfil establece la foto de perfil.
@@ -129,24 +130,41 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 
 // ListarGalerias lista las galerias existentes
 func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var usuario = config.PATH + "/" + session.Usuario
-	var files, _ = ioutil.ReadDir(usuario)
+	var vars = mux.Vars(r)
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var path = config.PATH + "/" + usuario
+	var files, _ = ioutil.ReadDir(path)
 	var length = len(files)
-	var list = make([]interface{}, length)
+	var galerias = make([]interface{}, 0)
 	for i := 0; i < length; i++ {
-		permiso, _ := ioutil.ReadFile(usuario + "/" + files[i].Name() + "/permiso")
-		descripcion, _ := ioutil.ReadFile(usuario + "/" + files[i].Name() + "/descripcion")
-		list[i] = map[string]interface{}{
+		if files[i].Name() == "fotoPerfil" {
+			continue
+		}
+		permiso, err := ioutil.ReadFile(path + "/" + files[i].Name() + "/permiso")
+		if err != nil {
+			continue
+		}
+		descripcion, err := ioutil.ReadFile(path + "/" + files[i].Name() + "/descripcion")
+		if err != nil {
+			continue
+		}
+		c := map[string]interface{}{
 			"name":        files[i].Name(),
 			"permiso":     string(permiso),
 			"descripcion": string(descripcion),
 		}
+		galerias = append(galerias, c)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
-		"data":    list,
+		"data":    galerias,
 	})
 	w.Write([]byte(respuesta))
 }
@@ -204,11 +222,12 @@ func ViewImagen(w http.ResponseWriter, r *http.Request, session *models.User, hu
 	w.Write([]byte("Not found"))
 }
 
-// ViewPreview ver imagen
+// ViewPreview ver preview de galeria
 func ViewPreview(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var vars = mux.Vars(r)
 	var galeria = vars["galery"]
-	var usuario string
+	var usuario, imagen, auth, url string
+	var defecto = "/static/svg/user-3.svg"
 	if vars["usuario"] != "" {
 		usuario = vars["usuario"]
 	} else {
@@ -216,7 +235,13 @@ func ViewPreview(w http.ResponseWriter, r *http.Request, session *models.User, h
 	}
 	var token = helper.GetToken(r)
 	var imagenes = listarImagenes(usuario, galeria)
-	var aleatorio = rand.Intn(len(imagenes))
-	var url = "http://" + r.Host + "/api/v1/galery/" + usuario + "/" + galeria + "/" + imagenes[aleatorio] + "?token=" + token
-	http.Redirect(w, r, url, http.StatusOK)
+	var length = len(imagenes)
+	if length == 0 {
+		url = "http://" + r.Host + defecto
+	} else {
+		imagen = imagenes[rand.Intn(length)]
+		auth = "?token=" + token
+		url = "http://" + r.Host + "/api/v1/" + usuario + "/galery/" + galeria + "/" + imagen + auth
+	}
+	http.Redirect(w, r, url, http.StatusFound)
 }

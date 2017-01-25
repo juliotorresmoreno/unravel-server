@@ -1,10 +1,10 @@
 package test
 
 import (
-	"fmt"
-	"net/http"
 	"bytes"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 )
 
 func post(url string, params []byte) (error, string, []byte) {
@@ -26,27 +26,27 @@ func post(url string, params []byte) (error, string, []byte) {
 func test(w http.ResponseWriter, url string, params []byte) {
 	err, status, body := post(url, params)
 	if err != nil {
-		fmt.Fprintln(w, "url: " + url + ", method: post, status: Error")
-		fmt.Fprintln(w, "response Status: " + status)
-		fmt.Fprintln(w, "response Body: " + string(body))
-		fmt.Fprintln(w, "error: " + err.Error())
+		fmt.Fprintln(w, "url: "+url+", method: post, status: Error")
+		fmt.Fprintln(w, "response Status: "+status)
+		fmt.Fprintln(w, "response Body: "+string(body))
+		fmt.Fprintln(w, "error: "+err.Error())
 	} else {
-		fmt.Fprintln(w, "url: " + url + ", method: post, status: OK")
-		fmt.Fprintln(w, "response Status: " + status)
-		fmt.Fprintln(w, "response Body: " + string(body))
+		fmt.Fprintln(w, "url: "+url+", method: post, status: OK")
+		fmt.Fprintln(w, "response Status: "+status)
+		fmt.Fprintln(w, "response Body: "+string(body))
 	}
 	fmt.Fprintln(w, "")
 }
 
-func Test(w http.ResponseWriter, r *http.Request)  {
+func Test(w http.ResponseWriter, r *http.Request) {
 	var url string
 	var params []byte
 	w.WriteHeader(http.StatusOK)
 
 	url = "http://localhost:8080/api/v1/auth/registrar"
 	params = []byte("nombres=nombres&apellidos=apellidos&" +
-		  "email=email@dominio.com&usuario=username&" +
-		  "passwd=123456&passwdConfirm=123456")
+		"email=email@dominio.com&usuario=username&" +
+		"passwd=123456&passwdConfirm=123456")
 	//test(w, url, params)
 
 	url = "http://localhost:8080/api/v1/auth/login"

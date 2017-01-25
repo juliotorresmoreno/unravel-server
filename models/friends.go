@@ -1,10 +1,10 @@
 package models
 
 import (
-	"time"
 	"errors"
-	"strings"
 	"fmt"
+	"strings"
+	"time"
 )
 
 type Friend struct {
@@ -45,7 +45,7 @@ func GetFriends(usuario string) ([]Friend, error) {
 				data += "\"" + el.UsuarioSolicitado + "\", "
 			}
 		}
-		data = data[0:len(data) - 2]
+		data = data[0 : len(data)-2]
 		str = "Usuario in (" + data + ")"
 		if err := orm.Where(str).Find(&users); err != nil {
 			return defecto, errors.New("Error desconocido")
@@ -120,7 +120,7 @@ func RejectFriends(session string, usuario string) (int64, error) {
 	var relacion Relacion
 	var aff int64
 	var str string = "(usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\") OR (usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\")"
-	result, err := orm.Exec(fmt.Sprintf("DELETE FROM " + relacion.TableName() + " WHERE " + str, session, usuario, usuario, session))
+	result, err := orm.Exec(fmt.Sprintf("DELETE FROM "+relacion.TableName()+" WHERE "+str, session, usuario, usuario, session))
 	if result != nil {
 		aff, _ = result.RowsAffected()
 	}

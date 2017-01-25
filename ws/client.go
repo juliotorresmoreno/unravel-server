@@ -17,8 +17,8 @@ var upgrader = websocket.Upgrader{
 }
 
 const (
-	writeWait = 10 * time.Second
-	pongWait = 60 * time.Second
+	writeWait      = 10 * time.Second
+	pongWait       = 60 * time.Second
 	maxMessageSize = 8
 )
 
