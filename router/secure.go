@@ -13,6 +13,7 @@ import (
 
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		println(r.URL.Path)
 		var cache = models.GetCache()
 		var _token = helper.GetToken(r)
 		var session = cache.Get(_token)

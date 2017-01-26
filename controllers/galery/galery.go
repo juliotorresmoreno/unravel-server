@@ -33,9 +33,7 @@ func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 		http.ServeFile(w, r, path)
 		return
 	}
-	w.Header().Set("location", "/static/svg/user-3.svg")
-	//http.Redirect(w, r, url, http.StatusFound)
-	w.WriteHeader(http.StatusFound)
+	http.Redirect(w, r, "/static/svg/user-3.svg", http.StatusFound)
 }
 
 // FotoPerfil establece la foto de perfil.
