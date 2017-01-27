@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Noticia struct {
-	Id       uint      `xorm:"bigint not null autoincr pk"`
+	Id       uint      `xorm:"bigint not null autoincr pk" json:"-"`
 	Usuario  string    `xorm:"varchar(100) not null index" valid:"required,alphanum"`
 	Noticia  string    `xorm:"text not null" valid:"required,password"`
 	Permiso  string    `xorm:"varchar(10) not null" valid:"required"`
