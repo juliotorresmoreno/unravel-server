@@ -40,7 +40,8 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
 
 	// news
-	mux.HandleFunc("/api/v1/news/public", protect(news.Publicar, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/news", protect(news.Publicar, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/news/public", protect(news.Publicar, hub, true)).Methods("POST")
 
 	// galery
 	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
