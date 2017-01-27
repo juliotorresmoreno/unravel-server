@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 const (
 	EstadoDesconocido int8 = -1
@@ -22,7 +20,7 @@ type Relacion struct {
 }
 
 // TableName establece el nombre de la tabla que usara el modelo
-func (self Relacion) TableName() string {
+func (that Relacion) TableName() string {
 	return "relacion"
 }
 

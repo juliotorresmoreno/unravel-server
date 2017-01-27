@@ -1,15 +1,12 @@
-//package Models
 package models
 
-import (
-	"encoding/json"
-	"log"
-	"net/http"
-	"strconv"
-	"time"
+import "encoding/json"
+import "log"
+import "net/http"
+import "strconv"
+import "time"
 
-	"github.com/gorilla/mux"
-)
+import "github.com/gorilla/mux"
 
 // Note Modelo de prueba
 type Note struct {

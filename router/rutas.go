@@ -1,19 +1,19 @@
 package router
 
-import (
-	"net/http"
+import "net/http"
 
-	"../controllers/auth"
-	"../controllers/chats"
-	"../controllers/friends"
-	"../controllers/galery"
-	"../controllers/profile"
-	"../controllers/users"
-	"../models"
-	"../test"
-	"../ws"
-	"github.com/gorilla/mux"
-)
+import "../controllers/auth"
+import "../controllers/chats"
+import "../controllers/friends"
+import "../controllers/galery"
+import "../controllers/profile"
+import "../controllers/users"
+import "../controllers/news"
+
+import "../models"
+import "../test"
+import "../ws"
+import "github.com/gorilla/mux"
 
 // GetHandler aca se establecen las rutas del router
 func GetHandler() http.Handler {
@@ -38,6 +38,9 @@ func GetHandler() http.Handler {
 
 	// users
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
+
+	// news
+	mux.HandleFunc("/api/v1/news/public", protect(news.Publicar, hub, true)).Methods("GET")
 
 	// galery
 	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")

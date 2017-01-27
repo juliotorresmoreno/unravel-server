@@ -1,15 +1,13 @@
 package chats
 
-import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-	"time"
+import "encoding/json"
+import "net/http"
+import "strconv"
+import "time"
 
-	"../../models"
-	"../../ws"
-	"github.com/gorilla/mux"
-)
+import "../../models"
+import "../../ws"
+import "github.com/gorilla/mux"
 
 var leido = models.Chat{Leido: 1}
 

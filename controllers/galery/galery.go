@@ -1,23 +1,21 @@
 package galery
 
-import (
-	"encoding/json"
-	"io"
-	"io/ioutil"
-	"math/rand"
-	"net/http"
-	"os"
-	"strings"
+import "encoding/json"
+import "io"
+import "io/ioutil"
+import "math/rand"
+import "net/http"
+import "os"
+import "strings"
 
-	"github.com/gorilla/mux"
+import "github.com/gorilla/mux"
 
-	"fmt"
+import "fmt"
 
-	"../../config"
-	"../../helper"
-	"../../models"
-	"../../ws"
-)
+import "../../config"
+import "../../helper"
+import "../../models"
+import "../../ws"
 
 // FotoPerfil establece la foto de perfil.
 func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

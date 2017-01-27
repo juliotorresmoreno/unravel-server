@@ -1,11 +1,9 @@
 package models
 
-import (
-	"errors"
-	"time"
+import "errors"
+import "time"
 
-	"github.com/asaskevich/govalidator"
-)
+import "github.com/asaskevich/govalidator"
 
 // Chat modelo de los chats
 type Chat struct {

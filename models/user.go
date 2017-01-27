@@ -1,13 +1,11 @@
 package models
 
-import (
-	"time"
+import "time"
 
-	"errors"
+import "errors"
 
-	"../helper"
-	"github.com/asaskevich/govalidator"
-)
+import "../helper"
+import "github.com/asaskevich/govalidator"
 
 // User modelo de usuario
 type User struct {
@@ -22,7 +20,7 @@ type User struct {
 }
 
 // TableName establece el nombre de la tabla que usara el modelo
-func (selft User) TableName() string {
+func (that User) TableName() string {
 	return "users"
 }
 
@@ -31,38 +29,38 @@ func init() {
 }
 
 // Add crear nuevo usuario
-func (self User) Add() (int64, error) {
-	_, err := govalidator.ValidateStruct(self)
+func (that User) Add() (int64, error) {
+	_, err := govalidator.ValidateStruct(that)
 	if err != nil {
-		return 0, normalize(err, self)
+		return 0, normalize(err, that)
 	}
-	self.Passwd = helper.Encript(self.Passwd)
+	that.Passwd = helper.Encript(that.Passwd)
 
-	affected, err := orm.Insert(self)
+	affected, err := orm.Insert(that)
 	if err != nil {
-		return affected, normalize(err, self)
+		return affected, normalize(err, that)
 	}
 	return affected, nil
 }
 
 // Update crear nuevo usuario
-func (self User) Update() (int64, error) {
-	if self.Usuario == "" {
+func (that User) Update() (int64, error) {
+	if that.Usuario == "" {
 		return 0, errors.New("Usuario no especificado")
 	}
 	var users = make([]User, 0)
-	if err := orm.Where("Usuario = ?", self.Usuario).Find(&users); err != nil {
+	if err := orm.Where("Usuario = ?", that.Usuario).Find(&users); err != nil {
 		return 0, err
 	}
 	if _, err := govalidator.ValidateStruct(users[0]); err != nil {
-		return 0, normalize(err, self)
+		return 0, normalize(err, that)
 	}
-	users[0].Nombres = self.Nombres
-	users[0].Apellidos = self.Apellidos
+	users[0].Nombres = that.Nombres
+	users[0].Apellidos = that.Apellidos
 
 	affected, err := orm.Id(users[0].Id).Cols("nombres", "apellidos").Update(users[0])
 	if err != nil {
-		return affected, normalize(err, self)
+		return affected, normalize(err, that)
 	}
 	return affected, nil
 }

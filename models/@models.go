@@ -1,17 +1,15 @@
 package models
 
-import (
-	"errors"
-	"regexp"
-	"strings"
+import "errors"
+import "regexp"
+import "strings"
 
-	"../config"
-	"../lang/es"
-	"github.com/asaskevich/govalidator"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
-	"gopkg.in/redis.v5"
-)
+import "../config"
+import "../lang/es"
+import "github.com/asaskevich/govalidator"
+
+import "github.com/go-xorm/xorm"
+import "gopkg.in/redis.v5"
 
 var orm *xorm.Engine
 var cache *redis.Client

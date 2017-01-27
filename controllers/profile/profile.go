@@ -1,15 +1,13 @@
 package profile
 
-import (
-	"encoding/json"
-	"net/http"
+import "encoding/json"
+import "net/http"
 
-	"github.com/gorilla/mux"
+import "github.com/gorilla/mux"
 
-	"../../helper"
-	"../../models"
-	"../../ws"
-)
+import "../../helper"
+import "../../models"
+import "../../ws"
 
 func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var user models.User

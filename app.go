@@ -1,15 +1,11 @@
 package main
 
-import (
-	"net/http"
-	"time"
+import "net/http"
+import "time"
 
-	"./router"
-)
+import _ "github.com/go-sql-driver/mysql"
 
-type name struct {
-	sSs string
-}
+import "./router"
 
 func main() {
 	//var methods = handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})

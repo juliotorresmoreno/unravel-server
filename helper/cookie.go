@@ -1,9 +1,7 @@
 package helper
 
-import (
-	"net/http"
-	"strings"
-)
+import "net/http"
+import "strings"
 
 func GetCookie(r *http.Request, name string) string {
 	var c string = r.Header.Get("Cookie")

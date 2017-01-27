@@ -1,12 +1,10 @@
 package friends
 
-import (
-	"encoding/json"
-	"net/http"
+import "encoding/json"
+import "net/http"
 
-	"../../models"
-	"../../ws"
-)
+import "../../models"
+import "../../ws"
 
 //ListFriends listado de amigos o personas con las que se puede chatear
 func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

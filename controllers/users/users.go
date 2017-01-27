@@ -1,12 +1,10 @@
 package users
 
-import (
-	"encoding/json"
-	"net/http"
+import "encoding/json"
+import "net/http"
 
-	"../../models"
-	"../../ws"
-)
+import "../../models"
+import "../../ws"
 
 // Find buscar usuarios
 func Find(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

@@ -1,17 +1,15 @@
 package auth
 
-import (
-	"encoding/json"
-	"net/http"
-	"time"
+import "encoding/json"
+import "net/http"
+import "time"
 
-	"strings"
+import "strings"
 
-	"../../config"
-	"../../helper"
-	"../../models"
-	"../../ws"
-)
+import "../../config"
+import "../../helper"
+import "../../models"
+import "../../ws"
 
 // Logout cerrar session
 func Logout(w http.ResponseWriter, r *http.Request) {

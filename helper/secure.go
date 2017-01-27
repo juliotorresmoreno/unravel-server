@@ -1,16 +1,15 @@
 package helper
 
-import (
-	"encoding/base64"
-	"math/rand"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
+import "encoding/base64"
+import "math/rand"
+import "net/http"
+import "strconv"
+import "strings"
+import "time"
 
-	"golang.org/x/crypto/bcrypt"
-)
+import "golang.org/x/crypto/bcrypt"
 
+// PuedoVer verifica si el usuario puede acceder al recurso
 func PuedoVer(relacion int8, permiso string) bool {
 	if permiso == "private" {
 		return false

@@ -1,11 +1,9 @@
 package models
 
-import (
-	"errors"
-	"fmt"
-	"strings"
-	"time"
-)
+import "errors"
+import "fmt"
+import "strings"
+import "time"
 
 type Friend struct {
 	Usuario    string    `json:"usuario"`
