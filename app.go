@@ -1,10 +1,14 @@
 package main
 
-import "net/http"
-import "time"
-import _ "github.com/go-sql-driver/mysql"
-import "./router"
-import "./config"
+import (
+	"net/http"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	"./config"
+	"./router"
+)
 
 func main() {
 	var server = &http.Server{

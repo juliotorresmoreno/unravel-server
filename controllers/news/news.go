@@ -5,11 +5,10 @@ import "encoding/json"
 import "../../ws"
 import "time"
 import "net/http"
-import "../../social"
 
 // Publicar publica una noticia en el muro
 func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var noticia = r.PostFormValue("noticia")
+	/*var noticia = r.PostFormValue("noticia")
 	var permiso = r.PostFormValue("permiso")
 	var nueva = &social.Noticia{
 		Usuario: session.Usuario,
@@ -26,7 +25,7 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 		})
 		w.Write(respuesta)
 		return
-	}
+	}*/
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\":true}"))
 }

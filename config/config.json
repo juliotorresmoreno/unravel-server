@@ -15,9 +15,9 @@
     "port": "8080",
     "readTimeout": "10",
 
-    "username": "webapp",
-    "password": "webapp",
-    "servidor": "127.0.0.1",
-    "puerto":   "27017",
-    "database": "webapp"
+    "mongoHost": "localhost",
+    "mongoUser": "webapp",
+    "mongoPort": "27017",
+    "mongoPswd": "webapp",
+    "mongoDb": "webapp"
 }

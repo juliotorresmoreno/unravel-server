@@ -81,5 +81,4 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
 	mux.PathPrefix("/").HandlerFunc(publicHandler).Methods("GET")
 	return mux
-
 }

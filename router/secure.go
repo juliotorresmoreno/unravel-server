@@ -15,20 +15,21 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 	return func(w http.ResponseWriter, r *http.Request) {
 		println(r.URL.Path)
 		var cache = models.GetCache()
-		var _token = helper.GetToken(r)
-		var session = cache.Get(_token)
+		var token = helper.GetToken(r)
+		var session = cache.Get(token)
 		var usuario, _ = session.Result()
 		var users = make([]models.User, 0)
 		var orm = models.GetXORM()
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 
 		if session.Err() != nil {
 			if rechazar {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 			} else {
-				w.Header().Set("Access-Control-Allow-Origin", "*")
-				w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-				w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 				fn(w, r, nil, hub)
 			}
 			return
@@ -45,12 +46,9 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			return
 		}
 		if len(users) == 1 {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 			cache := models.GetCache()
 			cache.Set(
-				string(_token),
+				string(token),
 				users[0].Usuario,
 				time.Duration(config.SESSION_DURATION)*time.Second,
 			)
@@ -58,7 +56,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 				HttpOnly: true,
 				MaxAge:   config.SESSION_DURATION,
 				Name:     "token",
-				Value:    _token,
+				Value:    token,
 				Path:     "/",
 			})
 			fn(w, r, &users[0], hub)
@@ -67,9 +65,6 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 			} else {
-				w.Header().Set("Access-Control-Allow-Origin", "*")
-				w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-				w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 				fn(w, r, nil, hub)
 			}
 		}

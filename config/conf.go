@@ -19,11 +19,11 @@ var (
 	SESSION_DURATION int = 7200
 	PORT             int = 80
 	READ_TIMEOUT     time.Duration
-	USERNAME         string
-	PASSWORD         string
-	SERVIDOR         string
-	PUERTO           int
-	DATABASE         string
+	MONGO_HOST       string
+	MONGO_USER       string
+	MONGO_PORT       string
+	MONGO_PSWD       string
+	MONGO_DB         string
 )
 
 type configuration struct {
@@ -38,11 +38,11 @@ type configuration struct {
 	SessionDuration string
 	Port            string
 	ReadTimeout     string
-	Username        string
-	Password        string
-	Servidor        string
-	Puerto          string
-	Database        string
+	MongoHost       string
+	MongoUser       string
+	MongoPort       string
+	MongoPswd       string
+	MongoDb         string
 }
 
 func init() {
@@ -66,9 +66,10 @@ func init() {
 	SESSION_DURATION, _ = strconv.Atoi(data.SessionDuration)
 	PORT, _ = strconv.Atoi(data.Port)
 	READ_TIMEOUT, _ = time.ParseDuration(data.ReadTimeout)
-	USERNAME = data.Username
-	PASSWORD = data.Password
-	SERVIDOR = data.Servidor
-	PUERTO, _ = strconv.Atoi(data.Puerto)
-	DATABASE = data.Database
+
+	MONGO_HOST = data.MongoHost
+	MONGO_USER = data.MongoUser
+	MONGO_PORT = data.MongoPort
+	MONGO_PSWD = data.MongoPswd
+	MONGO_DB = data.MongoDb
 }

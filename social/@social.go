@@ -5,11 +5,11 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var username = config.USERNAME
-var password = config.PASSWORD
-var servidor = config.SERVIDOR
-var puerto = string(config.PUERTO)
-var database = config.DATABASE
+var username = config.MONGO_USER
+var password = config.MONGO_PSWD
+var servidor = config.MONGO_HOST
+var puerto = config.MONGO_PORT
+var database = config.MONGO_DB
 var url = "mongodb://" + username + ":" + password + "@" + servidor + ":" + puerto + "/" + database
 
 func Add(collection string, data interface{}) error {

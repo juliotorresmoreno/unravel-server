@@ -18,6 +18,7 @@ var rDuplicateEntry *regexp.Regexp
 
 func init() {
 	var dsn string
+	var err error
 	if config.DB_PSWD != "" {
 		dsn = config.DB_USER + ":" + config.DB_PSWD +
 			"@tcp(" + config.DB_HOST + ":" + config.DB_PORT + ")/" + config.DB_DB +
@@ -27,7 +28,10 @@ func init() {
 			"@tcp(" + config.DB_HOST + ":" + config.DB_PORT + ")/" + config.DB_DB +
 			"?charset=utf8&parseTime=true"
 	}
-	orm, _ = xorm.NewEngine("mysql", dsn)
+	orm, err = xorm.NewEngine("mysql", dsn)
+	if err != nil {
+		panic(err)
+	}
 
 	govalidator.TagMap["alphaSpaces"] = govalidator.Validator(func(str string) bool {
 		patterm, _ := regexp.Compile("^([a-zA-Z]+( ){0,1}){1,}$")
