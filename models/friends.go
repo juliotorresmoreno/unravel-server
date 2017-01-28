@@ -81,6 +81,17 @@ func listUserToListFriends(users []User, relacion []Relacion) []Friend {
 	return list
 }
 
+func FindUsers(usuarios []string) ([]User, error) {
+	var users = make([]User, 0)
+	var orm = GetXORM()
+	var str string
+	str = "Usuario in ('" + strings.Join(usuarios, "', '") + "')"
+	if err := orm.Where(str).Find(&users); err != nil {
+		return users, err
+	}
+	return users, nil
+}
+
 func FindUser(session string, query string, usuario string) ([]Friend, error) {
 	var users = make([]User, 0)
 	var relaciones = make([]Relacion, 0)

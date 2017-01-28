@@ -4,11 +4,11 @@ import "time"
 
 type Noticia struct {
 	Id       uint      `xorm:"bigint not null autoincr pk" json:"-"`
-	Usuario  string    `xorm:"varchar(100) not null index" valid:"required,alphanum"`
-	Noticia  string    `xorm:"text not null" valid:"required,password"`
-	Permiso  string    `xorm:"varchar(10) not null" valid:"required"`
-	CreateAt time.Time `xorm:"created"`
-	UpdateAt time.Time `xorm:"updated"`
+	Usuario  string    `xorm:"varchar(100) not null index" valid:"required,alphanum" json:"usuario"`
+	Noticia  string    `xorm:"text not null" valid:"required,password" json:"noticia"`
+	Permiso  string    `xorm:"varchar(10) not null" valid:"required" json:"permiso"`
+	CreateAt time.Time `xorm:"created" json:"create_at"`
+	UpdateAt time.Time `xorm:"updated" json:"update_at"`
 }
 
 // TableName establece el nombre de la tabla que usara el modelo
