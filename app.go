@@ -2,19 +2,15 @@ package main
 
 import "net/http"
 import "time"
-
 import _ "github.com/go-sql-driver/mysql"
-
 import "./router"
+import "./config"
 
 func main() {
-	//var methods = handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
-	//var origin = handlers.AllowedOrigins([]string{"*"})
-	//var handler = handlers.CORS(methods, origin)(router.GetHandler())
 	var server = &http.Server{
-		Addr:           ":8080",
+		Addr:           ":" + string(config.PORT),
 		Handler:        router.GetHandler(),
-		ReadTimeout:    10 * time.Second,
+		ReadTimeout:    config.READ_TIMEOUT * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	println("Listening")

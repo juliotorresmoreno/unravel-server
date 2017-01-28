@@ -10,5 +10,14 @@
 
     "path": "/var/www/gwebapp",
     
-    "sessionDuration": 7200
+    "sessionDuration": "7200",
+
+    "port": "8080",
+    "readTimeout": "10",
+
+    "username": "webapp",
+    "password": "webapp",
+    "servidor": "127.0.0.1",
+    "puerto":   "27017",
+    "database": "webapp"
 }
