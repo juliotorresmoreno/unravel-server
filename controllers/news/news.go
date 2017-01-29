@@ -20,7 +20,7 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	var noticia = r.PostFormValue("noticia")
 	var permiso = r.PostFormValue("permiso")
 	if !helper.IsValidPermision(permiso) {
-		despacharError(w, errors.New("Permiso denegado"))
+		despacharError(w, errors.New("Permiso denegado"), http.StatusBadRequest)
 		return
 	}
 	var nueva = &social.Noticia{
@@ -34,15 +34,15 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	w.Header().Set("Content-Type", "application/json")
 	var err = social.Add(noticias, nueva)
 	if err != nil {
-		despacharError(w, err)
+		despacharError(w, err, http.StatusNotAcceptable)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\":true}"))
 }
 
-func despacharError(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusInternalServerError)
+func despacharError(w http.ResponseWriter, err error, status int) {
+	w.WriteHeader(status)
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": false,
 		"error":   err.Error(),
@@ -55,14 +55,14 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	var query = bson.M{"usuario": session.Usuario}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
-		despacharError(w, err)
+		despacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer socialSS.Close()
 	var resultado = make([]noticia, 0)
 	err = SocialBD.C(noticias).Find(query).Sort("-createat").All(&resultado)
 	if err != nil {
-		despacharError(w, err)
+		despacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	var length = len(resultado)
@@ -90,33 +90,42 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 
 // Like el like de toda la vida
 func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var ID = r.PostFormValue("noticia")
-	var query = bson.M{"usuario": session.Usuario}
+	var ID = bson.ObjectIdHex(r.PostFormValue("noticia"))
+	var query = map[string]interface{}{
+		"_id":     ID,
+		"usuario": session.Usuario,
+	}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
-		despacharError(w, err)
+		despacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer socialSS.Close()
 	var resultado = noticia{}
 	err = SocialBD.C(noticias).Find(query).One(&resultado)
 	if err != nil {
-		despacharError(w, err)
+		despacharError(w, err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	var existe = find(resultado.Likes, session.Usuario)
 	if existe >= 0 {
 		resultado.Likes = remove(resultado.Likes, existe)
 	} else {
 		resultado.Likes = append(resultado.Likes, session.Usuario)
 	}
-	err = SocialBD.C(noticias).UpdateId(ID, resultado)
+	var data = map[string]interface{}{
+		"$set": map[string]interface{}{
+			"likes":    resultado.Likes,
+			"updateat": time.Now(),
+		},
+	}
+	err = SocialBD.C(noticias).UpdateId(ID, data)
 	if err != nil {
-		despacharError(w, err)
+		despacharError(w, err, http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
 		"data":    resultado,
