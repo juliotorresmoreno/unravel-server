@@ -2,6 +2,7 @@ package social
 
 import (
 	"../config"
+	"github.com/asaskevich/govalidator"
 	"gopkg.in/mgo.v2"
 )
 
@@ -12,7 +13,12 @@ var puerto = config.MONGO_PORT
 var database = config.MONGO_DB
 var url = "mongodb://" + username + ":" + password + "@" + servidor + ":" + puerto + "/" + database
 
+// Add agrega un elemento a la coleccion
 func Add(collection string, data interface{}) error {
+	var _, err = govalidator.ValidateStruct(data)
+	if err != nil {
+		return err
+	}
 	session, err := mgo.Dial(url)
 	if err != nil {
 		return err
@@ -22,4 +28,13 @@ func Add(collection string, data interface{}) error {
 	noticias := session.DB(database).C(collection)
 	err = noticias.Insert(data)
 	return err
+}
+
+// GetSocial obtiene la base de datos
+func GetSocial() (*mgo.Session, *mgo.Database, error) {
+	var session, err = mgo.Dial(url)
+	if err != nil {
+		return session, nil, err
+	}
+	return session, session.DB(database), nil
 }
