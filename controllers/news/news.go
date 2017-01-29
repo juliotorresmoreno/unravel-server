@@ -26,6 +26,7 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	var nueva = &social.Noticia{
 		Usuario:  session.Usuario,
 		Noticia:  noticia,
+		Likes:    make([]string, 0),
 		Permiso:  permiso,
 		CreateAt: time.Now(),
 		UpdateAt: time.Now(),
@@ -59,7 +60,7 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	}
 	defer socialSS.Close()
 	var resultado = make([]noticia, 0)
-	err = SocialBD.C(noticias).Find(query).Sort("create_at desc").All(&resultado)
+	err = SocialBD.C(noticias).Find(query).Sort("-createat").All(&resultado)
 	if err != nil {
 		despacharError(w, err)
 		return
@@ -87,89 +88,64 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	w.Write(respuesta)
 }
 
-// ListarOld listado de noticias en el muro
-func ListarOld(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var _noticias = make([]models.Noticia, 0)
-	var orm = models.GetXORM()
-	var err = orm.Where("Usuario = ?", session.Usuario).OrderBy("create_at desc").Find(&_noticias)
+// Like el like de toda la vida
+func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var ID = r.PostFormValue("noticia")
+	var query = bson.M{"usuario": session.Usuario}
+	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ := json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
-		w.Write(respuesta)
+		despacharError(w, err)
+		return
+	}
+	defer socialSS.Close()
+	var resultado = noticia{}
+	err = SocialBD.C(noticias).Find(query).One(&resultado)
+	if err != nil {
+		despacharError(w, err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	var length = len(_noticias)
-	var _usuarios []string = make([]string, length)
-	for i := 0; i < length; i++ {
-		_usuarios[i] = _noticias[i].Usuario
+	var existe = find(resultado.Likes, session.Usuario)
+	if existe >= 0 {
+		resultado.Likes = remove(resultado.Likes, existe)
+	} else {
+		resultado.Likes = append(resultado.Likes, session.Usuario)
 	}
-	usuarios, err := models.FindUsers(_usuarios)
+	err = SocialBD.C(noticias).UpdateId(ID, resultado)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		respuesta, _ := json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
-		w.Write(respuesta)
+		despacharError(w, err)
 		return
-	}
-	var noticias = make([]noticia, length)
-	for i := 0; i < length; i++ {
-		for _, value := range usuarios {
-			if _noticias[i].Usuario == value.Usuario {
-				noticias[i] = noticia{
-					Usuario:   value.Usuario,
-					Nombres:   value.Nombres,
-					Apellidos: value.Apellidos,
-					Noticia:   _noticias[i].Noticia,
-					Permiso:   _noticias[i].Permiso,
-					CreateAt:  _noticias[i].CreateAt,
-					UpdateAt:  _noticias[i].UpdateAt,
-				}
-			}
-		}
 	}
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
-		"data":    noticias,
+		"data":    resultado,
 	})
 	w.Write(respuesta)
 }
 
-// PublicarOld publica una noticia en el muro
-func PublicarOld(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var noticia = r.PostFormValue("noticia")
-	var permiso = r.PostFormValue("permiso")
-	var lnoticia = models.Noticia{
-		Usuario: session.Usuario,
-		Noticia: noticia,
-		Permiso: permiso,
+func find(arr []string, cadena string) int {
+	for i, v := range arr {
+		if v == cadena {
+			return i
+		}
 	}
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := models.Add(lnoticia); err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ := json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
-		w.Write(respuesta)
-		return
-	}
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("{\"success\":true}"))
+	return -1
+}
+
+func remove(s []string, i int) []string {
+	s[len(s)-1], s[i] = s[i], s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 type noticia struct {
-	Usuario   string    `json:"usuario"`
-	Nombres   string    `json:"nombres"`
-	Apellidos string    `json:"apellidos"`
-	Noticia   string    `json:"noticia"`
-	Permiso   string    `json:"permiso"`
-	CreateAt  time.Time `json:"create_at"`
-	UpdateAt  time.Time `json:"update_at"`
+	ID        interface{} "_id"
+	Usuario   string      `json:"usuario"`
+	Nombres   string      `json:"nombres"`
+	Apellidos string      `json:"apellidos"`
+	Noticia   string      `json:"noticia"`
+	Permiso   string      `json:"permiso"`
+	Likes     []string    `json:"likes"`
+	CreateAt  time.Time   `json:"create_at"`
+	UpdateAt  time.Time   `json:"update_at"`
 }
