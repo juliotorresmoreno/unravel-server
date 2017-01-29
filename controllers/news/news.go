@@ -17,19 +17,21 @@ const noticias = "noticias"
 
 // Publicar publica una noticia en el muro
 func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var noticia = r.PostFormValue("noticia")
-	var permiso = r.PostFormValue("permiso")
-	if !helper.IsValidPermision(permiso) {
+	var _noticia = r.PostFormValue("noticia")
+	var _permiso = r.PostFormValue("permiso")
+	if !helper.IsValidPermision(_permiso) {
 		despacharError(w, errors.New("Permiso denegado"), http.StatusBadRequest)
 		return
 	}
 	var nueva = &social.Noticia{
-		Usuario:  session.Usuario,
-		Noticia:  noticia,
-		Likes:    make([]string, 0),
-		Permiso:  permiso,
-		CreateAt: time.Now(),
-		UpdateAt: time.Now(),
+		Usuario:   session.Usuario,
+		Nombres:   session.Nombres,
+		Apellidos: session.Apellidos,
+		Noticia:   _noticia,
+		Likes:     make([]string, 0),
+		Permiso:   _permiso,
+		CreateAt:  time.Now(),
+		UpdateAt:  time.Now(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	var err = social.Add(noticias, nueva)
@@ -65,28 +67,30 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		despacharError(w, err, http.StatusInternalServerError)
 		return
 	}
-	var _usuarios = make([]string, 0)
-	for i := 0; i < len(resultado); i++ {
-		_usuarios = append(_usuarios, resultado[i].Usuario)
-		for j := 0; j < len(resultado[i].Comentarios); j++ {
-			_usuarios = append(_usuarios, resultado[i].Comentarios[j].Usuario)
-		}
-	}
-	usuarios, err := models.FindUsers(_usuarios)
-	for _, value := range usuarios {
-		for i := 0; i < len(resultado); i++ {
-			if resultado[i].Usuario == value.Usuario {
-				resultado[i].Nombres = value.Nombres
-				resultado[i].Apellidos = value.Apellidos
-			}
-			for j := 0; j < len(resultado[i].Comentarios); j++ {
-				if resultado[i].Comentarios[j].Usuario == value.Usuario {
-					resultado[i].Comentarios[j].Nombres = value.Nombres
-					resultado[i].Comentarios[j].Apellidos = value.Apellidos
+	/*
+		    var _usuarios = make([]string, 0)
+			for i := 0; i < len(resultado); i++ {
+				_usuarios = append(_usuarios, resultado[i].Usuario)
+				for j := 0; j < len(resultado[i].Comentarios); j++ {
+					_usuarios = append(_usuarios, resultado[i].Comentarios[j].Usuario)
 				}
 			}
-		}
-	}
+			usuarios, err := models.FindUsers(_usuarios)
+			for _, value := range usuarios {
+				for i := 0; i < len(resultado); i++ {
+					if resultado[i].Usuario == value.Usuario {
+						resultado[i].Nombres = value.Nombres
+						resultado[i].Apellidos = value.Apellidos
+					}
+					for j := 0; j < len(resultado[i].Comentarios); j++ {
+						if resultado[i].Comentarios[j].Usuario == value.Usuario {
+							resultado[i].Comentarios[j].Nombres = value.Nombres
+							resultado[i].Comentarios[j].Apellidos = value.Apellidos
+						}
+					}
+				}
+			}
+	*/
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	respuesta, _ := json.Marshal(map[string]interface{}{
@@ -170,8 +174,10 @@ func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 		return
 	}
 	resultado.Comentarios = append(resultado.Comentarios, comentario{
-		Comentario: _comentario,
 		Usuario:    session.Usuario,
+		Nombres:    session.Nombres,
+		Apellidos:  session.Apellidos,
+		Comentario: _comentario,
 		CreateAt:   time.Now(),
 		UpdateAt:   time.Now(),
 	})
