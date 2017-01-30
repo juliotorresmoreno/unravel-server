@@ -91,8 +91,9 @@ func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	w.Write([]byte("{\"success\": true}"))
 }
 
-// Create crea la nueva galeria
-func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+// Save crea y actualiza la galeria
+func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var ID = strings.Trim(r.PostFormValue("ID"), " ")
 	var nombre = strings.Trim(r.PostFormValue("nombre"), " ")
 	var permiso = r.PostFormValue("permiso")
 	var descripcion = r.PostFormValue("descripcion")
@@ -103,13 +104,19 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		w.Write([]byte("{\"success\": false}"))
 		return
 	}
-
 	var galeria = config.PATH + "/" + session.Usuario + "/" + strings.Trim(nombre, "\n")
-	if _, err := os.Stat(galeria); err != nil {
-		if err = os.MkdirAll(galeria, 0755); err != nil {
-			w.WriteHeader(http.StatusNotAcceptable)
-			w.Write([]byte("{\"success\": false}"))
-			return
+	if ID != "" {
+		var galeriaOld = config.PATH + "/" + session.Usuario + "/" + strings.Trim(ID, "\n")
+		if _, err := os.Stat(galeriaOld); err != nil {
+			os.Rename(galeriaOld, galeria)
+		}
+	} else {
+		if _, err := os.Stat(galeria); err != nil {
+			if err = os.MkdirAll(galeria, 0755); err != nil {
+				w.WriteHeader(http.StatusNotAcceptable)
+				w.Write([]byte("{\"success\": false}"))
+				return
+			}
 		}
 	}
 
@@ -176,11 +183,9 @@ func listarImagenes(usuario, galeria string) []string {
 	var path = config.PATH + "/" + usuario
 	var files, _ = ioutil.ReadDir(path + "/" + galeria + "/images")
 	var length = len(files)
-	var imagenes = make([]string, 0)
+	var imagenes = make([]string, length)
 	for i := 0; i < length; i++ {
-		if files[i].Name() != "descripcion" && files[i].Name() != "permiso" {
-			imagenes = append(imagenes, strings.Trim(files[i].Name(), "\n"))
-		}
+		imagenes[i] = strings.Trim(files[i].Name(), "\n")
 	}
 	return imagenes
 }
@@ -203,6 +208,34 @@ func ListarImagenes(w http.ResponseWriter, r *http.Request, session *models.User
 		"data":    imagenes,
 	})
 	w.Write([]byte(respuesta))
+}
+
+// DescribeGaleria ver imagen
+func DescribeGaleria(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var galeria = vars["galery"]
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var permiso, descripcion, err = describeGaleria(usuario, galeria)
+	if err != nil {
+		helper.DespacharError(w, err, http.StatusInternalServerError)
+	}
+	var respuesta, _ = json.Marshal(map[string]interface{}{
+		"success": true,
+		"data": map[string]interface{}{
+			"ID":          galeria,
+			"nombre":      galeria,
+			"permiso":     permiso,
+			"descripcion": descripcion,
+		},
+	})
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(respuesta)
 }
 
 // ViewImagen ver imagen
