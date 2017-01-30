@@ -1,25 +1,23 @@
 package auth
 
-import "encoding/json"
-import "net/http"
-import "time"
+import (
+	"encoding/json"
+	"errors"
+	"net/http"
+	"time"
 
-import "strings"
-
-import "../../config"
-import "../../helper"
-import "../../models"
-import "../../ws"
+	"../../config"
+	"../../helper"
+	"../../models"
+	"../../ws"
+)
 
 // Logout cerrar session
 func Logout(w http.ResponseWriter, r *http.Request) {
 	var cache = models.GetCache()
-	var _token string = helper.GetCookie(r, "token")
-	if strings.Trim(_token, " ") == "" {
-		_token = r.URL.Query().Get("token")
-	}
-	if _token != "" {
-		_ = cache.Del(_token)
+	var token string = helper.GetToken(r)
+	if token != "" {
+		cache.Del(token)
 		http.SetCookie(w, &http.Cookie{
 			MaxAge:   0,
 			Secure:   false,
@@ -109,21 +107,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ = json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
-		w.Write(respuesta)
+		helper.DespacharError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
-	w.WriteHeader(http.StatusUnauthorized)
-	respuesta, _ = json.Marshal(map[string]interface{}{
-		"success": false,
-		"error":   "Usuario o contraseña invalido",
-	})
-	w.Write(respuesta)
+	helper.DespacharError(w, errors.New("Usuario o contraseña invalido"), http.StatusUnauthorized)
 }
 
 // Registrar aca es donde registramos los usuarios en bd
@@ -132,12 +120,7 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.PostFormValue("passwd") != "" && r.PostFormValue("passwd") != r.PostFormValue("passwdConfirm") {
-		w.WriteHeader(http.StatusNotAcceptable)
-		respuesta, _ := json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   "Passwd: Debe validar la contraseña.",
-		})
-		w.Write(respuesta)
+		helper.DespacharError(w, errors.New("Passwd: Debe validar la contraseña"), http.StatusNotAcceptable)
 		return
 	}
 
@@ -148,12 +131,7 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 	user.Passwd = r.PostFormValue("passwd")
 
 	if _, err := user.Add(); err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		var respuesta, _ = json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
-		w.Write(respuesta)
+		helper.DespacharError(w, err, http.StatusNotAcceptable)
 	} else {
 		var _token, _session = autenticate(&user)
 		var respuesta, _ = json.Marshal(_session)

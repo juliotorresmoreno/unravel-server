@@ -1,13 +1,17 @@
 package chats
 
-import "encoding/json"
-import "net/http"
-import "strconv"
-import "time"
+import (
+	"encoding/json"
+	"errors"
+	"net/http"
+	"strconv"
+	"time"
 
-import "../../models"
-import "../../ws"
-import "github.com/gorilla/mux"
+	"../../helper"
+	"../../models"
+	"../../ws"
+	"github.com/gorilla/mux"
+)
 
 var leido = models.Chat{Leido: 1}
 
@@ -82,11 +86,8 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 
 	if tipo == "usuario" {
 		if usuario == session.Usuario {
-			resp, _ := json.Marshal(map[string]interface{}{
-				"success": false,
-				"error":   "No puedes enviarte un mensaje a ti mismo",
-			})
-			w.Write(resp)
+			err := errors.New("No puedes enviarte un mensaje a ti mismo")
+			helper.DespacharError(w, err, http.StatusInternalServerError)
 			return
 		}
 		chat := models.Chat{
@@ -96,11 +97,7 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		}
 		_, err := chat.Add()
 		if err != nil {
-			resp, _ := json.Marshal(map[string]interface{}{
-				"success": false,
-				"error":   err.Error(),
-			})
-			w.Write(resp)
+			helper.DespacharError(w, err, http.StatusInternalServerError)
 			return
 		}
 		resp, _ := json.Marshal(map[string]interface{}{
@@ -119,9 +116,5 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		hub.Send(usuario, resp)
 		return
 	}
-	resp, _ := json.Marshal(map[string]interface{}{
-		"success": false,
-		"error":   "Not implemented",
-	})
-	w.Write(resp)
+	helper.DespacharError(w, errors.New("Not implemented"), http.StatusInternalServerError)
 }

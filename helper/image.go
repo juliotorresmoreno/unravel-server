@@ -41,6 +41,7 @@ func BuildJPG(source, destino string) error {
 	if err != nil {
 		return err
 	}
+	defer fle.Close()
 	jpeg.Encode(fle, rst, nil)
 	return nil
 }

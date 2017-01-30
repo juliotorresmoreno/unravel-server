@@ -68,22 +68,25 @@ func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		println(err.Error())
 		return
 	}
-	var name = helper.GenerateRandomString(20) + ".jpg"
-	var tnme = helper.GenerateRandomString(20) + ".tmp"
+	var ramd = helper.GenerateRandomString(20)
+	var name = galeria + "/" + ramd + ".jpg"
+	var tnme = "/tmp/" + ramd + ".tmp"
 
-	tmp, _ := os.Create("/tmp/" + tnme)
-	defer tmp.Close()
-	_, err = io.Copy(tmp, file)
+	tmp, err := os.Create(tnme)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		respuesta, _ := json.Marshal(map[string]interface{}{
-			"success": false,
-			"error":   err.Error(),
-		})
-		w.Write(respuesta)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
-	helper.BuildJPG("/tmp/"+tnme, galeria+"/"+name)
+	defer func() {
+		tmp.Close()
+		os.Remove(tnme)
+	}()
+	_, err = io.Copy(tmp, file)
+	if err != nil {
+		helper.DespacharError(w, err, http.StatusInternalServerError)
+		return
+	}
+	helper.BuildJPG(tnme, name)
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\": true}"))
 }
@@ -122,6 +125,19 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	w.Write([]byte("{\"success\": true}"))
 }
 
+func describeGaleria(usuario, galeria string) (string, string, error) {
+	var path = config.PATH + "/" + usuario
+	permiso, err := ioutil.ReadFile(path + "/" + galeria + "/permiso")
+	if err != nil {
+		return string(permiso), "", err
+	}
+	descripcion, err := ioutil.ReadFile(path + "/" + galeria + "/descripcion")
+	if err != nil {
+		return string(permiso), string(descripcion), err
+	}
+	return string(permiso), string(descripcion), nil
+}
+
 // ListarGalerias lista las galerias existentes
 func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var vars = mux.Vars(r)
@@ -136,14 +152,7 @@ func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User
 	var length = len(files)
 	var galerias = make([]interface{}, 0)
 	for i := 0; i < length; i++ {
-		if files[i].Name() == "fotoPerfil" {
-			continue
-		}
-		permiso, err := ioutil.ReadFile(path + "/" + files[i].Name() + "/permiso")
-		if err != nil {
-			continue
-		}
-		descripcion, err := ioutil.ReadFile(path + "/" + files[i].Name() + "/descripcion")
+		permiso, descripcion, err := describeGaleria(usuario, files[i].Name())
 		if err != nil {
 			continue
 		}

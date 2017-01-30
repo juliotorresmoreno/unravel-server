@@ -16,12 +16,8 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 	user.Usuario = session.Usuario
 	if user.Nombres != "" && user.Apellidos != "" {
 		if _, err := user.Update(); err != nil {
-			w.WriteHeader(http.StatusNotAcceptable)
-			var respuesta, _ = json.Marshal(map[string]interface{}{
-				"success": false,
-				"error":   err.Error(),
-			})
-			w.Write(respuesta)
+			helper.DespacharError(w, err, http.StatusNotAcceptable)
+			return
 		}
 	}
 	w.WriteHeader(http.StatusNoContent)

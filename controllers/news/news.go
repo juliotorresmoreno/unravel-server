@@ -20,7 +20,7 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	var _noticia = r.PostFormValue("noticia")
 	var _permiso = r.PostFormValue("permiso")
 	if !helper.IsValidPermision(_permiso) {
-		despacharError(w, errors.New("Permiso denegado"), http.StatusBadRequest)
+		helper.DespacharError(w, errors.New("Permiso denegado"), http.StatusBadRequest)
 		return
 	}
 	var nueva = &social.Noticia{
@@ -36,20 +36,11 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	w.Header().Set("Content-Type", "application/json")
 	var err = social.Add(noticias, nueva)
 	if err != nil {
-		despacharError(w, err, http.StatusNotAcceptable)
+		helper.DespacharError(w, err, http.StatusNotAcceptable)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\":true}"))
-}
-
-func despacharError(w http.ResponseWriter, err error, status int) {
-	w.WriteHeader(status)
-	respuesta, _ := json.Marshal(map[string]interface{}{
-		"success": false,
-		"error":   err.Error(),
-	})
-	w.Write(respuesta)
 }
 
 // Listar listado de noticias en el muro
@@ -57,40 +48,16 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	var query = bson.M{"usuario": session.Usuario}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer socialSS.Close()
 	var resultado = make([]noticia, 0)
 	err = SocialBD.C(noticias).Find(query).Sort("-createat").All(&resultado)
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
-	/*
-		    var _usuarios = make([]string, 0)
-			for i := 0; i < len(resultado); i++ {
-				_usuarios = append(_usuarios, resultado[i].Usuario)
-				for j := 0; j < len(resultado[i].Comentarios); j++ {
-					_usuarios = append(_usuarios, resultado[i].Comentarios[j].Usuario)
-				}
-			}
-			usuarios, err := models.FindUsers(_usuarios)
-			for _, value := range usuarios {
-				for i := 0; i < len(resultado); i++ {
-					if resultado[i].Usuario == value.Usuario {
-						resultado[i].Nombres = value.Nombres
-						resultado[i].Apellidos = value.Apellidos
-					}
-					for j := 0; j < len(resultado[i].Comentarios); j++ {
-						if resultado[i].Comentarios[j].Usuario == value.Usuario {
-							resultado[i].Comentarios[j].Nombres = value.Nombres
-							resultado[i].Comentarios[j].Apellidos = value.Apellidos
-						}
-					}
-				}
-			}
-	*/
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	respuesta, _ := json.Marshal(map[string]interface{}{
@@ -109,14 +76,14 @@ func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer socialSS.Close()
 	var resultado = noticia{}
 	err = SocialBD.C(noticias).Find(query).One(&resultado)
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	var existe = find(resultado.Likes, session.Usuario)
@@ -133,7 +100,7 @@ func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	}
 	err = SocialBD.C(noticias).UpdateId(ID, data)
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -148,11 +115,11 @@ func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 // Comentar el de toda la vida
 func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	if r.PostFormValue("noticia") == "" {
-		despacharError(w, errors.New("Falta la noticia"), http.StatusNotAcceptable)
+		helper.DespacharError(w, errors.New("Falta la noticia"), http.StatusNotAcceptable)
 		return
 	}
 	if r.PostFormValue("comentario") == "" {
-		despacharError(w, errors.New("Falta el comentario"), http.StatusNotAcceptable)
+		helper.DespacharError(w, errors.New("Falta el comentario"), http.StatusNotAcceptable)
 		return
 	}
 	var ID = bson.ObjectIdHex(r.PostFormValue("noticia"))
@@ -163,14 +130,14 @@ func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer socialSS.Close()
 	var resultado = noticia{}
 	err = SocialBD.C(noticias).Find(query).One(&resultado)
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	resultado.Comentarios = append(resultado.Comentarios, comentario{
@@ -189,7 +156,7 @@ func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	}
 	err = SocialBD.C(noticias).UpdateId(ID, data)
 	if err != nil {
-		despacharError(w, err, http.StatusInternalServerError)
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
