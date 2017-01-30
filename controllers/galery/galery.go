@@ -10,8 +10,6 @@ import "strings"
 
 import "github.com/gorilla/mux"
 
-import "fmt"
-
 import "../../config"
 import "../../helper"
 import "../../models"
@@ -59,33 +57,33 @@ func SetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 // Upload sube las imagenes
 func Upload(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var galery = strings.Trim(r.FormValue("galery"), " ")
-	var galeria = config.PATH + "/" + session.Usuario + "/" + galery
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		println(err.Error())
-		return
-	}
-	var _name = strings.TrimLeft(header.Filename, ".")
-	var index = 1
-	var name = _name
-	for {
-		if _, err := os.Stat(galeria + "/" + name); err != nil {
-			break
-		}
-		name = fmt.Sprintln(index, _name)
-		index++
-	}
-	println(name)
+	var galeria = config.PATH + "/" + session.Usuario + "/" + galery + "/images"
+	var mini = config.PATH + "/" + session.Usuario + "/" + galery + "/mini"
+	os.MkdirAll(galeria, 0755)
+	os.MkdirAll(mini, 0755)
 
-	save, _ := os.Create(galeria + "/" + name)
-	defer save.Close()
-	_, err = io.Copy(save, file)
+	file, _, err := r.FormFile("file")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		println(err.Error())
 		return
 	}
+	var name = helper.GenerateRandomString(20) + ".jpg"
+	var tnme = helper.GenerateRandomString(20) + ".tmp"
+
+	tmp, _ := os.Create("/tmp/" + tnme)
+	defer tmp.Close()
+	_, err = io.Copy(tmp, file)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		respuesta, _ := json.Marshal(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		w.Write(respuesta)
+		return
+	}
+	helper.BuildJPG("/tmp/"+tnme, galeria+"/"+name)
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\": true}"))
 }
@@ -167,7 +165,7 @@ func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User
 
 func listarImagenes(usuario, galeria string) []string {
 	var path = config.PATH + "/" + usuario
-	var files, _ = ioutil.ReadDir(path + "/" + galeria)
+	var files, _ = ioutil.ReadDir(path + "/" + galeria + "/images")
 	var length = len(files)
 	var imagenes = make([]string, 0)
 	for i := 0; i < length; i++ {
@@ -203,13 +201,25 @@ func ViewImagen(w http.ResponseWriter, r *http.Request, session *models.User, hu
 	var vars = mux.Vars(r)
 	var galeria = vars["galery"]
 	var imagen = vars["imagen"]
+	var mini = r.URL.Query().Get("mini")
 	var usuario string
 	if vars["usuario"] != "" {
 		usuario = vars["usuario"]
 	} else {
 		usuario = session.Usuario
 	}
-	var path = config.PATH + "/" + usuario + "/" + galeria + "/" + imagen
+	if mini != "" {
+		var path = config.PATH + "/" + usuario + "/" + galeria + "/mini/" + imagen
+		var source = config.PATH + "/" + usuario + "/" + galeria + "/images/" + imagen
+		if f, err := os.Stat(path); err == nil && !f.IsDir() {
+			http.ServeFile(w, r, path)
+			return
+		}
+		helper.BuildMini(source, path)
+		http.ServeFile(w, r, path)
+		return
+	}
+	var path = config.PATH + "/" + usuario + "/" + galeria + "/images/" + imagen
 	if f, err := os.Stat(path); err == nil && !f.IsDir() {
 		http.ServeFile(w, r, path)
 		return
@@ -237,7 +247,7 @@ func ViewPreview(w http.ResponseWriter, r *http.Request, session *models.User, h
 	} else {
 		imagen = imagenes[rand.Intn(length)]
 		auth = "?token=" + token
-		url = "http://" + r.Host + "/api/v1/" + usuario + "/galery/" + galeria + "/" + imagen + auth
+		url = "http://" + r.Host + "/api/v1/" + usuario + "/galery/" + galeria + "/" + imagen + auth + "&mini=1"
 	}
 	http.Redirect(w, r, url, http.StatusFound)
 }
