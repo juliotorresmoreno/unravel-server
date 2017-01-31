@@ -1,19 +1,22 @@
 package galery
 
-import "encoding/json"
-import "io"
-import "io/ioutil"
-import "math/rand"
-import "net/http"
-import "os"
-import "strings"
+import (
+	"encoding/json"
+	"errors"
+	"io"
+	"io/ioutil"
+	"math/rand"
+	"net/http"
+	"os"
+	"strings"
 
-import "github.com/gorilla/mux"
-
-import "../../config"
-import "../../helper"
-import "../../models"
-import "../../ws"
+	"../../config"
+	"../../helper"
+	"../../models"
+	"../../ws"
+	"github.com/asaskevich/govalidator"
+	"github.com/gorilla/mux"
+)
 
 // FotoPerfil establece la foto de perfil.
 func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
@@ -99,22 +102,23 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	var descripcion = r.PostFormValue("descripcion")
 
 	w.Header().Set("Content-Type", "application/json")
-	if !helper.IsValidPermision(permiso) || nombre == "" || strings.Contains(nombre, ".") {
-		w.WriteHeader(http.StatusNotAcceptable)
-		w.Write([]byte("{\"success\": false}"))
+	if !helper.IsValidPermision(permiso) || !govalidator.IsAlphanumeric(nombre) {
+		helper.DespacharError(w, errors.New("El nombre es invalido"), http.StatusNotAcceptable)
 		return
 	}
+
 	var galeria = config.PATH + "/" + session.Usuario + "/" + strings.Trim(nombre, "\n")
 	if ID != "" {
 		var galeriaOld = config.PATH + "/" + session.Usuario + "/" + strings.Trim(ID, "\n")
 		if _, err := os.Stat(galeriaOld); err != nil {
-			os.Rename(galeriaOld, galeria)
+			helper.DespacharError(w, err, http.StatusInternalServerError)
+			return
 		}
+		os.Rename(galeriaOld, galeria)
 	} else {
 		if _, err := os.Stat(galeria); err != nil {
 			if err = os.MkdirAll(galeria, 0755); err != nil {
-				w.WriteHeader(http.StatusNotAcceptable)
-				w.Write([]byte("{\"success\": false}"))
+				helper.DespacharError(w, err, http.StatusInternalServerError)
 				return
 			}
 		}
@@ -129,7 +133,11 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	d.Write([]byte(descripcion))
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("{\"success\": true}"))
+	var respuesta, _ = json.Marshal(map[string]interface{}{
+		"success": true,
+		"galeria": nombre,
+	})
+	w.Write(respuesta)
 }
 
 func describeGaleria(usuario, galeria string) (string, string, error) {
