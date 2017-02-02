@@ -53,7 +53,7 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	}
 	defer socialSS.Close()
 	var resultado = make([]noticia, 0)
-	err = SocialBD.C(noticias).Find(query).Sort("-createat").All(&resultado)
+	err = SocialBD.C(noticias).Find(query).Sort("-createat").Limit(10).All(&resultado)
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return

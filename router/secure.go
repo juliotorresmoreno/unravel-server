@@ -14,6 +14,7 @@ import (
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		println(r.URL.Path)
+
 		var cache = models.GetCache()
 		var token = helper.GetToken(r)
 		var session = cache.Get(token)
@@ -21,9 +22,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		var users = make([]models.User, 0)
 		var orm = models.GetXORM()
 
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
+		helper.Cors(w, r)
 
 		if session.Err() != nil {
 			if rechazar {
