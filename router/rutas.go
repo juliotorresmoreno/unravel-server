@@ -44,6 +44,7 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/news/public", protect(news.Publicar, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/news/like", protect(news.Like, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/news/comentar", protect(news.Comentar, hub, true)).Methods("POST")
+	mux.HandleFunc("/api/v1/{usuario}/news", protect(news.Listar, hub, true)).Methods("GET")
 
 	// galery
 	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")

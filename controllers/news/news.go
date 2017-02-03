@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"../../helper"
 	"../../models"
 	"../../social"
@@ -45,13 +47,45 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 
 // Listar listado de noticias en el muro
 func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var query = bson.M{"usuario": session.Usuario}
+	var vars = mux.Vars(r)
+	var usuario string
+	if vars["usuario"] != "" {
+		usuario = vars["usuario"]
+	} else {
+		usuario = session.Usuario
+	}
+	var antesDe = r.URL.Query().Get("antesDe")
+	var despuesDe = r.URL.Query().Get("despuesDe")
+	var query = bson.M{"usuario": usuario}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer socialSS.Close()
+	if vars["usuario"] == "" {
+		var friends, _ = models.GetFriends(session.Usuario)
+		var _friends = make([]string, len(friends)+1)
+		_friends[len(friends)] = session.Usuario
+		for i, v := range friends {
+			_friends[i] = v.Usuario
+		}
+		query["usuario"] = map[string]interface{}{
+			"$in": _friends,
+		}
+	}
+	if antesDe != "" {
+		tiempo, _ := time.Parse(time.RFC3339, antesDe)
+		query["createat"] = bson.M{
+			"$lt": tiempo,
+		}
+	}
+	if despuesDe != "" {
+		tiempo, _ := time.Parse(time.RFC3339, despuesDe)
+		query["createat"] = bson.M{
+			"$gt": tiempo,
+		}
+	}
 	var resultado = make([]noticia, 0)
 	err = SocialBD.C(noticias).Find(query).Sort("-createat").Limit(10).All(&resultado)
 	if err != nil {
