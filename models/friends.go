@@ -11,6 +11,7 @@ type Friend struct {
 	Apellidos  string    `json:"apellidos"`
 	Estado     string    `json:"estado"`
 	Registrado time.Time `json:"registrado"`
+	Conectado  bool      `json:"conectado"`
 	Relacion   *Relacion `json:"relacion"`
 }
 

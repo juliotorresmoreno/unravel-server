@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"../../helper"
@@ -65,15 +64,17 @@ func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 // Videollamada solicitud para la misma, debera ser aceptada por el usuario
 func Videollamada(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	usuario := r.PostFormValue("usuario")
-	resp, _ := json.Marshal(map[string]string{
+	resp, _ := json.Marshal(map[string]interface{}{
 		"action":          "videollamada",
 		"usuario":         session.Usuario,
 		"usuarioReceptor": usuario,
-		"fecha":           strconv.Itoa(int(time.Now().Unix())),
+		"fecha":           time.Now(),
 	})
 	hub.Send(session.Usuario, resp)
 	hub.Send(usuario, resp)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{\"success\": true}"))
 }
 
 // Mensaje mensaje enviado por chat a los usuarios

@@ -20,6 +20,7 @@ import "github.com/gorilla/mux"
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
 	var hub = ws.GetHub()
+	go ws.Run()
 
 	//graphql
 	mux.Handle("/api/v2/graphql", graphql.GetHandler()).Methods("GET", "POST", "PUT", "DELETE")

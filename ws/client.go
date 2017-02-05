@@ -1,12 +1,9 @@
 package ws
 
-import (
-	"net/http"
-
-	"../models"
-	"github.com/gorilla/websocket"
-	"time"
-)
+import "net/http"
+import "time"
+import "../models"
+import "github.com/gorilla/websocket"
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -22,6 +19,7 @@ const (
 	maxMessageSize = 8
 )
 
+//Client Conexiones websocket
 type Client struct {
 	conn    *websocket.Conn
 	session *models.User
@@ -30,6 +28,16 @@ type Client struct {
 type user struct {
 	session *models.User
 	clients map[*Client]bool
+}
+
+//Clean Limpiar conexiones muertas
+func (c user) Clean() {
+	for key := range c.clients {
+		err := key.conn.WriteMessage(websocket.PingMessage, make([]byte, 0))
+		if err != nil {
+			delete(c.clients, key)
+		}
+	}
 }
 
 // ServeWs aca es donde establenemos la conexion websocket con el usuario

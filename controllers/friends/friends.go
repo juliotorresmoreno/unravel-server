@@ -9,6 +9,18 @@ import "../../ws"
 //ListFriends listado de amigos o personas con las que se puede chatear
 func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var friends, _ = models.GetFriends(session.Usuario)
+	var estado, _ = json.Marshal(map[string]interface{}{
+		"action":  "connect",
+		"usuario": session.Usuario,
+	})
+	var amigos = make([]string, len(friends))
+	var i = 0
+	for el := range friends {
+		friends[el].Conectado = hub.IsConnect(friends[el].Usuario)
+		hub.Send(friends[el].Usuario, estado)
+		amigos[i] = friends[el].Usuario
+		i++
+	}
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
 		"data":    friends,
