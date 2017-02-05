@@ -9,6 +9,7 @@ import "../controllers/galery"
 import "../controllers/profile"
 import "../controllers/users"
 import "../controllers/news"
+import "../graphql"
 
 import "../models"
 import "../test"
@@ -19,6 +20,9 @@ import "github.com/gorilla/mux"
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
 	var hub = ws.GetHub()
+
+	//graphql
+	mux.Handle("/api/v2/graphql", graphql.GetHandler()).Methods("GET", "POST", "PUT", "DELETE")
 
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
