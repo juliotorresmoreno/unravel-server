@@ -1,9 +1,13 @@
 package ws
 
-import "net/http"
-import "time"
-import "../models"
-import "github.com/gorilla/websocket"
+import (
+	"encoding/json"
+	"net/http"
+	"time"
+
+	"../models"
+	"github.com/gorilla/websocket"
+)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -28,6 +32,7 @@ type Client struct {
 type user struct {
 	session *models.User
 	clients map[*Client]bool
+	friends []string
 }
 
 //Clean Limpiar conexiones muertas
@@ -55,5 +60,31 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, session *models.U
 		}
 	}
 	hub.clients[session.Usuario].clients[client] = true
-	client.conn.ReadMessage()
+	client.Listen()
+}
+
+//Listen es solo para disparar el evento close
+func (c *Client) Listen() {
+	for {
+		_, _, err := c.conn.ReadMessage()
+		if err != nil {
+			break
+		}
+	}
+	if _, ok := hub.clients[c.session.Usuario]; ok {
+		delete(hub.clients[c.session.Usuario].clients, c)
+		if len(hub.clients[c.session.Usuario].clients) == 0 {
+			delete(hub.clients, c.session.Usuario)
+			println("Conexion eliminada")
+			friends, _ := models.GetFriends(c.session.Usuario)
+			estado, _ := json.Marshal(map[string]interface{}{
+				"action":  "disconnect",
+				"usuario": c.session.Usuario,
+			})
+			for _, e := range friends {
+				hub.Send(e.Usuario, estado)
+			}
+		}
+	}
+	println("Conexion cerrada")
 }

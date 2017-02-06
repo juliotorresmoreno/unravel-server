@@ -32,7 +32,12 @@ func ListFriends(w http.ResponseWriter, r *http.Request, session *models.User, h
 
 // FindUser Busqueda de personas
 func FindUser(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var users, _ = models.FindUser(session.Usuario, r.URL.Query().Get("q"), r.URL.Query().Get("u"))
+	var query = r.URL.Query().Get("q")
+	var usuario = r.URL.Query().Get("u")
+	var users, _ = models.FindUser(session.Usuario, query, usuario)
+	if len(users) == 1 && users[0].Relacion.EstadoRelacion == models.EstadoAceptado {
+		users[0].Conectado = hub.IsConnect(users[0].Usuario)
+	}
 	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
 		"data":    users,
@@ -51,7 +56,7 @@ func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.H
 	}
 	var relaciones = make([]models.Relacion, 0)
 	var orm = models.GetXORM()
-	var str string = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
+	var str = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
 	if err := orm.Where(str, usuario, session.Usuario, session.Usuario, usuario).Find(&relaciones); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -92,7 +97,7 @@ func Add(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.H
 	}
 }
 
-// FindUser Busqueda de personas
+// RejectFriend Rechazar amistad
 func RejectFriend(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	models.RejectFriends(session.Usuario, r.PostFormValue("user"))
 	w.Header().Set("Content-Type", "application/json")

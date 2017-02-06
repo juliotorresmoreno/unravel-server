@@ -5,6 +5,7 @@ import "fmt"
 import "strings"
 import "time"
 
+//Friend Entidad que representa una amistad
 type Friend struct {
 	Usuario    string    `json:"usuario"`
 	Nombres    string    `json:"nombres"`
@@ -15,10 +16,11 @@ type Friend struct {
 	Relacion   *Relacion `json:"relacion"`
 }
 
+//IsFriend Determina su dos usuarios son amigos
 func IsFriend(usuario string, amigo string) int8 {
 	var relaciones = make([]Relacion, 0)
 	var orm = GetXORM()
-	var str string = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
+	var str = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
 	orm.Where(str, usuario, amigo, amigo, usuario).Find(&relaciones)
 	if len(relaciones) == 1 {
 		return int8(relaciones[0].EstadoRelacion)
@@ -26,17 +28,18 @@ func IsFriend(usuario string, amigo string) int8 {
 	return EstadoDesconocido
 }
 
-func GetFriends(usuario string) ([]Friend, error) {
-	var defecto = make([]Friend, 0)
+//GetFriends Obtiene el listado de amigos
+func GetFriends(usuario string) ([]*Friend, error) {
+	var defecto = make([]*Friend, 0)
 	var relaciones = make([]Relacion, 0)
 	var users = make([]User, 0)
 	var orm = GetXORM()
-	var str string = "usuario_solicita = ? or usuario_solicitado = ?"
+	var str = "usuario_solicita = ? or usuario_solicitado = ?"
 	if err := orm.Where(str, usuario, usuario).Find(&relaciones); err != nil {
 		return defecto, errors.New("Error desconocido")
 	}
 	if len(relaciones) > 0 {
-		var data string = ""
+		var data = ""
 		for _, el := range relaciones {
 			if el.UsuarioSolicitado == usuario {
 				data += "\"" + el.UsuarioSolicita + "\", "
@@ -53,13 +56,13 @@ func GetFriends(usuario string) ([]Friend, error) {
 	return listUserToListFriends(users, relaciones), nil
 }
 
-func listUserToListFriends(users []User, relacion []Relacion) []Friend {
+func listUserToListFriends(users []User, relacion []Relacion) []*Friend {
 	var lengthUsers = len(users)
 	var lengthRelacion = len(relacion)
-	var list = make([]Friend, lengthUsers)
+	var list = make([]*Friend, lengthUsers)
 
 	for i := 0; i < lengthUsers; i++ {
-		list[i] = Friend{
+		list[i] = &Friend{
 			Usuario:    users[i].Usuario,
 			Nombres:    users[i].Nombres,
 			Apellidos:  users[i].Apellidos,
@@ -82,18 +85,20 @@ func listUserToListFriends(users []User, relacion []Relacion) []Friend {
 	return list
 }
 
-func FindUsers(usuarios []string) ([]User, error) {
+//FindUsers Busca los usuarios
+func FindUsers(usuarios []string) (*[]User, error) {
 	var users = make([]User, 0)
 	var orm = GetXORM()
 	var str string
 	str = "Usuario in ('" + strings.Join(usuarios, "', '") + "')"
 	if err := orm.Where(str).Find(&users); err != nil {
-		return users, err
+		return &users, err
 	}
-	return users, nil
+	return &users, nil
 }
 
-func FindUser(session string, query string, usuario string) ([]Friend, error) {
+//FindUser Busca un unico usuario
+func FindUser(session string, query string, usuario string) ([]*Friend, error) {
 	var users = make([]User, 0)
 	var relaciones = make([]Relacion, 0)
 	var orm = GetXORM()
@@ -112,24 +117,25 @@ func FindUser(session string, query string, usuario string) ([]Friend, error) {
 	}
 
 	if err := orm.Where(str, session).Find(&users); err != nil {
-		return make([]Friend, 0), err
+		return make([]*Friend, 0), err
 	}
 
 	str = "usuario_solicita = ? OR usuario_solicitado = ?"
 	if err := orm.Where(str, session, session).Find(&relaciones); err != nil {
-		return make([]Friend, 0), err
+		return make([]*Friend, 0), err
 	}
 
 	return listUserToListFriends(users, relaciones), nil
 }
 
+//RejectFriends rechazar amistad
 func RejectFriends(session string, usuario string) (int64, error) {
 	if session == "" || usuario == "" {
 		return 0, nil
 	}
 	var relacion Relacion
 	var aff int64
-	var str string = "(usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\") OR (usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\")"
+	var str = "(usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\") OR (usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\")"
 	result, err := orm.Exec(fmt.Sprintf("DELETE FROM "+relacion.TableName()+" WHERE "+str, session, usuario, usuario, session))
 	if result != nil {
 		aff, _ = result.RowsAffected()

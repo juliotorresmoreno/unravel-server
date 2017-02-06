@@ -14,9 +14,9 @@ type Relacion struct {
 	UsuarioSolicita   string    `xorm:"varchar(100) not null index" valid:"required" json:"usuario_solicita"`
 	UsuarioSolicitado string    `xorm:"varchar(100) not null index" valid:"required" json:"usuario_solicitado"`
 	EstadoRelacion    int8      `xorm:"tinyint not null"`
-	CreateAt          time.Time `xorm:"created" json:"create_at"`
-	UpdateAt          time.Time `xorm:"updated" json:"update_at"`
-	DeletedAt         time.Time `xorm:"deleted" json:"deleted_at"`
+	CreateAt          time.Time `xorm:"created" json:"-"`
+	UpdateAt          time.Time `xorm:"updated" json:"-"`
+	DeletedAt         time.Time `xorm:"deleted" json:"-"`
 }
 
 // TableName establece el nombre de la tabla que usara el modelo
