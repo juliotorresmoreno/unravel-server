@@ -51,9 +51,12 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/{usuario}/news", protect(news.GetNews, hub, true)).Methods("GET")
 
 	// galery
-	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery", protect(galery.ListarGalerias, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery", protect(galery.Save, hub, true)).Methods("POST")
+
+	mux.HandleFunc("/api/v1/galery/delete", protect(galery.EliminarImagen, hub, true)).Methods("POST", "DELETE")
+
+	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/galery/upload", protect(galery.Upload, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.SetFotoPerfil, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/galery/fotoPerfil/{usuario}", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")

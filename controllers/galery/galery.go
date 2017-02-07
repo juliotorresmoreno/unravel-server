@@ -10,6 +10,8 @@ import (
 	"os"
 	"strings"
 
+	"regexp"
+
 	"../../config"
 	"../../helper"
 	"../../models"
@@ -18,7 +20,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// FotoPerfil establece la foto de perfil.
+// GetFotoPerfil establece la foto de perfil.
 func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var vars = mux.Vars(r)
 	var usuario string
@@ -35,7 +37,7 @@ func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 	http.Redirect(w, r, "/static/svg/user-3.svg", http.StatusFound)
 }
 
-// FotoPerfil establece la foto de perfil.
+// SetFotoPerfil establece la foto de perfil.
 func SetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var path = config.PATH + "/" + session.Usuario
 	file, _, err := r.FormFile("file")
@@ -196,6 +198,30 @@ func listarImagenes(usuario, galeria string) []string {
 		imagenes[i] = strings.Trim(files[i].Name(), "\n")
 	}
 	return imagenes
+}
+
+var nombreValido, _ = regexp.Compile("^[A-Za-z0-9\\.]+$")
+var galeriaValida, _ = regexp.Compile("^[A-Za-z0-9]+$")
+
+// EliminarImagen imagenes de la galerias existente
+func EliminarImagen(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var galeria = r.PostFormValue("galery")
+	var imagen = r.PostFormValue("image")
+	var usuario = session.Usuario
+	if !nombreValido.MatchString(imagen) || !galeriaValida.MatchString(galeria) {
+		println(galeria, imagen)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("{\"success\": false}"))
+		return
+	}
+	var path = config.PATH + "/" + usuario + "/" + galeria + "/images/" + imagen
+	var pathm = config.PATH + "/" + usuario + "/" + galeria + "/mini/" + imagen
+	if f, err := os.Stat(path); err == nil && !f.IsDir() {
+		os.Remove(path)
+		os.Remove(pathm)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{\"success\": true}"))
 }
 
 // ListarImagenes imagenes de la galerias existente
