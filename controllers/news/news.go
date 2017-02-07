@@ -45,8 +45,8 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	w.Write([]byte("{\"success\":true}"))
 }
 
-// Listar listado de noticias en el muro
-func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+// GetNews listado de noticias en el muro
+func GetNews(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var vars = mux.Vars(r)
 	var usuario string
 	if vars["usuario"] != "" {
@@ -104,9 +104,18 @@ func Listar(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 // Like el like de toda la vida
 func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var ID = bson.ObjectIdHex(r.PostFormValue("noticia"))
-	var query = map[string]interface{}{
-		"_id":     ID,
-		"usuario": session.Usuario,
+	var friends, _ = models.GetFriends(session.Usuario)
+	var length = len(friends)
+	var usuarios = make([]string, length+1)
+	for i := 0; i < length; i++ {
+		usuarios[i] = friends[i].Usuario
+	}
+	usuarios[length] = session.Usuario
+	var query = bson.M{
+		"_id": ID,
+		"usuario": map[string]interface{}{
+			"$in": usuarios,
+		},
 	}
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
@@ -158,10 +167,20 @@ func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 	}
 	var ID = bson.ObjectIdHex(r.PostFormValue("noticia"))
 	var _comentario = r.PostFormValue("comentario")
-	var query = bson.M{
-		"_id":     ID,
-		"usuario": session.Usuario,
+	var friends, _ = models.GetFriends(session.Usuario)
+	var length = len(friends)
+	var usuarios = make([]string, length+1)
+	for i := 0; i < length; i++ {
+		usuarios[i] = friends[i].Usuario
 	}
+	usuarios[length] = session.Usuario
+	var query = bson.M{
+		"_id": ID,
+		"usuario": map[string]interface{}{
+			"$in": usuarios,
+		},
+	}
+
 	var socialSS, SocialBD, err = social.GetSocial()
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusInternalServerError)

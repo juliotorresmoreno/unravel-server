@@ -44,11 +44,11 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
 
 	// news
-	mux.HandleFunc("/api/v1/news", protect(news.Listar, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/news", protect(news.GetNews, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/news/public", protect(news.Publicar, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/news/like", protect(news.Like, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/news/comentar", protect(news.Comentar, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/{usuario}/news", protect(news.Listar, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/{usuario}/news", protect(news.GetNews, hub, true)).Methods("GET")
 
 	// galery
 	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
@@ -70,8 +70,9 @@ func GetHandler() http.Handler {
 
 	// chat
 	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.Videollamada, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.List, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.VideoLlamada, hub, true)).Methods("POST")
+	mux.HandleFunc("/api/v1/chats/rechazarvideollamada", protect(chats.RechazarVideoLlamada, hub, true)).Methods("POST")
+	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.GetConversacion, hub, true)).Methods("GET")
 
 	// test
 	mux.HandleFunc("/test", test.Test).Methods("GET")

@@ -9,63 +9,85 @@ import (
 	"../../helper"
 	"../../models"
 	"../../ws"
+	"github.com/go-xorm/xorm"
 	"github.com/gorilla/mux"
 )
 
 var leido = models.Chat{Leido: 1}
 
-// List obtiene la conversacion con el usuario solicitado
-func List(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+// GetConversacion obtiene la conversacion con el usuario solicitado
+func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	w.Header().Set("Content-Type", "application/json")
 	var vars = mux.Vars(r)
 	var orm = models.GetXORM()
-	var q = make([]models.Chat, 0)
+	var resultado = make([]models.Chat, 0)
 	var usuario = vars["user"]
 	var antesDe = r.URL.Query().Get("antesDe")
 	var despuesDe = r.URL.Query().Get("despuesDe")
 
-	var c = "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
-	if antesDe == "" && despuesDe == "" {
-		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Limit(10).OrderBy("id desc").Find(&q)
-		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario).Cols("leido").Update(leido)
-	} else if antesDe != "" {
+	var cond = "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
+
+	var updater *xorm.Session
+	var consultor *xorm.Session
+	if antesDe != "" {
 		tmp, _ := time.Parse(time.RFC3339, antesDe)
 		tiempo := tmp.String()[0:19]
-		c = "(" + c + ") AND create_at < ?"
-		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Limit(10).OrderBy("id desc").Find(&q)
-		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Cols("leido").Update(leido)
+		cond = "(" + cond + ") AND create_at < ?"
+		updater = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
+		consultor = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
 	} else if despuesDe != "" {
 		tmp, _ := time.Parse(time.RFC3339, despuesDe)
 		tiempo := tmp.String()[0:19]
-		c = "(" + c + ") AND create_at > ?"
-		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Limit(10).OrderBy("id desc").Find(&q)
-		orm.Where(c, usuario, session.Usuario, session.Usuario, usuario, tiempo).Cols("leido").Update(leido)
+		cond = "(" + cond + ") AND create_at > ?"
+		updater = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
+		consultor = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
+	} else {
+		updater = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario)
+		consultor = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario)
 	}
-	l := len(q)
-	e := make([]map[string]interface{}, len(q))
-	if l > 0 {
-		for i := 0; i < l; i++ {
-			e[i] = map[string]interface{}{
+	updater.Cols("leido").Update(leido)
+	consultor.OrderBy("id desc").Limit(10).Find(&resultado)
+	length := len(resultado)
+	conversacion := make([]map[string]interface{}, length)
+	if length > 0 {
+		for i := 0; i < length; i++ {
+			conversacion[i] = map[string]interface{}{
 				"action":          "mensaje",
-				"usuario":         q[i].UsuarioEmisor,
-				"usuarioReceptor": q[i].UsuarioReceptor,
-				"mensaje":         q[i].Message,
-				"fecha":           q[i].CreateAt,
+				"usuario":         resultado[i].UsuarioEmisor,
+				"usuarioReceptor": resultado[i].UsuarioReceptor,
+				"mensaje":         resultado[i].Message,
+				"fecha":           resultado[i].CreateAt,
 			}
 		}
 	}
-	resp, _ := json.Marshal(map[string]interface{}{
+	respuesta, _ := json.Marshal(map[string]interface{}{
 		"success": true,
-		"data":    e,
+		"data":    conversacion,
 	})
-	w.Write(resp)
+	w.Write(respuesta)
 }
 
-// Videollamada solicitud para la misma, debera ser aceptada por el usuario
-func Videollamada(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+// VideoLlamada solicitud para la misma, debera ser aceptada por el usuario
+func VideoLlamada(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	usuario := r.PostFormValue("usuario")
 	resp, _ := json.Marshal(map[string]interface{}{
 		"action":          "videollamada",
+		"usuario":         session.Usuario,
+		"usuarioReceptor": usuario,
+		"fecha":           time.Now(),
+	})
+	hub.Send(session.Usuario, resp)
+	hub.Send(usuario, resp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("{\"success\": true}"))
+}
+
+// RechazarVideoLlamada solicitud para la misma, debera ser aceptada por el usuario
+func RechazarVideoLlamada(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	usuario := r.PostFormValue("usuario")
+	resp, _ := json.Marshal(map[string]interface{}{
+		"action":          "rechazarvideollamada",
 		"usuario":         session.Usuario,
 		"usuarioReceptor": usuario,
 		"fecha":           time.Now(),
