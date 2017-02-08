@@ -69,10 +69,12 @@ func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.Use
 
 // VideoLlamada solicitud para la misma, debera ser aceptada por el usuario
 func VideoLlamada(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	usuario := r.PostFormValue("usuario")
+	var usuario = r.PostFormValue("usuario")
+	var tipo = r.PostFormValue("tipo")
 	resp, _ := json.Marshal(map[string]interface{}{
 		"action":          "videollamada",
 		"usuario":         session.Usuario,
+		"tipo":            tipo,
 		"usuarioReceptor": usuario,
 		"fecha":           time.Now(),
 	})

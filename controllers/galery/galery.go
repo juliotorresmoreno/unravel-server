@@ -209,7 +209,6 @@ func EliminarImagen(w http.ResponseWriter, r *http.Request, session *models.User
 	var imagen = r.PostFormValue("image")
 	var usuario = session.Usuario
 	if !nombreValido.MatchString(imagen) || !galeriaValida.MatchString(galeria) {
-		println(galeria, imagen)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("{\"success\": false}"))
 		return
