@@ -9,6 +9,7 @@ import "../controllers/galery"
 import "../controllers/profile"
 import "../controllers/users"
 import "../controllers/news"
+import "../controllers/groups"
 import "../graphql"
 
 import "../models"
@@ -70,6 +71,10 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}/preview", protect(galery.ViewPreview, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}/{imagen}", protect(galery.ViewImagen, hub, true)).Methods("GET")
+
+	// groups
+	mux.HandleFunc("/api/v1/groups", protect(groups.ObtenerGrupos, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/groups", protect(groups.Save, hub, true)).Methods("POST")
 
 	// chat
 	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")
