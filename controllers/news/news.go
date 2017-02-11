@@ -26,6 +26,7 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 		return
 	}
 	var nueva = &social.Noticia{
+		ID:        bson.NewObjectId(),
 		Usuario:   session.Usuario,
 		Nombres:   session.Nombres,
 		Apellidos: session.Apellidos,
@@ -103,6 +104,11 @@ func GetNews(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 
 // Like el like de toda la vida
 func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	defer func() {
+		if r := recover(); r != nil {
+			helper.DespacharError(w, errors.New("Error desconocido"), http.StatusInternalServerError)
+		}
+	}()
 	var ID = bson.ObjectIdHex(r.PostFormValue("noticia"))
 	var friends, _ = models.GetFriends(session.Usuario)
 	var length = len(friends)
@@ -157,6 +163,11 @@ func Like(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 
 // Comentar el de toda la vida
 func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	defer func() {
+		if r := recover(); r != nil {
+			helper.DespacharError(w, errors.New("Error desconocido"), http.StatusInternalServerError)
+		}
+	}()
 	if r.PostFormValue("noticia") == "" {
 		helper.DespacharError(w, errors.New("Falta la noticia"), http.StatusNotAcceptable)
 		return
