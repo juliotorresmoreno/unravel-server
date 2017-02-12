@@ -64,7 +64,8 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 			"$set": map[string]interface{}{
 				"nombre":      nombre,
 				"descripcion": descripcion,
-				"update_at":   time.Now(),
+				"permiso":     permiso,
+				"updateat":    time.Now(),
 			},
 		}
 		err = SocialBD.C(grupos).UpdateId(ID, data)

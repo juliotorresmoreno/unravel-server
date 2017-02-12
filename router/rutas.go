@@ -11,6 +11,7 @@ import "../controllers/users"
 import "../controllers/news"
 import "../controllers/groups"
 import "../graphql"
+import "../controllers/category"
 
 import "../models"
 import "../test"
@@ -76,6 +77,9 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/groups", protect(groups.ObtenerGrupos, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/groups", protect(groups.Save, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/groups/{group}", protect(groups.Describe, hub, true)).Methods("GET")
+
+	// category
+	mux.HandleFunc("/api/v1/category", protect(category.GetCategorys, hub, true)).Methods("GET")
 
 	// chat
 	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")
