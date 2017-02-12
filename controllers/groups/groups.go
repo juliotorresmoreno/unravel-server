@@ -9,6 +9,8 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 
+	"strconv"
+
 	"../../helper"
 	"../../models"
 	"../../social"
@@ -32,6 +34,7 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	}
 	var nombre = r.PostFormValue("nombre")
 	var descripcion = r.PostFormValue("descripcion")
+	var categoria, _ = strconv.Atoi(r.PostFormValue("categoria"))
 	var permiso = r.PostFormValue("permiso")
 	if !helper.IsValidPermision(permiso) {
 		helper.DespacharError(w, errors.New("Permiso invalido"), http.StatusNotAcceptable)
@@ -46,6 +49,15 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	var query bson.M
 	if _ID != "" {
 		var row = social.Group{}
+		query = bson.M{
+			"_id":    bson.M{"$ne": ID},
+			"nombre": nombre,
+		}
+		num, _ := SocialBD.C(grupos).Find(query).Limit(1).Count()
+		if num > 0 {
+			helper.DespacharError(w, errors.New("El grupo ya existe"), http.StatusNotAcceptable)
+			return
+		}
 		query = bson.M{"_id": ID, "usuario": session.Usuario}
 		SocialBD.C(grupos).Find(query).One(&row)
 		if row.ID.String() != ID.String() {
@@ -65,6 +77,7 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 				"nombre":      nombre,
 				"descripcion": descripcion,
 				"permiso":     permiso,
+				"categoria":   categoria,
 				"updateat":    time.Now(),
 			},
 		}
@@ -80,6 +93,7 @@ func Save(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 			Usuario:     session.Usuario,
 			Nombre:      nombre,
 			Descripcion: descripcion,
+			Categoria:   categoria,
 			Permiso:     permiso,
 			CreateAt:    time.Now(),
 			UpdateAt:    time.Now(),
@@ -146,6 +160,7 @@ type group struct {
 	Usuario     string      `json:"usuario"`
 	Nombre      string      `json:"nombre"`
 	Descripcion string      `json:"descripcion"`
+	Categoria   int         `json:"categoria"`
 	Permiso     string      `json:"permiso"`
 	CreateAt    time.Time   `json:"create_at"`
 	UpdateAt    time.Time   `json:"update_at"`
