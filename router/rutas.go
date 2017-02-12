@@ -76,7 +76,9 @@ func GetHandler() http.Handler {
 	// groups
 	mux.HandleFunc("/api/v1/groups", protect(groups.ObtenerGrupos, hub, true)).Methods("GET")
 	mux.HandleFunc("/api/v1/groups", protect(groups.Save, hub, true)).Methods("POST")
+	mux.HandleFunc("/api/v1/groups/changePreview", protect(groups.ChangePreview, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/groups/{group}", protect(groups.Describe, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/groups/{group}/preview", protect(groups.Preview, hub, true)).Methods("GET")
 
 	// category
 	mux.HandleFunc("/api/v1/category", protect(category.GetCategorys, hub, true)).Methods("GET")
