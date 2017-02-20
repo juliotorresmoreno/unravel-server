@@ -75,7 +75,6 @@ func (c *Client) Listen() {
 		delete(hub.clients[c.session.Usuario].clients, c)
 		if len(hub.clients[c.session.Usuario].clients) == 0 {
 			delete(hub.clients, c.session.Usuario)
-			println("Conexion eliminada")
 			friends, _ := models.GetFriends(c.session.Usuario)
 			estado, _ := json.Marshal(map[string]interface{}{
 				"action":  "disconnect",
