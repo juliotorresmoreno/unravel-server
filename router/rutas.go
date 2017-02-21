@@ -22,9 +22,12 @@ import "github.com/gorilla/mux"
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
 	var hub = ws.GetHub()
+	var graph = graphql.GetHandler()
 
 	//graphql
-	mux.Handle("/api/v2/graphql", graphql.GetHandler()).Methods("GET", "POST", "PUT", "DELETE")
+	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+		graph(w, r)
+	}, hub, true))
 
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
