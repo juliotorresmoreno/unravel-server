@@ -2,7 +2,6 @@ package auth
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"../../config"
@@ -20,18 +19,15 @@ func Oauth2Callback(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	autenticateOauth(w, r, content.Usuario, state)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-	resultado, _ := json.Marshal(content)
-	w.Write(resultado)
+	autenticateOauth(w, r, content, state)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
-func autenticateOauth(w http.ResponseWriter, r *http.Request, usuario, tipo string) {
+func autenticateOauth(w http.ResponseWriter, r *http.Request, usuario oauth.Usuario, tipo string) {
 	var respuesta []byte
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
-	err := orm.Where("Usuario = ? and Tipo = ?", usuario, tipo).Find(&users)
+	err := orm.Where("Usuario = ? and Tipo = ?", usuario.Usuario, tipo).Find(&users)
 	w.Header().Set("Content-Type", "application/json")
 	helper.Cors(w, r)
 
@@ -56,7 +52,37 @@ func autenticateOauth(w http.ResponseWriter, r *http.Request, usuario, tipo stri
 		return
 	}
 
-	helper.DespacharError(w, errors.New("Usuario o contraseña invalido"), http.StatusUnauthorized)
+	registrarOauth(w, r, usuario, tipo)
+}
+
+func registrarOauth(w http.ResponseWriter, r *http.Request, usuario oauth.Usuario, tipo string) {
+	var user models.User
+	w.Header().Set("Content-Type", "application/json")
+
+	user.Nombres = usuario.Nombres
+	user.Apellidos = usuario.Apellidos
+	user.Usuario = usuario.Usuario
+	user.Email = usuario.Email
+	user.Code = usuario.Code
+	user.Tipo = tipo
+	user.Passwd = ""
+
+	if _, err := user.Add(); err != nil {
+		helper.DespacharError(w, err, http.StatusNotAcceptable)
+	} else {
+		var _token, _session = autenticate(&user)
+		var respuesta, _ = json.Marshal(_session)
+		http.SetCookie(w, &http.Cookie{
+			MaxAge:   config.SESSION_DURATION,
+			HttpOnly: true,
+			Secure:   false,
+			Name:     "token",
+			Value:    _token,
+			Path:     "/",
+		})
+		w.WriteHeader(http.StatusCreated)
+		w.Write(respuesta)
+	}
 }
 
 func obtenerDatos(code, state string) (oauth.Usuario, error) {
