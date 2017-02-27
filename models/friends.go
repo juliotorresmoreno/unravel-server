@@ -10,6 +10,7 @@ type Friend struct {
 	Usuario    string    `json:"usuario"`
 	Nombres    string    `json:"nombres"`
 	Apellidos  string    `json:"apellidos"`
+	FullName   string    `json:"fullname"`
 	Estado     string    `json:"estado"`
 	Registrado time.Time `json:"registrado"`
 	Conectado  bool      `json:"conectado"`
@@ -66,6 +67,7 @@ func listUserToListFriends(users []User, relacion []Relacion) []*Friend {
 			Usuario:    users[i].Usuario,
 			Nombres:    users[i].Nombres,
 			Apellidos:  users[i].Apellidos,
+			FullName:   users[i].FullName,
 			Estado:     "Desconocido",
 			Registrado: users[i].CreateAt,
 		}
@@ -107,7 +109,7 @@ func FindUser(session string, query string, usuario string) ([]*Friend, error) {
 		w := strings.Split(query, " ")
 		str = "usuario != ? AND (false"
 		for _, v := range w {
-			str = str + " OR (nombres LIKE '%" + v + "%' OR apellidos LIKE '%" + v + "%')"
+			str = str + " OR full_name LIKE '%" + v + "%'"
 		}
 		str = str + ")"
 	} else if usuario != "" {

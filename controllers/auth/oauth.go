@@ -56,6 +56,7 @@ func registrarOauth(w http.ResponseWriter, usuario oauth.Usuario, tipo string) e
 	var user models.User
 	user.Nombres = usuario.Nombres
 	user.Apellidos = usuario.Apellidos
+	user.FullName = usuario.FullName
 	user.Usuario = usuario.Usuario
 	user.Email = usuario.Email
 	user.Code = usuario.Code

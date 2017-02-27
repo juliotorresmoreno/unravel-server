@@ -4,7 +4,7 @@ import "time"
 
 type Noticia struct {
 	ID          interface{} "_id"
-	Usuario     string      `valid:"required,alphanum"`
+	Usuario     string      `valid:"required"`
 	Nombres     string      `json:"nombres"`
 	Apellidos   string      `json:"apellidos"`
 	Noticia     string      `valid:"required"`

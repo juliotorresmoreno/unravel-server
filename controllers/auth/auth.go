@@ -51,6 +51,7 @@ func Session(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		"session": map[string]string{
 			"usuario":   session.Usuario,
 			"nombres":   session.Nombres,
+			"fullname":  session.FullName,
 			"apellidos": session.Apellidos,
 			"token":     _token,
 		},
@@ -69,6 +70,7 @@ func autenticate(user *models.User) (string, map[string]interface{}) {
 		"success": true,
 		"session": map[string]string{
 			"usuario":   user.Usuario,
+			"fullname":  user.FullName,
 			"nombres":   user.Nombres,
 			"apellidos": user.Apellidos,
 			"token":     _token,
