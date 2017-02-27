@@ -13,7 +13,7 @@ type User struct {
 	Nombres   string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	Apellidos string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	FullName  string    `xorm:"varchar(200) not null" valid:"required,alphaSpaces"`
-	Email     string    `xorm:"varchar(200) not null unique" valid:"required,email"`
+	Email     string    `xorm:"varchar(200) not null" valid:"required,email"`
 	Usuario   string    `xorm:"varchar(100) not null unique index" valid:"required,alphanum"`
 	Passwd    string    `xorm:"varchar(100) not null" valid:"required,password"`
 	Tipo      string    `xorm:"varchar(20) not null" valid:"required,alphanum"`
@@ -39,6 +39,16 @@ func (that User) Add() (int64, error) {
 	}
 	that.Passwd = helper.Encript(that.Passwd)
 
+	affected, err := orm.Insert(that)
+	if err != nil {
+		return affected, normalize(err, that)
+	}
+	return affected, nil
+}
+
+// ForceAdd crear nuevo usuario sin validar nada
+func (that User) ForceAdd() (int64, error) {
+	that.Passwd = helper.Encript(that.Passwd)
 	affected, err := orm.Insert(that)
 	if err != nil {
 		return affected, normalize(err, that)

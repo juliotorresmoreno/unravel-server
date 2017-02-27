@@ -40,7 +40,7 @@ func GoogleCallback(code, state string) (Usuario, error) {
 	var email string
 	json.Unmarshal(contents, &resultado)
 	if resultado["email"] == nil {
-		email = fmt.Sprintf("%v", resultado["id"]) + "@facebook.com"
+		email = fmt.Sprintf("%v", resultado["id"]) + "@google.com"
 	} else {
 		email = fmt.Sprintf("%v", resultado["email"])
 	}

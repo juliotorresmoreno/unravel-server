@@ -40,14 +40,14 @@ func GithubCallback(code, state string) (Usuario, error) {
 	var email string
 	json.Unmarshal(contents, &resultado)
 	if resultado["email"] == nil {
-		email = fmt.Sprintf("%v", resultado["id"]) + "@facebook.com"
+		email = fmt.Sprintf("%v", resultado["id"]) + "@github.com"
 	} else {
 		email = fmt.Sprintf("%v", resultado["email"])
 	}
 	var respuesta = Usuario{
 		FullName: fmt.Sprintf("%v", resultado["name"]),
 		Email:    email,
-		Usuario:  fmt.Sprintf("%v", resultado["login"]) + "_facebook",
+		Usuario:  fmt.Sprintf("%v", resultado["login"]) + "_github",
 		Tipo:     "github",
 		Code:     code,
 	}
