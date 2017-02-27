@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"encoding/json"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -17,20 +19,28 @@ var googleConf = &oauth2.Config{
 }
 
 //GoogleCallback devuelve los datos basicos del usuario
-func GoogleCallback(code, state string) ([]byte, error) {
+func GoogleCallback(code, state string) (Usuario, error) {
 	var query string
 	var token, err = googleConf.Exchange(oauth2.NoContext, code)
 	query = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken
 	if err != nil {
-		return nil, err
+		return Usuario{}, err
 	}
 	response, err := http.Get(query)
 	if err != nil {
-		return nil, err
+		return Usuario{}, err
 	}
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
-	return contents, err
+	if err != nil {
+		return Usuario{}, err
+	}
+	var resultado map[string]interface{}
+	var respuesta = Usuario{}
+	json.Unmarshal(contents, resultado)
+	respuesta.FullName = resultado["name"].(string)
+	respuesta.Email = resultado["email"].(string)
+	return respuesta, nil
 }
 
 //HandleGoogle ruta de acceso a la autenticacion

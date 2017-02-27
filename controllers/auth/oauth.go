@@ -2,12 +2,13 @@ package auth
 
 import "net/http"
 import "../../oauth"
+import "encoding/json"
 
-// HandleOauth2Callback este es el calback que recive la respuesta de la autenticacion
-func HandleOauth2Callback(w http.ResponseWriter, r *http.Request) {
+//Oauth2Callback este es el calback que recive la respuesta de la autenticacion
+func Oauth2Callback(w http.ResponseWriter, r *http.Request) {
 	var state = r.FormValue("state")
 	var code = r.FormValue("code")
-	var content []byte
+	var content oauth.Usuario
 	var err error
 	switch state {
 	case "google":
@@ -23,5 +24,6 @@ func HandleOauth2Callback(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	w.Write(content)
+	resultado, _ := json.Marshal(content)
+	w.Write(resultado)
 }

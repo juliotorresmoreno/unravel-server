@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -17,20 +18,28 @@ var githubConf = &oauth2.Config{
 }
 
 //GithubCallback devuelve los datos basicos del usuario
-func GithubCallback(code, state string) ([]byte, error) {
+func GithubCallback(code, state string) (Usuario, error) {
 	var query string
 	var token, err = githubConf.Exchange(oauth2.NoContext, code)
 	query = "https://api.github.com/user?access_token=" + token.AccessToken
 	if err != nil {
-		return nil, err
+		return Usuario{}, err
 	}
 	response, err := http.Get(query)
 	if err != nil {
-		return nil, err
+		return Usuario{}, err
 	}
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
-	return contents, err
+	if err != nil {
+		return Usuario{}, err
+	}
+	var resultado map[string]interface{}
+	var respuesta = Usuario{}
+	json.Unmarshal(contents, resultado)
+	respuesta.FullName = resultado["name"].(string)
+	respuesta.Email = resultado["email"].(string)
+	return respuesta, nil
 }
 
 //HandleGithub ruta de acceso a la autenticacion

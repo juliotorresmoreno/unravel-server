@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -17,19 +18,27 @@ var facebookConf = &oauth2.Config{
 }
 
 //FacebookCallback devuelve los datos basicos del usuario
-func FacebookCallback(code, state string) ([]byte, error) {
+func FacebookCallback(code, state string) (Usuario, error) {
 	var token, err = facebookConf.Exchange(oauth2.NoContext, code)
 	var query = "https://graph.facebook.com/me?access_token=" + token.AccessToken
 	if err != nil {
-		return nil, err
+		return Usuario{}, err
 	}
 	response, err := http.Get(query)
 	if err != nil {
-		return nil, err
+		return Usuario{}, err
 	}
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
-	return contents, err
+	if err != nil {
+		return Usuario{}, err
+	}
+	var resultado map[string]interface{}
+	var respuesta = Usuario{}
+	json.Unmarshal(contents, resultado)
+	respuesta.FullName = resultado["name"].(string)
+	respuesta.Email = resultado["email"].(string)
+	return respuesta, nil
 }
 
 //HandleFacebook ruta de acceso a la autenticacion
