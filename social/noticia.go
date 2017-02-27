@@ -7,6 +7,7 @@ type Noticia struct {
 	Usuario     string      `valid:"required"`
 	Nombres     string      `json:"nombres"`
 	Apellidos   string      `json:"apellidos"`
+	FullName    string      `json:"fullname"`
 	Noticia     string      `valid:"required"`
 	Permiso     string      `valid:"required,matches(^(private|friends|public)$)"`
 	Likes       []string

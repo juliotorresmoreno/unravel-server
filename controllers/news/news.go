@@ -30,6 +30,7 @@ func Publicar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 		Usuario:   session.Usuario,
 		Nombres:   session.Nombres,
 		Apellidos: session.Apellidos,
+		FullName:  session.FullName,
 		Noticia:   _noticia,
 		Likes:     make([]string, 0),
 		Permiso:   _permiso,
@@ -208,6 +209,7 @@ func Comentar(w http.ResponseWriter, r *http.Request, session *models.User, hub 
 		Usuario:    session.Usuario,
 		Nombres:    session.Nombres,
 		Apellidos:  session.Apellidos,
+		FullName:   session.FullName,
 		Comentario: _comentario,
 		CreateAt:   time.Now(),
 		UpdateAt:   time.Now(),
@@ -252,6 +254,7 @@ type noticia struct {
 	Usuario     string       `json:"usuario"`
 	Nombres     string       `json:"nombres"`
 	Apellidos   string       `json:"apellidos"`
+	FullName    string       `json:"fullname"`
 	Noticia     string       `json:"noticia"`
 	Permiso     string       `json:"permiso"`
 	Likes       []string     `json:"likes"`
@@ -264,6 +267,7 @@ type comentario struct {
 	Usuario    string    `json:"usuario"`
 	Nombres    string    `json:"nombres"`
 	Apellidos  string    `json:"apellidos"`
+	FullName   string    `json:"fullname"`
 	Comentario string    `json:"comentarios"`
 	CreateAt   time.Time `json:"create_at"`
 	UpdateAt   time.Time `json:"update_at"`
