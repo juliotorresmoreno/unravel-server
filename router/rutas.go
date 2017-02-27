@@ -12,6 +12,7 @@ import "../controllers/news"
 import "../controllers/groups"
 import "../graphql"
 import "../controllers/category"
+import "../oauth"
 
 import "../models"
 import "../test"
@@ -34,6 +35,10 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/session", protect(auth.Session, hub, false)).Methods("GET")
 	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
+	mux.HandleFunc("/oauth2callback", oauth.HandleFacebook).Methods("GET")
+	mux.HandleFunc("/auth/facebook", oauth.HandleFacebook).Methods("GET")
+	mux.HandleFunc("/auth/github", oauth.HandleGithub).Methods("GET")
+	mux.HandleFunc("/auth/google", oauth.HandleGoogle).Methods("GET")
 
 	// profile
 	mux.HandleFunc("/api/v1/profile", protect(profile.Profile, hub, true)).Methods("GET")
