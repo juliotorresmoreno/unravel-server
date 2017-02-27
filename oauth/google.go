@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -35,11 +36,15 @@ func GoogleCallback(code, state string) (Usuario, error) {
 	if err != nil {
 		return Usuario{}, err
 	}
-	var resultado map[string]interface{}
-	var respuesta = Usuario{}
-	json.Unmarshal(contents, resultado)
-	respuesta.FullName = resultado["name"].(string)
-	respuesta.Email = resultado["email"].(string)
+	var resultado = map[string]interface{}{}
+	json.Unmarshal(contents, &resultado)
+	var respuesta = Usuario{
+		FullName: fmt.Sprintf("%v", resultado["name"]),
+		Email:    fmt.Sprintf("%v", resultado["email"]),
+		Usuario:  fmt.Sprintf("%v", resultado["id"]),
+		Tipo:     "google",
+		Code:     code,
+	}
 	return respuesta, nil
 }
 

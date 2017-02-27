@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"fmt"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
@@ -34,11 +36,15 @@ func GithubCallback(code, state string) (Usuario, error) {
 	if err != nil {
 		return Usuario{}, err
 	}
-	var resultado map[string]interface{}
-	var respuesta = Usuario{}
-	json.Unmarshal(contents, resultado)
-	respuesta.FullName = resultado["name"].(string)
-	respuesta.Email = resultado["email"].(string)
+	var resultado = map[string]interface{}{}
+	json.Unmarshal(contents, &resultado)
+	var respuesta = Usuario{
+		FullName: fmt.Sprintf("%v", resultado["name"]),
+		Email:    fmt.Sprintf("%v", resultado["email"]),
+		Usuario:  fmt.Sprintf("%v", resultado["login"]),
+		Tipo:     "github",
+		Code:     code,
+	}
 	return respuesta, nil
 }
 

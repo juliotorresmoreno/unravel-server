@@ -8,4 +8,5 @@ type Usuario struct {
 	Email     string
 	Tipo      string
 	Usuario   string
+	Code      string
 }
