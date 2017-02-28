@@ -71,5 +71,5 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		w.Write(jsonData)
 		return
 	}
-	w.Write([]byte("{\"success\": true, data:{}}"))
+	w.Write([]byte("{\"success\": true, \"data\": {}}"))
 }
