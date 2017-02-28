@@ -13,6 +13,7 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 	var user models.User
 	user.Nombres = r.PostFormValue("nombres")
 	user.Apellidos = r.PostFormValue("apellidos")
+	user.FullName = user.Nombres + " " + user.Apellidos
 	user.Usuario = session.Usuario
 	if user.Nombres != "" && user.Apellidos != "" {
 		if _, err := user.Update(); err != nil {

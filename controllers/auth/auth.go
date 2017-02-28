@@ -127,24 +127,25 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 
 	user.Nombres = r.PostFormValue("nombres")
 	user.Apellidos = r.PostFormValue("apellidos")
+	user.FullName = user.Nombres + " " + user.Apellidos
 	user.Usuario = r.PostFormValue("usuario")
 	user.Email = r.PostFormValue("email")
 	user.Passwd = r.PostFormValue("passwd")
 
 	if _, err := user.Add(); err != nil {
 		helper.DespacharError(w, err, http.StatusNotAcceptable)
-	} else {
-		var _token, _session = autenticate(&user)
-		var respuesta, _ = json.Marshal(_session)
-		http.SetCookie(w, &http.Cookie{
-			MaxAge:   config.SESSION_DURATION,
-			HttpOnly: true,
-			Secure:   false,
-			Name:     "token",
-			Value:    _token,
-			Path:     "/",
-		})
-		w.WriteHeader(http.StatusCreated)
-		w.Write(respuesta)
+		return
 	}
+	var _token, _session = autenticate(&user)
+	var respuesta, _ = json.Marshal(_session)
+	http.SetCookie(w, &http.Cookie{
+		MaxAge:   config.SESSION_DURATION,
+		HttpOnly: true,
+		Secure:   false,
+		Name:     "token",
+		Value:    _token,
+		Path:     "/",
+	})
+	w.WriteHeader(http.StatusCreated)
+	w.Write(respuesta)
 }

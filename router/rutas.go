@@ -1,23 +1,25 @@
 package router
 
-import "net/http"
+import (
+	"net/http"
 
-import "../controllers/auth"
-import "../controllers/chats"
-import "../controllers/friends"
-import "../controllers/galery"
-import "../controllers/profile"
-import "../controllers/users"
-import "../controllers/news"
-import "../controllers/groups"
-import "../graphql"
-import "../controllers/category"
-import "../oauth"
-
-import "../models"
-import "../test"
-import "../ws"
-import "github.com/gorilla/mux"
+	"../controllers/auth"
+	"../controllers/category"
+	"../controllers/chats"
+	"../controllers/friends"
+	"../controllers/galery"
+	"../controllers/groups"
+	"../controllers/news"
+	"../controllers/profile"
+	"../controllers/users"
+	"../graphql"
+	"../models"
+	"../oauth"
+	"../test"
+	"../ws"
+	"github.com/gorilla/mux"
+	"github.com/nytimes/gziphandler"
+)
 
 // GetHandler aca se establecen las rutas del router
 func GetHandler() http.Handler {
@@ -110,7 +112,10 @@ func GetHandler() http.Handler {
 		w.Write([]byte("Not found."))
 	})
 
-	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
-	mux.PathPrefix("/").HandlerFunc(publicHandler).Methods("GET")
+	// archivos estaticos
+	withoutGz := http.HandlerFunc(publicHandler)
+	withGz := gziphandler.GzipHandler(withoutGz)
+	mux.PathPrefix("/").Handler(withGz).Methods("GET")
+
 	return mux
 }
