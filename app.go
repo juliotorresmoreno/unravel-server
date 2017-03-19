@@ -13,8 +13,8 @@ import (
 )
 
 func main() {
-	go startHTTP()
-	startHTTPS()
+	go startHTTPS()
+	startHTTP()
 }
 
 func startHTTP() {
@@ -22,7 +22,7 @@ func startHTTP() {
 	mux.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var url = "https://" + config.HOSTNAME + r.URL.Path + "?" + r.URL.RawQuery
 		http.Redirect(w, r, url, http.StatusMovedPermanently)
-	}).Methods("GET")
+	})
 	var addr = ":" + strconv.Itoa(config.PORT)
 	var server = &http.Server{
 		Addr:           addr,

@@ -28,6 +28,11 @@ var (
 	MONGO_PORT       string
 	MONGO_PSWD       string
 	MONGO_DB         string
+	SMTP_HOST        string
+	SMTP_PORT        string
+	SMTP_USER        string
+	SMTP_PWD         string
+	SMTP_AUTH        bool
 )
 
 type configuration struct {
@@ -51,6 +56,11 @@ type configuration struct {
 	MongoPort       string
 	MongoPswd       string
 	MongoDb         string
+	SMTPHost        string
+	SMTPPort        string
+	SMTPUser        string
+	SMTPPwd         string
+	SMTPAuth        string
 }
 
 func init() {
@@ -86,4 +96,10 @@ func init() {
 	MONGO_PORT = data.MongoPort
 	MONGO_PSWD = data.MongoPswd
 	MONGO_DB = data.MongoDb
+
+	SMTP_HOST = data.SMTPHost
+	SMTP_PORT = data.SMTPPort
+	SMTP_USER = data.SMTPUser
+	SMTP_PWD = data.SMTPPwd
+	SMTP_AUTH = data.SMTPAuth == "true"
 }

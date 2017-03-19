@@ -12,7 +12,6 @@ import (
 	"../controllers/news"
 	"../controllers/profile"
 	"../controllers/users"
-	"../graphql"
 	"../models"
 	"../oauth"
 	"../test"
@@ -25,18 +24,17 @@ import (
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
 	var hub = ws.GetHub()
-	var graph = graphql.GetHandler()
+	//var graph = graphql.GetHandler()
 
 	//graphql
-	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-		graph(w, r)
-	}, hub, true))
+	//mux.HandleFunc("/api/v2/graphql", protect(graph, hub, true))
 
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/session", protect(auth.Session, hub, false)).Methods("GET")
 	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
+	mux.HandleFunc("/api/v1/auth/recovery", auth.Recovery).Methods("POST")
 	mux.HandleFunc("/oauth2callback", auth.Oauth2Callback).Methods("GET")
 	mux.HandleFunc("/auth/facebook", oauth.HandleFacebook).Methods("GET")
 	mux.HandleFunc("/auth/github", oauth.HandleGithub).Methods("GET")

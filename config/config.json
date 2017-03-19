@@ -23,5 +23,11 @@
     "mongoUser": "webapp",
     "mongoPort": "27017",
     "mongoPswd": "webapp",
-    "mongoDb": "webapp"
+    "mongoDb": "webapp",
+
+    "SMTPHost": "127.0.0.1",
+    "SMTPPort": "25",
+    "SMTPUser": "",
+    "SMTPPwd": "",
+    "SMTPAuth": "false"
 }

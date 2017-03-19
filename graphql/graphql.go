@@ -2,15 +2,16 @@ package graphql
 
 import (
 	"log"
-
 	"net/http"
 
+	"../models"
+	"../ws"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
 )
 
 //GetHandler api graphql
-func GetHandler() http.HandlerFunc {
+func GetHandler() func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	fields := graphql.Fields{
 		"hello": &graphql.Field{
 			Type: graphql.String,
@@ -30,5 +31,7 @@ func GetHandler() http.HandlerFunc {
 		Schema: &schema,
 		Pretty: true,
 	})
-	return h.ServeHTTP
+	return func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+		h.ServeHTTP(w, r)
+	}
 }

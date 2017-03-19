@@ -318,11 +318,11 @@ func ViewPreview(w http.ResponseWriter, r *http.Request, session *models.User, h
 	var imagenes = listarImagenes(usuario, galeria)
 	var length = len(imagenes)
 	if length == 0 {
-		url = "http://" + r.Host + defecto
+		url = "https://" + r.Host + defecto
 	} else {
 		imagen = imagenes[rand.Intn(length)]
 		auth = "?token=" + token
-		url = "http://" + r.Host + "/api/v1/" + usuario + "/galery/" + galeria + "/" + imagen + auth + "&mini=1"
+		url = "https://" + r.Host + "/api/v1/" + usuario + "/galery/" + galeria + "/" + imagen + auth + "&mini=1"
 	}
 	http.Redirect(w, r, url, http.StatusFound)
 }
