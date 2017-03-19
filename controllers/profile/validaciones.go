@@ -12,7 +12,6 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		return
 	}
 
-	println(r.PostFormValue("permiso_residencia_pais"))
 	if r.PostFormValue("permiso_email") != "" && r.PostFormValue("email") != "" {
 		updateEmail(w, r, session, hub, perfil)
 		return

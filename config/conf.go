@@ -17,7 +17,11 @@ var (
 	REDIS_PORT       string = "6379"
 	PATH             string
 	SESSION_DURATION int = 7200
+	HOSTNAME         string
 	PORT             int = 80
+	PORT_SSL         int = 443
+	CERT_FILE        string
+	KEY_FILE         string
 	READ_TIMEOUT     time.Duration
 	MONGO_HOST       string
 	MONGO_USER       string
@@ -36,7 +40,11 @@ type configuration struct {
 	RedisPort       string
 	Path            string
 	SessionDuration string
+	Hostname        string
 	Port            string
+	PortSsl         string
+	CertFile        string
+	KeyFile         string
 	ReadTimeout     string
 	MongoHost       string
 	MongoUser       string
@@ -64,7 +72,13 @@ func init() {
 	REDIS_PORT = data.RedisPort
 	PATH = data.Path
 	SESSION_DURATION, _ = strconv.Atoi(data.SessionDuration)
+
+	HOSTNAME = data.Hostname
 	PORT, _ = strconv.Atoi(data.Port)
+	PORT_SSL, _ = strconv.Atoi(data.PortSsl)
+	CERT_FILE = data.CertFile
+	KEY_FILE = data.KeyFile
+
 	READ_TIMEOUT, _ = time.ParseDuration(data.ReadTimeout)
 
 	MONGO_HOST = data.MongoHost

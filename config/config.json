@@ -4,6 +4,7 @@
     "dbPort": "4000",
     "dbPswd": "",
     "dbDb": "webapp",
+    "hostname": "unravel.ga",
 
     "redisHost": "localhost",
     "redisPort": "6379",
@@ -12,7 +13,10 @@
     
     "sessionDuration": "7200",
 
-    "port": "8080",
+    "port": "80",
+    "portSsl": "443",
+    "certFile": "/etc/letsencrypt/live/unravel.ga/cert.pem",
+    "keyFile": "/etc/letsencrypt/live/unravel.ga/privkey.pem",
     "readTimeout": "10",
 
     "mongoHost": "localhost",
