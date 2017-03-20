@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
@@ -17,14 +18,20 @@ var templates = template.Must(template.ParseGlob("templates/*"))
 
 // Recovery recuperacion de contraseña
 func Recovery(w http.ResponseWriter, r *http.Request) {
+	helper.Cors(w, r)
 	email := r.PostFormValue("email")
 	user, err := buscarUsuario(email)
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusBadRequest)
 		return
 	}
+	var orm = models.GetXORM()
 	user.Recovery = helper.GenerateRandomString(100)
-	_, err = models.Update(user.Id, user)
+	_, err = orm.Id(user.Id).Cols("recovery").Update(user)
+	if err != nil {
+		helper.DespacharError(w, err, http.StatusBadRequest)
+		return
+	}
 	to := []string{email}
 	msg := render(email, user.Recovery)
 	server := config.SMTP_HOST + ":" + config.SMTP_PORT
@@ -58,16 +65,18 @@ func buscarID(id string) (*models.User, error) {
 		return &models.User{}, err
 	}
 	if len(users) == 0 {
-		return &models.User{}, errors.New("El usuario no existe")
+		return &models.User{}, errors.New("El token ha caducado")
 	}
 	return &users[0], nil
 }
 
 //Password recupera la contraseña del usuario
 func Password(w http.ResponseWriter, r *http.Request) {
+	helper.Cors(w, r)
 	id := r.PostFormValue("id")
-	password := r.PostFormValue("password")
+	password := r.PostFormValue("passwd")
 	cpassword := r.PostFormValue("passwdConfirm")
+
 	if password != cpassword {
 		helper.DespacharError(w, errors.New("Passwd: Debe validar la contraseña"), http.StatusNotAcceptable)
 		return
@@ -77,17 +86,29 @@ func Password(w http.ResponseWriter, r *http.Request) {
 		helper.DespacharError(w, err, http.StatusNotFound)
 		return
 	}
-	user.Passwd = password
-	if _, err := govalidator.ValidateStruct(user); err != nil {
-		helper.DespacharError(w, err, http.StatusBadRequest)
+	if govalidator.IsAlphanumeric(password) == false {
+		helper.DespacharError(w, errors.New("No es una contraseña valida"), http.StatusBadRequest)
 		return
 	}
+	orm := models.GetXORM()
+	user.Passwd = password
+	user.Recovery = ""
+	_, err = orm.Id(user.Id).Cols("passwd", "recovery").Update(user)
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusBadRequest)
 		return
 	}
-	_, err = models.Update(user.Id, user)
-	w.Header().Set("Content-Type", "application/json")
+	_token, _session := autenticate(user)
+	http.SetCookie(w, &http.Cookie{
+		MaxAge:   config.SESSION_DURATION,
+		Secure:   false,
+		HttpOnly: true,
+		Name:     "token",
+		Value:    _token,
+		Path:     "/",
+	})
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("{\"success\": true}"))
+	respuesta, _ := json.Marshal(_session)
+	w.Write(respuesta)
+	return
 }
