@@ -16,6 +16,7 @@ type User struct {
 	Email     string    `xorm:"varchar(200) not null" valid:"required,email"`
 	Usuario   string    `xorm:"varchar(100) not null unique index" valid:"required,alphanum"`
 	Passwd    string    `xorm:"varchar(100) not null" valid:"required,password"`
+	Recovery  string    `xorm:"varchar(100) not null unique index"`
 	Tipo      string    `xorm:"varchar(20) not null" valid:"required,alphanum"`
 	Code      string    `xorm:"varchar(400) not null"`
 	CreateAt  time.Time `xorm:"created"`
