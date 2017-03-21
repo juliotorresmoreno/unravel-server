@@ -14,7 +14,7 @@ type User struct {
 	Apellidos string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	FullName  string    `xorm:"varchar(200) not null" valid:"required,alphaSpaces"`
 	Email     string    `xorm:"varchar(200) not null" valid:"required,email"`
-	Usuario   string    `xorm:"varchar(100) not null unique index" valid:"required,alphanum"`
+	Usuario   string    `xorm:"varchar(100) not null unique index" valid:"required,username"`
 	Passwd    string    `xorm:"varchar(100) not null" valid:"required,password"`
 	Recovery  string    `xorm:"varchar(100) not null unique index"`
 	Tipo      string    `xorm:"varchar(20) not null" valid:"required,alphanum"`
@@ -66,11 +66,11 @@ func (that User) Update() (int64, error) {
 	if err := orm.Where("Usuario = ?", that.Usuario).Find(&users); err != nil {
 		return 0, err
 	}
+	users[0].Nombres = that.Nombres
+	users[0].Apellidos = that.Apellidos
 	if _, err := govalidator.ValidateStruct(users[0]); err != nil {
 		return 0, normalize(err, that)
 	}
-	users[0].Nombres = that.Nombres
-	users[0].Apellidos = that.Apellidos
 
 	affected, err := orm.Id(users[0].Id).Cols("nombres", "apellidos").Update(users[0])
 	if err != nil {

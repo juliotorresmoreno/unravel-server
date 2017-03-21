@@ -37,6 +37,10 @@ func init() {
 		patterm, _ := regexp.Compile("^([a-zA-Z]+( ){0,1}){1,}$")
 		return patterm.MatchString(str)
 	})
+	govalidator.TagMap["username"] = govalidator.Validator(func(str string) bool {
+		patterm, _ := regexp.Compile("^[a-zA-Z0-9_]{3,}$")
+		return patterm.MatchString(str)
+	})
 	govalidator.TagMap["password"] = govalidator.Validator(func(str string) bool {
 		return len(str) > 4
 	})

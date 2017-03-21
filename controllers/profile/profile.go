@@ -10,7 +10,7 @@ import "../../models"
 import "../../ws"
 
 func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var user models.User
+	user := &models.User{}
 	user.Nombres = r.PostFormValue("nombres")
 	user.Apellidos = r.PostFormValue("apellidos")
 	user.FullName = user.Nombres + " " + user.Apellidos
