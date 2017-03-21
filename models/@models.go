@@ -19,14 +19,12 @@ var rDuplicateEntry *regexp.Regexp
 func init() {
 	var dsn string
 	var err error
+	var charset = "?charset=utf8&parseTime=true"
+	var host = config.DB_HOST + ":" + config.DB_PORT
 	if config.DB_PSWD != "" {
-		dsn = config.DB_USER + ":" + config.DB_PSWD +
-			"@tcp(" + config.DB_HOST + ":" + config.DB_PORT + ")/" + config.DB_DB +
-			"?charset=utf8"
+		dsn = config.DB_USER + ":" + config.DB_PSWD + "@tcp(" + host + ")/" + config.DB_DB + charset
 	} else {
-		dsn = config.DB_USER +
-			"@tcp(" + config.DB_HOST + ":" + config.DB_PORT + ")/" + config.DB_DB +
-			"?charset=utf8&parseTime=true"
+		dsn = config.DB_USER + "@tcp(" + host + ")/" + config.DB_DB + charset
 	}
 	orm, err = xorm.NewEngine("mysql", dsn)
 	if err != nil {

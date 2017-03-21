@@ -68,6 +68,7 @@ func (that User) Update() (int64, error) {
 	}
 	users[0].Nombres = that.Nombres
 	users[0].Apellidos = that.Apellidos
+	users[0].FullName = that.FullName
 	if _, err := govalidator.ValidateStruct(users[0]); err != nil {
 		return 0, normalize(err, that)
 	}
