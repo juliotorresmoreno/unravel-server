@@ -73,7 +73,7 @@ func (that User) Update() (int64, error) {
 		return 0, normalize(err, that)
 	}
 
-	affected, err := orm.Id(users[0].Id).Cols("nombres", "apellidos").Update(users[0])
+	affected, err := orm.Id(users[0].Id).Cols("nombres", "apellidos", "full_name").Update(users[0])
 	if err != nil {
 		return affected, normalize(err, that)
 	}

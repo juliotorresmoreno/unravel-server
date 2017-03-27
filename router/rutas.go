@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"../controllers/auth"
@@ -12,6 +13,7 @@ import (
 	"../controllers/news"
 	"../controllers/profile"
 	"../controllers/users"
+	api "../graphql"
 	"../models"
 	"../oauth"
 	"../test"
@@ -24,10 +26,12 @@ import (
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
 	var hub = ws.GetHub()
-	//var graph = graphql.GetHandler()
 
 	//graphql
-	//mux.HandleFunc("/api/v2/graphql", protect(graph, hub, true))
+	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request) {
+		result := api.ExecuteQuery(r.URL.Query()["query"][0])
+		json.NewEncoder(w).Encode(result)
+	}), hub, true))
 
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
