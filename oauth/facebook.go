@@ -35,17 +35,11 @@ func FacebookCallback(code, state string) (Usuario, error) {
 		return Usuario{}, err
 	}
 	var resultado = map[string]interface{}{}
-	var email string
 	json.Unmarshal(contents, &resultado)
-	if resultado["email"] == nil {
-		email = fmt.Sprintf("%v", resultado["id"]) + "@facebook.com"
-	} else {
-		email = fmt.Sprintf("%v", resultado["email"])
-	}
 	var respuesta = Usuario{
 		FullName: fmt.Sprintf("%v", resultado["name"]),
-		Email:    email,
-		Usuario:  fmt.Sprintf("%v", resultado["id"]) + "_facebook",
+		Email:    fmt.Sprintf("%v@facebook.com", resultado["id"]),
+		Usuario:  fmt.Sprintf("%v_facebook", resultado["id"]),
 		Tipo:     "facebook",
 		Code:     code,
 	}

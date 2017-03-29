@@ -31,8 +31,8 @@ func concat(store map[string]*graphql.Field, append map[string]*graphql.Field) m
 func init() {
 	var query = make(map[string]*graphql.Field, 0)
 	var mutation = make(map[string]*graphql.Field, 0)
-	query = concat(query, category.GetData)
-	mutation = concat(mutation, category.SetData)
+	query = concat(query, users.GetData)
+	mutation = concat(mutation, users.SetData)
 
 	var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 		Name:   "RootQuery",

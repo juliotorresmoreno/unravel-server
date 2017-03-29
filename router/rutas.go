@@ -28,10 +28,10 @@ func GetHandler() http.Handler {
 	var hub = ws.GetHub()
 
 	//graphql
-	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 		result := api.ExecuteQuery(r.URL.Query()["query"][0])
 		json.NewEncoder(w).Encode(result)
-	}), hub, true))
+	}, hub, true))
 
 	// auth
 	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")

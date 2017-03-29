@@ -14,8 +14,8 @@ import (
 func Registrar(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	w.Header().Set("Content-Type", "application/json")
-
 	if r.PostFormValue("passwd") != "" && r.PostFormValue("passwd") != r.PostFormValue("passwdConfirm") {
+		helper.Cors(w, r)
 		helper.DespacharError(w, errors.New("Passwd: Debe validar la contraseña"), http.StatusNotAcceptable)
 		return
 	}
@@ -28,6 +28,7 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 	user.Passwd = r.PostFormValue("passwd")
 
 	if _, err := user.Add(); err != nil {
+		helper.Cors(w, r)
 		helper.DespacharError(w, err, http.StatusNotAcceptable)
 		return
 	}
@@ -41,6 +42,7 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 		Value:    _token,
 		Path:     "/",
 	})
+	helper.Cors(w, r)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(respuesta)
 }
