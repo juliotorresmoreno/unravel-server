@@ -15,7 +15,7 @@
 
     "port": "80",
     "portSsl": "443",
-    "certFile": "/etc/letsencrypt/live/unravel.ga/cert.pem",
+    "certFile": "/etc/letsencrypt/live/unravel.ga/fullchain.pem",
     "keyFile": "/etc/letsencrypt/live/unravel.ga/privkey.pem",
     "readTimeout": "10",
 

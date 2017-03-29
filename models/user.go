@@ -1,9 +1,7 @@
 package models
 
 import "time"
-
 import "errors"
-
 import "../helper"
 import "github.com/asaskevich/govalidator"
 
@@ -15,8 +13,8 @@ type User struct {
 	FullName  string    `xorm:"varchar(200) not null" valid:"required,alphaSpaces"`
 	Email     string    `xorm:"varchar(200) not null" valid:"required,email"`
 	Usuario   string    `xorm:"varchar(100) not null unique index" valid:"required,username"`
-	Passwd    string    `xorm:"varchar(100) not null" valid:"required,password"`
-	Recovery  string    `xorm:"varchar(100) not null unique index"`
+	Passwd    string    `xorm:"varchar(100) not null" valid:"required,password,encript"`
+	Recovery  string    `xorm:"varchar(100) not null index"`
 	Tipo      string    `xorm:"varchar(20) not null" valid:"required,alphanum"`
 	Code      string    `xorm:"varchar(400) not null"`
 	CreateAt  time.Time `xorm:"created"`
@@ -49,7 +47,9 @@ func (that User) Add() (int64, error) {
 
 // ForceAdd crear nuevo usuario sin validar nada
 func (that User) ForceAdd() (int64, error) {
-	that.Passwd = helper.Encript(that.Passwd)
+	if that.Passwd != "" {
+		that.Passwd = helper.Encript(that.Passwd)
+	}
 	affected, err := orm.Insert(that)
 	if err != nil {
 		return affected, normalize(err, that)
