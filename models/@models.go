@@ -1,14 +1,16 @@
 package models
 
-import "errors"
-import "regexp"
-import "strings"
+import (
+	"errors"
+	"regexp"
+	"strings"
 
-import "../config"
-import "../lang/es"
-import "github.com/asaskevich/govalidator"
-import "github.com/go-xorm/xorm"
-import "gopkg.in/redis.v5"
+	"github.com/asaskevich/govalidator"
+	"github.com/go-xorm/xorm"
+	"github.com/unravel-server/config"
+	"github.com/unravel-server/lang/es"
+	"gopkg.in/redis.v5"
+)
 
 var orm *xorm.Engine
 var cache *redis.Client

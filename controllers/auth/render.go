@@ -1,6 +1,6 @@
 package auth
 
-import "../../config"
+import "github.com/unravel-server/config"
 
 type page struct {
 	Title string

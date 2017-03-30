@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"../../config"
-	"../../models"
-	"../../ws"
 	"github.com/gorilla/mux"
+	"github.com/unravel-server/config"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 // GetFotoPerfil establece la foto de perfil.

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"../../helper"
-	"../../models"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
 )
 
 // Logout cerrar session

@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"../../helper"
-	"../../models"
-	"../../ws"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 // Mensaje mensaje enviado por chat a los usuarios

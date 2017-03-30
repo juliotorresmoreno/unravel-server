@@ -3,8 +3,8 @@ package graphql
 import (
 	"fmt"
 
-	"./users"
 	"github.com/graphql-go/graphql"
+	"github.com/unravel-server/graphql/users"
 )
 
 var schema graphql.Schema

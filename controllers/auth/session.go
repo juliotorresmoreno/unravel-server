@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"../../helper"
-	"../../models"
-	"../../ws"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 // Session obtiene la session actual del usuario logueado

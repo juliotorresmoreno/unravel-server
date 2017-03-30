@@ -1,10 +1,13 @@
 package category
 
-import "net/http"
-import "../../models"
-import "../../ws"
-import "../../helper"
-import "encoding/json"
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 //GetCategorys Busqueda de personas
 func GetCategorys(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

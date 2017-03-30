@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"../../config"
-	"../../helper"
-	"../../models"
-	"../../ws"
+	"github.com/unravel-server/config"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 // Upload sube las imagenes

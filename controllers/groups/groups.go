@@ -6,11 +6,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-
-	"../../helper"
-	"../../models"
-	"../../social"
-	"../../ws"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/social"
+	"github.com/unravel-server/ws"
 	"gopkg.in/mgo.v2/bson"
 )
 

@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"../../config"
-	"../../helper"
-	"../../models"
-	"../../ws"
 	"github.com/gorilla/mux"
+	"github.com/unravel-server/config"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 // ViewImagen ver imagen

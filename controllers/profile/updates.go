@@ -1,9 +1,12 @@
 package profile
 
-import "net/http"
-import "../../models"
-import "../../helper"
-import "../../ws"
+import (
+	"net/http"
+
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 func updateEmail(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile) {
 	if !helper.IsValidPermision(r.PostFormValue("permiso_email")) {

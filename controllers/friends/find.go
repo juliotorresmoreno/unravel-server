@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"../../models"
-	"../../ws"
 	"github.com/gorilla/mux"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 //ListFriends listado de amigos o personas con las que se puede chatear

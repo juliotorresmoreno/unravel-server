@@ -1,9 +1,12 @@
 package models
 
-import "time"
-import "errors"
-import "../helper"
-import "github.com/asaskevich/govalidator"
+import (
+	"errors"
+	"time"
+
+	"github.com/asaskevich/govalidator"
+	"github.com/unravel-server/helper"
+)
 
 // User modelo de usuario
 type User struct {

@@ -1,8 +1,11 @@
 package profile
 
-import "net/http"
-import "../../models"
-import "../../ws"
+import (
+	"net/http"
+
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 // Update actualiza los datos del perfil
 func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

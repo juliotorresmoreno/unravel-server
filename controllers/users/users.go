@@ -1,10 +1,12 @@
 package users
 
-import "encoding/json"
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
 
-import "../../models"
-import "../../ws"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 // Find buscar usuarios
 func Find(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

@@ -1,10 +1,12 @@
 package friends
 
-import "encoding/json"
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
 
-import "../../models"
-import "../../ws"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 func obtenerRelaciones(session, usuario string) ([]models.Relacion, error) {
 	var relaciones = make([]models.Relacion, 0)

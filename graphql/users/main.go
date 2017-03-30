@@ -1,9 +1,9 @@
 package users
 
 import (
-	"../../crud"
-	"../../models"
 	"github.com/graphql-go/graphql"
+	"github.com/unravel-server/crud"
+	"github.com/unravel-server/models"
 )
 
 var orm = models.GetXORM()

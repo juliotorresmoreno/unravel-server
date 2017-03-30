@@ -1,8 +1,11 @@
 package router
 
-import "net/http"
-import "os"
-import "../helper"
+import (
+	"net/http"
+	"os"
+
+	"github.com/unravel-server/helper"
+)
 
 func publicHandler(w http.ResponseWriter, r *http.Request) {
 	var publicPath = "./webroot"

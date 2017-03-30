@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"../../config"
-	"../../helper"
-	"../../models"
+	"github.com/unravel-server/config"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
 )
 
 // Login aqui es donde nos autenticamos

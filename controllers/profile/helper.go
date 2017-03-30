@@ -1,7 +1,9 @@
 package profile
 
-import "../../models"
-import "../../helper"
+import (
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+)
 
 func truncar(p models.Profile, relacion int8) map[string]string {
 	var r = make(map[string]string)

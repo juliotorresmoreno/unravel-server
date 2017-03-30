@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"../../models"
-	"../../ws"
 	"github.com/go-xorm/xorm"
 	"github.com/gorilla/mux"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 // GetConversacion obtiene la conversacion con el usuario solicitado

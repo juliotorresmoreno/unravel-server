@@ -1,9 +1,11 @@
 package friends
 
-import "net/http"
+import (
+	"net/http"
 
-import "../../models"
-import "../../ws"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 // RejectFriend Rechazar amistad
 func RejectFriend(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {

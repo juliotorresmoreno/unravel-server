@@ -1,13 +1,14 @@
 package profile
 
-import "encoding/json"
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
 
-import "github.com/gorilla/mux"
-
-import "../../helper"
-import "../../models"
-import "../../ws"
+	"github.com/gorilla/mux"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
+)
 
 func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	user := &models.User{}

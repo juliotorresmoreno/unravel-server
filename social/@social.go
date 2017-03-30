@@ -1,8 +1,8 @@
 package social
 
 import (
-	"../config"
 	"github.com/asaskevich/govalidator"
+	"github.com/unravel-server/config"
 	"gopkg.in/mgo.v2"
 )
 

@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strings"
 
-	"regexp"
-
-	"../../config"
-	"../../helper"
-	"../../models"
-	"../../ws"
 	"github.com/gorilla/mux"
+	"github.com/unravel-server/config"
+	"github.com/unravel-server/helper"
+	"github.com/unravel-server/models"
+	"github.com/unravel-server/ws"
 )
 
 func describeGaleria(usuario, galeria string) (string, string, error) {
