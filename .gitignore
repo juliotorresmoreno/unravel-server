@@ -2,9 +2,7 @@
 .idea
 .vendor
 .vscode
-
 webroot
-
 app
-
 debug
+upload.sh

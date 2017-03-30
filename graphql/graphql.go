@@ -43,6 +43,7 @@ func init() {
 		Name:   "RootMutation",
 		Fields: mutation,
 	})
+
 	schema, _ = graphql.NewSchema(graphql.SchemaConfig{
 		Query:    rootQuery,
 		Mutation: rootMutation,
