@@ -21,6 +21,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 		var usuario, _ = session.Result()
 		var users = make([]models.User, 0)
 		var orm = models.GetXORM()
+		defer orm.Close()
 
 		helper.Cors(w, r)
 

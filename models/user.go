@@ -25,60 +25,67 @@ type User struct {
 }
 
 // TableName establece el nombre de la tabla que usara el modelo
-func (that User) TableName() string {
+func (el User) TableName() string {
 	return "users"
 }
 
 func init() {
+	var orm = GetXORM()
 	orm.Sync2(new(User))
+	orm.Close()
 }
 
 // Add crear nuevo usuario
-func (that User) Add() (int64, error) {
-	_, err := govalidator.ValidateStruct(that)
+func (el User) Add() (int64, error) {
+	_, err := govalidator.ValidateStruct(el)
 	if err != nil {
-		return 0, normalize(err, that)
+		return 0, normalize(err, el)
 	}
-	that.Passwd = helper.Encript(that.Passwd)
+	var orm = GetXORM()
+	defer orm.Close()
+	el.Passwd = helper.Encript(el.Passwd)
 
-	affected, err := orm.Insert(that)
+	affected, err := orm.Insert(el)
 	if err != nil {
-		return affected, normalize(err, that)
+		return affected, normalize(err, el)
 	}
 	return affected, nil
 }
 
 // ForceAdd crear nuevo usuario sin validar nada
-func (that User) ForceAdd() (int64, error) {
-	if that.Passwd != "" {
-		that.Passwd = helper.Encript(that.Passwd)
+func (el User) ForceAdd() (int64, error) {
+	if el.Passwd != "" {
+		el.Passwd = helper.Encript(el.Passwd)
 	}
-	affected, err := orm.Insert(that)
+	var orm = GetXORM()
+	defer orm.Close()
+	affected, err := orm.Insert(el)
 	if err != nil {
-		return affected, normalize(err, that)
+		return affected, normalize(err, el)
 	}
 	return affected, nil
 }
 
 // Update crear nuevo usuario
-func (that User) Update() (int64, error) {
-	if that.Usuario == "" {
+func (el User) Update() (int64, error) {
+	if el.Usuario == "" {
 		return 0, errors.New("Usuario no especificado")
 	}
+	var orm = GetXORM()
+	defer orm.Close()
 	var users = make([]User, 0)
-	if err := orm.Where("Usuario = ?", that.Usuario).Find(&users); err != nil {
+	if err := orm.Where("Usuario = ?", el.Usuario).Find(&users); err != nil {
 		return 0, err
 	}
-	users[0].Nombres = that.Nombres
-	users[0].Apellidos = that.Apellidos
-	users[0].FullName = that.FullName
+	users[0].Nombres = el.Nombres
+	users[0].Apellidos = el.Apellidos
+	users[0].FullName = el.FullName
 	if _, err := govalidator.ValidateStruct(users[0]); err != nil {
-		return 0, normalize(err, that)
+		return 0, normalize(err, el)
 	}
-
 	affected, err := orm.Id(users[0].Id).Cols("nombres", "apellidos", "full_name").Update(users[0])
 	if err != nil {
-		return affected, normalize(err, that)
+		return affected, normalize(err, el)
 	}
 	return affected, nil
 }

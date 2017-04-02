@@ -12,6 +12,7 @@ import (
 //GetCategorys Busqueda de personas
 func GetCategorys(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	var orm = models.GetXORM()
+	defer orm.Close()
 	var resultado = make([]models.Category, 0)
 	var err = orm.Find(&resultado)
 	if err != nil {

@@ -16,6 +16,7 @@ func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.Use
 	w.Header().Set("Content-Type", "application/json")
 	var vars = mux.Vars(r)
 	var orm = models.GetXORM()
+	defer orm.Close()
 	var resultado = make([]models.Chat, 0)
 	var usuario = vars["user"]
 	var antesDe = r.URL.Query().Get("antesDe")

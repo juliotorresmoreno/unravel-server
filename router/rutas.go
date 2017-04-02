@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nytimes/gziphandler"
 	"github.com/unravel-server/controllers/auth"
+	"github.com/unravel-server/controllers/auth/oauth"
 	"github.com/unravel-server/controllers/category"
 	"github.com/unravel-server/controllers/chats"
 	"github.com/unravel-server/controllers/friends"
@@ -15,8 +16,8 @@ import (
 	"github.com/unravel-server/controllers/news"
 	"github.com/unravel-server/controllers/profile"
 	"github.com/unravel-server/controllers/users"
+	api "github.com/unravel-server/graphql"
 	"github.com/unravel-server/models"
-	"github.com/unravel-server/oauth"
 	"github.com/unravel-server/test"
 	"github.com/unravel-server/ws"
 )

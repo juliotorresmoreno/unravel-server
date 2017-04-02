@@ -12,26 +12,11 @@ import (
 	"gopkg.in/redis.v5"
 )
 
-var orm *xorm.Engine
 var cache *redis.Client
 
 var rDuplicateEntry *regexp.Regexp
 
 func init() {
-	var dsn string
-	var err error
-	var charset = "?charset=utf8&parseTime=true"
-	var host = config.DB_HOST + ":" + config.DB_PORT
-	if config.DB_PSWD != "" {
-		dsn = config.DB_USER + ":" + config.DB_PSWD + "@tcp(" + host + ")/" + config.DB_DB + charset
-	} else {
-		dsn = config.DB_USER + "@tcp(" + host + ")/" + config.DB_DB + charset
-	}
-	orm, err = xorm.NewEngine("mysql", dsn)
-	if err != nil {
-		panic(err)
-	}
-
 	govalidator.TagMap["alphaSpaces"] = govalidator.Validator(func(str string) bool {
 		patterm, _ := regexp.Compile("^([a-zA-Z]+( ){0,1}){1,}$")
 		return patterm.MatchString(str)
@@ -56,6 +41,19 @@ func GetCache() *redis.Client {
 
 // GetXORM Obtiene el orm con acceso a la base de datos
 func GetXORM() *xorm.Engine {
+	var dsn string
+	var err error
+	var charset = "?charset=utf8&parseTime=true"
+	var host = config.DB_HOST + ":" + config.DB_PORT
+	if config.DB_PSWD != "" {
+		dsn = config.DB_USER + ":" + config.DB_PSWD + "@tcp(" + host + ")/" + config.DB_DB + charset
+	} else {
+		dsn = config.DB_USER + "@tcp(" + host + ")/" + config.DB_DB + charset
+	}
+	orm, err = xorm.NewEngine("mysql", dsn)
+	if err != nil {
+		panic(err)
+	}
 	return orm
 }
 

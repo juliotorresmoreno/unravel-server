@@ -6,7 +6,6 @@ import (
 	"github.com/unravel-server/models"
 )
 
-var orm = models.GetXORM()
 var tipos = map[string]graphql.Type{
 	"id":        graphql.Int,
 	"nombres":   graphql.String,
@@ -75,6 +74,8 @@ var GetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+			var orm = models.GetXORM()
+			defer orm.Close()
 			data := make([]models.Category, 0)
 			err := crud.GraphQLGet(params, orm, &data)
 			return data, err
@@ -117,6 +118,8 @@ var SetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+			var orm = models.GetXORM()
+			defer orm.Close()
 			data := models.User{}
 			_, err := crud.GraphQLPut(params, orm, &data)
 			return data, err
@@ -158,6 +161,8 @@ var SetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+			var orm = models.GetXORM()
+			defer orm.Close()
 			data := models.User{}
 			crud.GraphQLPost(params, orm, &data)
 			return data, nil
@@ -172,6 +177,8 @@ var SetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+			var orm = models.GetXORM()
+			defer orm.Close()
 			data := models.User{}
 			crud.GraphQLDelete(params, orm, &data)
 			return data, nil

@@ -17,5 +17,7 @@ func (that Noticia) TableName() string {
 }
 
 func init() {
+	var orm = GetXORM()
 	orm.Sync2(new(Noticia))
+	orm.Close()
 }

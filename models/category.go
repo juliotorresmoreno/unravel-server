@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // Category modelo de los chats
 type Category struct {
@@ -11,11 +13,13 @@ type Category struct {
 	UpdateAt time.Time `xorm:"updated" json:"-"`
 }
 
-// TableName establece el nombre de la tabla del modelo
-func (self Category) TableName() string {
+//TableName establece el nombre de la tabla del modelo
+func (el Category) TableName() string {
 	return "categorys"
 }
 
 func init() {
+	var orm = GetXORM()
 	orm.Sync2(new(Category))
+	orm.Close()
 }

@@ -45,11 +45,13 @@ type Profile struct {
 	UpdateAt                   time.Time `xorm:"updated" json:"update_at"`
 }
 
-// TableName establece el nombre de la tabla que usara el modelo
-func (self Profile) TableName() string {
+//TableName establece el nombre de la tabla que usara el modelo
+func (el Profile) TableName() string {
 	return "profile"
 }
 
 func init() {
+	var orm = GetXORM()
 	orm.Sync2(new(Profile))
+	orm.Close()
 }

@@ -28,6 +28,7 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 func getProfile(session *models.User) models.Profile {
 	var perfil = make([]models.Profile, 0)
 	var orm = models.GetXORM()
+	defer orm.Close()
 	var err = orm.Where("Usuario = ?", session.Usuario).Find(&perfil)
 	if err != nil {
 		return models.Profile{}
@@ -44,6 +45,7 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	var usuario string
 	var perfil = make([]models.Profile, 0)
 	var orm = models.GetXORM()
+	defer orm.Close()
 	if vars["user"] != "" {
 		usuario = vars["user"]
 	} else {

@@ -1,9 +1,11 @@
 package models
 
-import "errors"
-import "time"
+import (
+	"errors"
+	"time"
 
-import "github.com/asaskevich/govalidator"
+	"github.com/asaskevich/govalidator"
+)
 
 // Chat modelo de los chats
 type Chat struct {
@@ -17,25 +19,29 @@ type Chat struct {
 }
 
 // TableName establece el nombre de la tabla del modelo
-func (self Chat) TableName() string {
+func (el Chat) TableName() string {
 	return "chats"
 }
 
 func init() {
+	var orm = GetXORM()
 	orm.Sync2(new(Chat))
+	orm.Close()
 }
 
 // Add agrega un nuevo chat
-func (self Chat) Add() (int64, error) {
-	if _, err := govalidator.ValidateStruct(self); err != nil {
-		return 0, normalize(err, self)
+func (el Chat) Add() (int64, error) {
+	if _, err := govalidator.ValidateStruct(el); err != nil {
+		return 0, normalize(err, el)
 	}
+	var orm = GetXORM()
+	defer orm.Close()
 	var q = make([]User, 0)
-	orm.Where("Usuario = ?", self.UsuarioReceptor).Find(&q)
+	orm.Where("Usuario = ?", el.UsuarioReceptor).Find(&q)
 	if len(q) == 1 {
-		affected, err := orm.Insert(self)
+		affected, err := orm.Insert(el)
 		if err != nil {
-			return affected, normalize(err, self)
+			return affected, normalize(err, el)
 		}
 		return affected, nil
 	}

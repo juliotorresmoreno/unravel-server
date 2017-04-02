@@ -17,6 +17,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var respuesta []byte
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
+	defer orm.Close()
 	err := orm.Where("Usuario = ?", usuario).Find(&users)
 	w.Header().Set("Content-Type", "application/json")
 	helper.Cors(w, r)

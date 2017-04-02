@@ -25,6 +25,7 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var orm = models.GetXORM()
+	defer orm.Close()
 	user.Recovery = helper.GenerateRandomString(100)
 	_, err = orm.Id(user.Id).Cols("recovery").Update(user)
 	if err != nil {
@@ -46,6 +47,7 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 func buscarUsuario(email string) (*models.User, error) {
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
+	defer orm.Close()
 	err := orm.Where("Email = ?", email).Find(&users)
 	if err != nil {
 		return &models.User{}, err
@@ -59,6 +61,7 @@ func buscarUsuario(email string) (*models.User, error) {
 func buscarID(id string) (*models.User, error) {
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
+	defer orm.Close()
 	err := orm.Where("Recovery = ?", id).Find(&users)
 	if err != nil {
 		return &models.User{}, err
@@ -90,6 +93,7 @@ func Password(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	orm := models.GetXORM()
+	defer orm.Close()
 	user.Passwd = password
 	user.Recovery = ""
 	_, err = orm.Id(user.Id).Cols("passwd", "recovery").Update(user)

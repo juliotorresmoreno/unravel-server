@@ -21,6 +21,7 @@ type Friend struct {
 func IsFriend(usuario string, amigo string) int8 {
 	var relaciones = make([]Relacion, 0)
 	var orm = GetXORM()
+	defer orm.Close()
 	var str = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
 	orm.Where(str, usuario, amigo, amigo, usuario).Find(&relaciones)
 	if len(relaciones) == 1 {
@@ -35,6 +36,7 @@ func GetFriends(usuario string) ([]*Friend, error) {
 	var relaciones = make([]Relacion, 0)
 	var users = make([]User, 0)
 	var orm = GetXORM()
+	defer orm.Close()
 	var str = "usuario_solicita = ? or usuario_solicitado = ?"
 	if err := orm.Where(str, usuario, usuario).Find(&relaciones); err != nil {
 		return defecto, errors.New("Error desconocido")
@@ -91,6 +93,7 @@ func listUserToListFriends(users []User, relacion []Relacion) []*Friend {
 func FindUsers(usuarios []string) (*[]User, error) {
 	var users = make([]User, 0)
 	var orm = GetXORM()
+	defer orm.Close()
 	var str string
 	str = "Usuario in ('" + strings.Join(usuarios, "', '") + "')"
 	if err := orm.Where(str).Find(&users); err != nil {
@@ -104,6 +107,7 @@ func FindUser(session string, query string, usuario string) ([]*Friend, error) {
 	var users = make([]User, 0)
 	var relaciones = make([]Relacion, 0)
 	var orm = GetXORM()
+	defer orm.Close()
 	var str string
 	if query != "" {
 		w := strings.Split(query, " ")
@@ -135,6 +139,8 @@ func RejectFriends(session string, usuario string) (int64, error) {
 	if session == "" || usuario == "" {
 		return 0, nil
 	}
+	var orm = GetXORM()
+	defer orm.Close()
 	var relacion Relacion
 	var aff int64
 	var str = "(usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\") OR (usuario_solicita = \"%s\" AND usuario_solicitado = \"%s\")"

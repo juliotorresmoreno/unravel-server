@@ -28,6 +28,7 @@ func Oauth2Callback(w http.ResponseWriter, r *http.Request) {
 func autenticateOauth(w http.ResponseWriter, usuario oauth.Usuario, tipo string) error {
 	users := make([]models.User, 0)
 	orm := models.GetXORM()
+	defer orm.Close()
 	err := orm.Where("Usuario = ? and Tipo = ?", usuario.Usuario, tipo).Find(&users)
 
 	if err == nil && len(users) > 0 {

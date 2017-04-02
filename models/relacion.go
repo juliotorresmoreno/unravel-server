@@ -25,5 +25,7 @@ func (that Relacion) TableName() string {
 }
 
 func init() {
+	var orm = GetXORM()
 	orm.Sync2(new(Relacion))
+	orm.Close()
 }
