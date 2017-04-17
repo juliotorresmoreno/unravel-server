@@ -2,8 +2,8 @@ package users
 
 import (
 	"github.com/graphql-go/graphql"
-	"github.com/unravel-server/crud"
-	"github.com/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/crud"
+	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 var tipos = map[string]graphql.Type{

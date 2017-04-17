@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 // EliminarImagen imagenes de la galerias existente

@@ -8,9 +8,9 @@ import (
 	"net/smtp"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 var templates = template.Must(template.ParseGlob("templates/*"))

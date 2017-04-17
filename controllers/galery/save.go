@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 // Save crea y actualiza la galeria

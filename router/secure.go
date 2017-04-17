@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {

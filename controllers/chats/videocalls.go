@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 // VideoLlamada solicitud para la misma, debera ser aceptada por el usuario

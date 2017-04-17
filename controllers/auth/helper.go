@@ -3,9 +3,9 @@ package auth
 import (
 	"time"
 
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 func autenticate(user *models.User) (string, map[string]interface{}) {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/helper"
 )
 
 func publicHandler(w http.ResponseWriter, r *http.Request) {

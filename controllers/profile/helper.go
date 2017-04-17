@@ -1,8 +1,8 @@
 package profile
 
 import (
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 func truncar(p models.Profile, relacion int8) map[string]string {

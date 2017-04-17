@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 //ListFriends listado de amigos o personas con las que se puede chatear

@@ -3,8 +3,8 @@ package profile
 import (
 	"net/http"
 
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 // Update actualiza los datos del perfil

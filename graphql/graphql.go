@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/graphql-go/graphql"
-	"github.com/unravel-server/graphql/users"
+	"github.com/juliotorresmoreno/unravel-server/graphql/users"
 )
 
 var schema graphql.Schema

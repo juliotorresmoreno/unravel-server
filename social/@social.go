@@ -2,8 +2,8 @@ package social
 
 import (
 	"github.com/asaskevich/govalidator"
-	"github.com/unravel-server/config"
-	"gopkg.in/mgo.v2"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	mgo "gopkg.in/mgo.v2"
 )
 
 var username = config.MONGO_USER

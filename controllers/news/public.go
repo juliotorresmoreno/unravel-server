@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
-	"github.com/unravel-server/social"
-	"github.com/unravel-server/ws"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/social"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 	"gopkg.in/mgo.v2/bson"
 )
 

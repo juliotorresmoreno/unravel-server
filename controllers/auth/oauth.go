@@ -3,10 +3,10 @@ package auth
 import (
 	"net/http"
 
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/controllers/auth/oauth"
-	"github.com/unravel-server/helper"
-	"github.com/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/controllers/auth/oauth"
+	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 //Oauth2Callback este es el calback que recive la respuesta de la autenticacion

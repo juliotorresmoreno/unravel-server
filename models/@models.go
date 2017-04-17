@@ -7,9 +7,9 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/go-xorm/xorm"
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/lang/es"
-	"gopkg.in/redis.v5"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/lang/es"
+	redis "gopkg.in/redis.v5"
 )
 
 var cache *redis.Client
@@ -50,7 +50,7 @@ func GetXORM() *xorm.Engine {
 	} else {
 		dsn = config.DB_USER + "@tcp(" + host + ")/" + config.DB_DB + charset
 	}
-	orm, err = xorm.NewEngine("mysql", dsn)
+	orm, err := xorm.NewEngine("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +75,7 @@ func Update(id uint, self interface{}) (int64, error) {
 	if err != nil {
 		return 0, normalize(err, self)
 	}
-
+	var orm = GetXORM()
 	affected, err := orm.Id(id).Update(self)
 	if err != nil {
 		return affected, normalize(err, self)
@@ -89,6 +89,7 @@ func Add(self interface{}) (int64, error) {
 	if err != nil {
 		return 0, normalize(err, self)
 	}
+	var orm = GetXORM()
 	affected, err := orm.Insert(self)
 	if err != nil {
 		return affected, normalize(err, self)

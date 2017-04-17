@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 var upgrader = websocket.Upgrader{

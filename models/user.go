@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/helper"
 )
 
 // User modelo de usuario
