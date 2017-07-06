@@ -7,8 +7,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"github.com/unravel-server/config"
-	"github.com/unravel-server/router"
+	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/router"
 )
 
 func main() {

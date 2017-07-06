@@ -26,6 +26,7 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 	user.Usuario = r.PostFormValue("usuario")
 	user.Email = r.PostFormValue("email")
 	user.Passwd = r.PostFormValue("passwd")
+	user.Tipo = "Usuario"
 
 	if _, err := user.Add(); err != nil {
 		helper.Cors(w, r)

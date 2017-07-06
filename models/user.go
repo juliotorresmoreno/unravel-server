@@ -37,7 +37,7 @@ func init() {
 
 // Add crear nuevo usuario
 func (el User) Add() (int64, error) {
-	_, err := govalidator.ValidateStruct(el)
+	_, err := helper.ValidateStruct(el)
 	if err != nil {
 		return 0, normalize(err, el)
 	}

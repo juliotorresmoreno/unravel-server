@@ -1,13 +1,29 @@
 package helper
 
-import "encoding/base64"
-import "math/rand"
-import "net/http"
-import "strconv"
-import "strings"
-import "time"
+import (
+	"encoding/base64"
+	"math/rand"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
-import "golang.org/x/crypto/bcrypt"
+	"github.com/asaskevich/govalidator"
+	"golang.org/x/crypto/bcrypt"
+)
+
+func init() {
+	govalidator.TagMap["password"] = govalidator.Validator(func(str string) bool {
+		return true
+	})
+	govalidator.TagMap["encript"] = govalidator.Validator(func(str string) bool {
+		return true
+	})
+}
+
+func ValidateStruct(obj interface{}) (bool, error) {
+	return govalidator.ValidateStruct(obj)
+}
 
 // PuedoVer verifica si el usuario puede acceder al recurso
 func PuedoVer(relacion int8, permiso string) bool {
