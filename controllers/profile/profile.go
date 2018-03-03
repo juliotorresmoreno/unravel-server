@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
@@ -27,7 +28,7 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 
 func getProfile(session *models.User) models.Profile {
 	var perfil = make([]models.Profile, 0)
-	var orm = models.GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var err = orm.Where("Usuario = ?", session.Usuario).Find(&perfil)
 	if err != nil {
@@ -44,7 +45,7 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	var vars = mux.Vars(r)
 	var usuario string
 	var perfil = make([]models.Profile, 0)
-	var orm = models.GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	if vars["user"] != "" {
 		usuario = vars["user"]

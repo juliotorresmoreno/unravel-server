@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/juliotorresmoreno/unravel-server/db"
 )
 
 // Chat modelo de los chats
@@ -24,7 +25,7 @@ func (el Chat) TableName() string {
 }
 
 func init() {
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	orm.Sync2(new(Chat))
 	orm.Close()
 }
@@ -34,7 +35,7 @@ func (el Chat) Add() (int64, error) {
 	if _, err := govalidator.ValidateStruct(el); err != nil {
 		return 0, normalize(err, el)
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var q = make([]User, 0)
 	orm.Where("Usuario = ?", el.UsuarioReceptor).Find(&q)

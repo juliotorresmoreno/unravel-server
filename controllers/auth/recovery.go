@@ -9,6 +9,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 )
@@ -24,7 +25,7 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 		helper.DespacharError(w, err, http.StatusBadRequest)
 		return
 	}
-	var orm = models.GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	user.Recovery = helper.GenerateRandomString(100)
 	_, err = orm.Id(user.Id).Cols("recovery").Update(user)
@@ -46,7 +47,7 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 
 func buscarUsuario(email string) (*models.User, error) {
 	users := make([]models.User, 0)
-	orm := models.GetXORM()
+	orm := db.GetXORM()
 	defer orm.Close()
 	err := orm.Where("Email = ?", email).Find(&users)
 	if err != nil {
@@ -60,7 +61,7 @@ func buscarUsuario(email string) (*models.User, error) {
 
 func buscarID(id string) (*models.User, error) {
 	users := make([]models.User, 0)
-	orm := models.GetXORM()
+	orm := db.GetXORM()
 	defer orm.Close()
 	err := orm.Where("Recovery = ?", id).Find(&users)
 	if err != nil {
@@ -92,7 +93,7 @@ func Password(w http.ResponseWriter, r *http.Request) {
 		helper.DespacharError(w, errors.New("No es una contraseña valida"), http.StatusBadRequest)
 		return
 	}
-	orm := models.GetXORM()
+	orm := db.GetXORM()
 	defer orm.Close()
 	user.Passwd = password
 	user.Recovery = ""

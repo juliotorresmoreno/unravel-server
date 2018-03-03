@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/juliotorresmoreno/unravel-server/db"
+)
 
 type Noticia struct {
 	Id       uint      `xorm:"bigint not null autoincr pk" json:"-"`
@@ -17,7 +21,7 @@ func (that Noticia) TableName() string {
 }
 
 func init() {
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	orm.Sync2(new(Noticia))
 	orm.Close()
 }

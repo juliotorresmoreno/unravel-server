@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 )
@@ -16,7 +17,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var passwd = r.PostFormValue("passwd")
 	var respuesta []byte
 	users := make([]models.User, 0)
-	orm := models.GetXORM()
+	orm := db.GetXORM()
 	defer orm.Close()
 	err := orm.Where("Usuario = ?", usuario).Find(&users)
 	w.Header().Set("Content-Type", "application/json")

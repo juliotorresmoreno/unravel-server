@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/juliotorresmoreno/unravel-server/db"
 )
 
 // Category modelo de los chats
@@ -19,7 +21,7 @@ func (el Category) TableName() string {
 }
 
 func init() {
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	orm.Sync2(new(Category))
 	orm.Close()
 }

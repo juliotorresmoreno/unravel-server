@@ -5,6 +5,7 @@ import (
 
 	"github.com/juliotorresmoreno/unravel-server/config"
 	"github.com/juliotorresmoreno/unravel-server/controllers/auth/oauth"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 )
@@ -27,7 +28,7 @@ func Oauth2Callback(w http.ResponseWriter, r *http.Request) {
 
 func autenticateOauth(w http.ResponseWriter, usuario oauth.Usuario, tipo string) error {
 	users := make([]models.User, 0)
-	orm := models.GetXORM()
+	orm := db.GetXORM()
 	defer orm.Close()
 	err := orm.Where("Usuario = ? and Tipo = ?", usuario.Usuario, tipo).Find(&users)
 

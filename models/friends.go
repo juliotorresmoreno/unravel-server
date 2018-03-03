@@ -1,9 +1,13 @@
 package models
 
-import "errors"
-import "fmt"
-import "strings"
-import "time"
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/juliotorresmoreno/unravel-server/db"
+)
 
 //Friend Entidad que representa una amistad
 type Friend struct {
@@ -20,7 +24,7 @@ type Friend struct {
 //IsFriend Determina su dos usuarios son amigos
 func IsFriend(usuario string, amigo string) int8 {
 	var relaciones = make([]Relacion, 0)
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var str = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
 	orm.Where(str, usuario, amigo, amigo, usuario).Find(&relaciones)
@@ -35,7 +39,7 @@ func GetFriends(usuario string) ([]*Friend, error) {
 	var defecto = make([]*Friend, 0)
 	var relaciones = make([]Relacion, 0)
 	var users = make([]User, 0)
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var str = "usuario_solicita = ? or usuario_solicitado = ?"
 	if err := orm.Where(str, usuario, usuario).Find(&relaciones); err != nil {
@@ -92,7 +96,7 @@ func listUserToListFriends(users []User, relacion []Relacion) []*Friend {
 //FindUsers Busca los usuarios
 func FindUsers(usuarios []string) (*[]User, error) {
 	var users = make([]User, 0)
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var str string
 	str = "Usuario in ('" + strings.Join(usuarios, "', '") + "')"
@@ -106,7 +110,7 @@ func FindUsers(usuarios []string) (*[]User, error) {
 func FindUser(session string, query string, usuario string) ([]*Friend, error) {
 	var users = make([]User, 0)
 	var relaciones = make([]Relacion, 0)
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var str string
 	if query != "" {
@@ -139,7 +143,7 @@ func RejectFriends(session string, usuario string) (int64, error) {
 	if session == "" || usuario == "" {
 		return 0, nil
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var relacion Relacion
 	var aff int64

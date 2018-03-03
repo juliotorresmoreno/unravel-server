@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
@@ -13,14 +14,13 @@ import (
 
 func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub), hub *ws.Hub, rechazar bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		println(r.URL.Path)
 
-		var cache = models.GetCache()
+		var cache = db.GetCache()
 		var token = helper.GetToken(r)
 		var session = cache.Get(token)
 		var usuario, _ = session.Result()
 		var users = make([]models.User, 0)
-		var orm = models.GetXORM()
+		var orm = db.GetXORM()
 		defer orm.Close()
 
 		helper.Cors(w, r)
@@ -46,7 +46,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			return
 		}
 		if len(users) == 1 {
-			cache := models.GetCache()
+			cache := db.GetCache()
 			cache.Set(
 				string(token),
 				users[0].Usuario,

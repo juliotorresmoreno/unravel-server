@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
@@ -11,7 +12,7 @@ import (
 
 //GetCategorys Busqueda de personas
 func GetCategorys(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	var orm = models.GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var resultado = make([]models.Category, 0)
 	var err = orm.Find(&resultado)

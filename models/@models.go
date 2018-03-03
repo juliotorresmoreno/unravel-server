@@ -6,15 +6,13 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/go-xorm/xorm"
-	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/lang/es"
 	redis "gopkg.in/redis.v5"
 )
 
-var cache *redis.Client
-
 var rDuplicateEntry *regexp.Regexp
+var cache *redis.Client
 
 func init() {
 	govalidator.TagMap["alphaSpaces"] = govalidator.Validator(func(str string) bool {
@@ -29,32 +27,6 @@ func init() {
 		return len(str) > 4
 	})
 	rDuplicateEntry, _ = regexp.Compile("Error 1062")
-	cache = redis.NewClient(&redis.Options{
-		Addr: config.REDIS_HOST + ":" + config.REDIS_PORT,
-	})
-}
-
-// GetCache Obtiene la cache
-func GetCache() *redis.Client {
-	return cache
-}
-
-// GetXORM Obtiene el orm con acceso a la base de datos
-func GetXORM() *xorm.Engine {
-	var dsn string
-	var err error
-	var charset = "?charset=utf8&parseTime=true"
-	var host = config.DB_HOST + ":" + config.DB_PORT
-	if config.DB_PSWD != "" {
-		dsn = config.DB_USER + ":" + config.DB_PSWD + "@tcp(" + host + ")/" + config.DB_DB + charset
-	} else {
-		dsn = config.DB_USER + "@tcp(" + host + ")/" + config.DB_DB + charset
-	}
-	orm, err := xorm.NewEngine("mysql", dsn)
-	if err != nil {
-		panic(err)
-	}
-	return orm
 }
 
 func normalize(Error error, data interface{}) error {
@@ -75,7 +47,7 @@ func Update(id uint, self interface{}) (int64, error) {
 	if err != nil {
 		return 0, normalize(err, self)
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	affected, err := orm.Id(id).Update(self)
 	if err != nil {
 		return affected, normalize(err, self)
@@ -89,7 +61,7 @@ func Add(self interface{}) (int64, error) {
 	if err != nil {
 		return 0, normalize(err, self)
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	affected, err := orm.Insert(self)
 	if err != nil {
 		return affected, normalize(err, self)

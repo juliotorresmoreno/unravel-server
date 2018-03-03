@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 )
 
@@ -30,7 +31,7 @@ func (el User) TableName() string {
 }
 
 func init() {
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	orm.Sync2(new(User))
 	orm.Close()
 }
@@ -41,7 +42,7 @@ func (el User) Add() (int64, error) {
 	if err != nil {
 		return 0, normalize(err, el)
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	el.Passwd = helper.Encript(el.Passwd)
 
@@ -57,7 +58,7 @@ func (el User) ForceAdd() (int64, error) {
 	if el.Passwd != "" {
 		el.Passwd = helper.Encript(el.Passwd)
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	affected, err := orm.Insert(el)
 	if err != nil {
@@ -71,7 +72,7 @@ func (el User) Update() (int64, error) {
 	if el.Usuario == "" {
 		return 0, errors.New("Usuario no especificado")
 	}
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var users = make([]User, 0)
 	if err := orm.Where("Usuario = ?", el.Usuario).Find(&users); err != nil {

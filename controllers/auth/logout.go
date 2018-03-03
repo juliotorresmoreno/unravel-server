@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
-	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 // Logout cerrar session
 func Logout(w http.ResponseWriter, r *http.Request) {
-	var cache = models.GetCache()
+	var cache = db.GetCache()
 	var token string = helper.GetToken(r)
 	if token != "" {
 		cache.Del(token)

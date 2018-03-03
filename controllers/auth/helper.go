@@ -4,13 +4,14 @@ import (
 	"time"
 
 	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
 func autenticate(user *models.User) (string, map[string]interface{}) {
 	_token := helper.GenerateRandomString(100)
-	cache := models.GetCache()
+	cache := db.GetCache()
 	cache.Set(string(_token), user.Usuario, time.Duration(config.SESSION_DURATION)*time.Second)
 
 	respuesta := map[string]interface{}{

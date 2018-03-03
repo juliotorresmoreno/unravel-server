@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 func obtenerRelaciones(session, usuario string) ([]models.Relacion, error) {
 	var relaciones = make([]models.Relacion, 0)
-	var orm = models.GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var str = "(usuario_solicita = ? and usuario_solicitado = ?) or (usuario_solicita = ? and usuario_solicitado = ?)"
 	err := orm.Where(str, usuario, session, session, usuario).Find(&relaciones)

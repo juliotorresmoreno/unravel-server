@@ -3,6 +3,7 @@ package users
 import (
 	"github.com/graphql-go/graphql"
 	"github.com/juliotorresmoreno/unravel-server/crud"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
@@ -74,7 +75,7 @@ var GetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			var orm = models.GetXORM()
+			var orm = db.GetXORM()
 			defer orm.Close()
 			data := make([]models.Category, 0)
 			err := crud.GraphQLGet(params, orm, &data)
@@ -118,7 +119,7 @@ var SetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			var orm = models.GetXORM()
+			var orm = db.GetXORM()
 			defer orm.Close()
 			data := models.User{}
 			_, err := crud.GraphQLPut(params, orm, &data)
@@ -161,7 +162,7 @@ var SetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			var orm = models.GetXORM()
+			var orm = db.GetXORM()
 			defer orm.Close()
 			data := models.User{}
 			crud.GraphQLPost(params, orm, &data)
@@ -177,7 +178,7 @@ var SetData = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			var orm = models.GetXORM()
+			var orm = db.GetXORM()
 			defer orm.Close()
 			data := models.User{}
 			crud.GraphQLDelete(params, orm, &data)

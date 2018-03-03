@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-xorm/xorm"
 	"github.com/gorilla/mux"
+	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
@@ -15,7 +16,7 @@ import (
 func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	w.Header().Set("Content-Type", "application/json")
 	var vars = mux.Vars(r)
-	var orm = models.GetXORM()
+	var orm = db.GetXORM()
 	defer orm.Close()
 	var resultado = make([]models.Chat, 0)
 	var usuario = vars["user"]

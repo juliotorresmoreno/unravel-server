@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/juliotorresmoreno/unravel-server/db"
+)
 
 const (
 	EstadoDesconocido int8 = -1
@@ -25,7 +29,7 @@ func (that Relacion) TableName() string {
 }
 
 func init() {
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	orm.Sync2(new(Relacion))
 	orm.Close()
 }

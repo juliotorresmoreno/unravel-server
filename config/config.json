@@ -3,8 +3,8 @@
     "dbUser": "root",
     "dbPort": "4000",
     "dbPswd": "",
-    "dbDb": "webapp",
-    "hostname": "unravel.ga",
+    "dbDb": "asesores",
+    "hostname": "asesores.onnasoft.com",
 
     "redisHost": "localhost",
     "redisPort": "6379",
@@ -13,17 +13,17 @@
     
     "sessionDuration": "7200",
 
-    "port": "8000",
+    "port": "8080",
     "portSsl": "8443",
     "certFile": "/home/juliotorres/go/src/github.com/juliotorresmoreno/unravel-server/certs/server.crt",
     "keyFile": "/home/juliotorres/go/src/github.com/juliotorresmoreno/unravel-server/certs/server.key",
     "readTimeout": "10",
 
     "mongoHost": "localhost",
-    "mongoUser": "webapp",
+    "mongoUser": "asesores",
     "mongoPort": "27017",
-    "mongoPswd": "webapp",
-    "mongoDb": "webapp",
+    "mongoPswd": "asesores",
+    "mongoDb": "asesores",
 
     "SMTPHost": "127.0.0.1",
     "SMTPPort": "25",

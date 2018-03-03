@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/juliotorresmoreno/unravel-server/db"
+)
 
 // Profile modelo de usuario
 type Profile struct {
@@ -51,7 +55,7 @@ func (el Profile) TableName() string {
 }
 
 func init() {
-	var orm = GetXORM()
+	var orm = db.GetXORM()
 	orm.Sync2(new(Profile))
 	orm.Close()
 }
