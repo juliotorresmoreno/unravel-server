@@ -13,8 +13,9 @@ import (
 
 // Login aqui es donde nos autenticamos
 func Login(w http.ResponseWriter, r *http.Request) {
-	var usuario = r.PostFormValue("usuario")
-	var passwd = r.PostFormValue("passwd")
+	data := helper.GetPostParams(r)
+	var usuario = data.Get("usuario")
+	var passwd = data.Get("passwd")
 	var respuesta []byte
 	users := make([]models.User, 0)
 	orm := db.GetXORM()

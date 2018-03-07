@@ -1,8 +1,8 @@
 {
     "dbHost": "localhost",
     "dbUser": "root",
-    "dbPort": "4000",
-    "dbPswd": "",
+    "dbPort": "3306",
+    "dbPswd": "paramore",
     "dbDb": "asesores",
     "hostname": "asesores.onnasoft.com",
 

@@ -1,0 +1,20 @@
+
+
+
+POST https://localhost:8443/api/v1/auth/registrar
+Content-Type: application/json
+
+{
+    "nombres": "t",
+    "apellidos": "ds",
+    "email": "d@d.com",
+    "usuario": "usuario",
+    "passwd": "123456"
+}
+
+
+####
+
+OPTIONS  https://localhost:8443//api/v1/auth/registrar
+
+

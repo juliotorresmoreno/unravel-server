@@ -20,12 +20,13 @@ func Registrar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Nombres = r.PostFormValue("nombres")
-	user.Apellidos = r.PostFormValue("apellidos")
+	data := helper.GetPostParams(r)
+	user.Nombres = data.Get("nombres")
+	user.Apellidos = data.Get("apellidos")
 	user.FullName = user.Nombres + " " + user.Apellidos
-	user.Usuario = r.PostFormValue("usuario")
-	user.Email = r.PostFormValue("email")
-	user.Passwd = r.PostFormValue("passwd")
+	user.Usuario = data.Get("usuario")
+	user.Email = data.Get("email")
+	user.Passwd = data.Get("passwd")
 	user.Tipo = "Usuario"
 
 	if _, err := user.Add(); err != nil {

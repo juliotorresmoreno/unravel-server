@@ -16,6 +16,7 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/controllers/profile"
 	"github.com/juliotorresmoreno/unravel-server/controllers/users"
 	api "github.com/juliotorresmoreno/unravel-server/graphql"
+	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/test"
 	"github.com/juliotorresmoreno/unravel-server/ws"
@@ -26,6 +27,8 @@ import (
 func GetHandler() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(false)
 	var hub = ws.GetHub()
+
+	mux.PathPrefix("/").HandlerFunc(helper.HandleCors).Methods("OPTIONS")
 
 	//graphql
 	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
