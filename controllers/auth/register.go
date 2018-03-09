@@ -2,7 +2,6 @@ package auth
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/juliotorresmoreno/unravel-server/config"
@@ -14,11 +13,6 @@ import (
 func Registrar(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	w.Header().Set("Content-Type", "application/json")
-	if r.PostFormValue("passwd") != "" && r.PostFormValue("passwd") != r.PostFormValue("passwdConfirm") {
-		helper.Cors(w, r)
-		helper.DespacharError(w, errors.New("Passwd: Debe validar la contraseña"), http.StatusNotAcceptable)
-		return
-	}
 
 	data := helper.GetPostParams(r)
 	user.Nombres = data.Get("nombres")

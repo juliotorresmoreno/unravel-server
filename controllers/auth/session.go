@@ -13,7 +13,7 @@ import (
 func Session(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	if session == nil {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte("{\"success\": false}"))
 		return
 	}

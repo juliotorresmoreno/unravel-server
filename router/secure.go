@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -29,6 +30,7 @@ func protect(fn func(w http.ResponseWriter, r *http.Request, user *models.User, 
 			if rechazar {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
+				fmt.Println(session.Err())
 			} else {
 				fn(w, r, nil, hub)
 			}
