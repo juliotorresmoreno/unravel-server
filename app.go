@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -29,8 +30,8 @@ func startHTTP() {
 		ReadTimeout:    config.READ_TIMEOUT * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	println("Listening on " + addr)
-	println(server.ListenAndServe())
+	fmt.Println("Listening on " + addr)
+	fmt.Println(server.ListenAndServe())
 }
 
 func startHTTPS() {
@@ -43,6 +44,6 @@ func startHTTPS() {
 		ReadTimeout:    config.READ_TIMEOUT * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	println("Listening on " + addrSsl)
-	println(serverSsl.ListenAndServeTLS(certFile, keyFile))
+	fmt.Println("Listening on " + addrSsl)
+	fmt.Println(serverSsl.ListenAndServeTLS(certFile, keyFile))
 }
