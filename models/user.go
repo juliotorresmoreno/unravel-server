@@ -11,18 +11,19 @@ import (
 
 // User modelo de usuario
 type User struct {
-	Id        uint      `xorm:"bigint not null autoincr pk"`
-	Nombres   string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
-	Apellidos string    `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
-	FullName  string    `xorm:"varchar(200) not null" valid:"required,alphaSpaces"`
-	Email     string    `xorm:"varchar(200) not null" valid:"required,email"`
-	Usuario   string    `xorm:"varchar(100) not null unique index" valid:"required,username"`
-	Passwd    string    `xorm:"varchar(100) not null" valid:"required,password,encript"`
-	Recovery  string    `xorm:"varchar(100) not null index"`
-	Tipo      string    `xorm:"varchar(20) not null" valid:"required,alphanum"`
-	Code      string    `xorm:"varchar(400) not null"`
-	CreateAt  time.Time `xorm:"created"`
-	UpdateAt  time.Time `xorm:"updated"`
+	Id        uint   `xorm:"bigint not null autoincr pk"`
+	Nombres   string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
+	Apellidos string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
+	FullName  string `xorm:"varchar(200) not null" valid:"required,alphaSpaces"`
+	Email     string `xorm:"varchar(200) not null" valid:"required,email"`
+	Usuario   string `xorm:"varchar(100) not null unique index" valid:"required,username"`
+	Passwd    string `xorm:"varchar(100) not null" valid:"required,password,encript"`
+	Recovery  string `xorm:"varchar(100) not null index"`
+	Tipo      string `xorm:"varchar(20) not null" valid:"required,alphanum"`
+	Code      string `xorm:"varchar(400) not null"`
+
+	CreateAt time.Time `xorm:"created"`
+	UpdateAt time.Time `xorm:"updated"`
 }
 
 // TableName establece el nombre de la tabla que usara el modelo

@@ -3,6 +3,7 @@ package auth
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/smtp"
@@ -12,6 +13,7 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
+	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
 var templates = template.Must(template.ParseGlob("templates/*"))
@@ -19,7 +21,8 @@ var templates = template.Must(template.ParseGlob("templates/*"))
 // Recovery recuperacion de contraseña
 func Recovery(w http.ResponseWriter, r *http.Request) {
 	helper.Cors(w, r)
-	email := r.PostFormValue("email")
+	data := helper.GetPostParams(r)
+	email := data.Get("email")
 	user, err := buscarUsuario(email)
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusBadRequest)
@@ -36,9 +39,9 @@ func Recovery(w http.ResponseWriter, r *http.Request) {
 	to := []string{email}
 	msg := render(email, user.Recovery)
 	server := config.SMTP_HOST + ":" + config.SMTP_PORT
-	err = smtp.SendMail(server, nil, "Recuperacion de contraseña <recovery@unravel.ga>", to, msg)
+	err = smtp.SendMail(server, nil, "Recuperacion de contraseña <recovery@onnasoft.com>", to, msg)
 	if err != nil {
-		println(err)
+		fmt.Println(err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -76,9 +79,10 @@ func buscarID(id string) (*models.User, error) {
 //Password recupera la contraseña del usuario
 func Password(w http.ResponseWriter, r *http.Request) {
 	helper.Cors(w, r)
-	id := r.PostFormValue("id")
-	password := r.PostFormValue("passwd")
-	cpassword := r.PostFormValue("passwdConfirm")
+	data := helper.GetPostParams(r)
+	id := data.Get("id")
+	password := data.Get("passwd")
+	cpassword := data.Get("passwdConfirm")
 
 	if password != cpassword {
 		helper.DespacharError(w, errors.New("Passwd: Debe validar la contraseña"), http.StatusNotAcceptable)
@@ -98,6 +102,54 @@ func Password(w http.ResponseWriter, r *http.Request) {
 	user.Passwd = password
 	user.Recovery = ""
 	_, err = orm.Id(user.Id).Cols("passwd", "recovery").Update(user)
+	if err != nil {
+		helper.DespacharError(w, err, http.StatusBadRequest)
+		return
+	}
+	_token, _session := autenticate(user)
+	http.SetCookie(w, &http.Cookie{
+		MaxAge:   config.SESSION_DURATION,
+		Secure:   false,
+		HttpOnly: true,
+		Name:     "token",
+		Value:    _token,
+		Path:     "/",
+	})
+	w.WriteHeader(http.StatusOK)
+	respuesta, _ := json.Marshal(_session)
+	w.Write(respuesta)
+	return
+}
+
+//PasswordChange recupera la contraseña del usuario
+func PasswordChange(w http.ResponseWriter, r *http.Request, user *models.User, hub *ws.Hub) {
+	helper.Cors(w, r)
+	data := helper.GetPostParams(r)
+	password := data.Get("passwd")
+	passwordNew := data.Get("passwdNew")
+
+	if !helper.IsValid(user.Passwd, password) {
+		helper.DespacharError(w, errors.New("No es la contraseña valida"), http.StatusBadRequest)
+		return
+	}
+
+	if govalidator.IsAlphanumeric(password) == false {
+		helper.DespacharError(w, errors.New("No es una nueva contraseña valida"), http.StatusBadRequest)
+		return
+	}
+	orm := db.GetXORM()
+	defer orm.Close()
+	user.Passwd = passwordNew
+	user.Recovery = ""
+
+	if ok, err := govalidator.ValidateStruct(user); !ok {
+		helper.DespacharError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	user.Passwd = helper.Encript(passwordNew)
+
+	_, err := orm.Id(user.Id).Cols("passwd", "recovery").Update(user)
 	if err != nil {
 		helper.DespacharError(w, err, http.StatusBadRequest)
 		return

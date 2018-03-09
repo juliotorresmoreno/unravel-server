@@ -43,6 +43,7 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
 	mux.HandleFunc("/api/v1/auth/recovery", auth.Recovery).Methods("POST")
 	mux.HandleFunc("/api/v1/auth/password", auth.Password).Methods("POST")
+	mux.HandleFunc("/api/v1/auth/password_change", protect(auth.PasswordChange, hub, true)).Methods("POST")
 	mux.HandleFunc("/oauth2callback", auth.Oauth2Callback).Methods("GET")
 	mux.HandleFunc("/auth/facebook", oauth.HandleFacebook).Methods("GET")
 	mux.HandleFunc("/auth/github", oauth.HandleGithub).Methods("GET")

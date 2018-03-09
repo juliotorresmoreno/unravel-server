@@ -3,6 +3,7 @@ package profile
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/db"
@@ -11,10 +12,10 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
-func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, data url.Values) {
 	user := &models.User{}
-	user.Nombres = r.PostFormValue("nombres")
-	user.Apellidos = r.PostFormValue("apellidos")
+	user.Nombres = data.Get("nombres")
+	user.Apellidos = data.Get("apellidos")
 	user.FullName = user.Nombres + " " + user.Apellidos
 	user.Usuario = session.Usuario
 	if user.Nombres != "" && user.Apellidos != "" {
@@ -24,6 +25,7 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 		}
 	}
 	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("{\"success\": true}"))
 }
 
 func getProfile(session *models.User) models.Profile {
