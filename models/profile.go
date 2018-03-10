@@ -46,7 +46,9 @@ type Profile struct {
 	CreenciasPoliticas         string `xorm:"text" json:"creencias_politicas"`
 	PermisoCreenciasPoliticas  string `xorm:"varchar(20)" json:"permiso_creencias_politicas" valid:"matches(^(private|friends|public)$)"`
 
-	Legenda string `xorm:"varchar(400) not null" json:"legenda"`
+	Legenda     string `xorm:"varchar(400) not null" json:"legenda"`
+	Descripcion string `xorm:"varchar(400) not null" json:"descripcion"`
+	PrecioHora  string `xorm:"int not null" json:"precio_hora" valid:"precio_hora"`
 
 	CreateAt time.Time `xorm:"created" json:"create_at"`
 	UpdateAt time.Time `xorm:"updated" json:"update_at"`

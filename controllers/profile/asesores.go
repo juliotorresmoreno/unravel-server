@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 
@@ -15,6 +16,14 @@ func updateAll(w http.ResponseWriter, r *http.Request, session *models.User, hub
 		perfil.Legenda = legenda
 		update = true
 	}
+	if descripcion := data.Get("descripcion"); descripcion != "" {
+		perfil.Descripcion = descripcion
+		update = true
+	}
+	if precio_hora := data.Get("precio_hora"); precio_hora != "" {
+		perfil.PrecioHora = precio_hora
+		update = true
+	}
 	var err error
 	if update {
 		if perfil.Id == 0 {
@@ -25,6 +34,10 @@ func updateAll(w http.ResponseWriter, r *http.Request, session *models.User, hub
 		}
 		if err != nil {
 			w.WriteHeader(http.StatusNotAcceptable)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
+			})
 			return
 		}
 	}

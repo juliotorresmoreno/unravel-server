@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/asaskevich/govalidator"
@@ -26,6 +27,11 @@ func init() {
 	govalidator.TagMap["password"] = govalidator.Validator(func(str string) bool {
 		return len(str) > 4
 	})
+	govalidator.TagMap["precio_hora"] = govalidator.Validator(func(str string) bool {
+		t, _ := strconv.Atoi(str)
+		return t >= 5
+	})
+
 	rDuplicateEntry, _ = regexp.Compile("Error 1062")
 }
 
