@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/juliotorresmoreno/unravel-server/controllers/educacion"
 	"github.com/juliotorresmoreno/unravel-server/controllers/experience"
 
 	"github.com/gorilla/mux"
@@ -114,6 +115,12 @@ func GetHandler() http.Handler {
 		Handler(helper.StripPrefix(
 			"/api/v1/experience",
 			experience.NewRouter(hub),
+		))
+
+	mux.PathPrefix("/api/v1/educacion").
+		Handler(helper.StripPrefix(
+			"/api/v1/educacion",
+			educacion.NewRouter(hub),
 		))
 
 	// test

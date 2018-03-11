@@ -10,14 +10,12 @@ import (
 type Educacion struct {
 	ID uint `xorm:"id bigint not null autoincr pk" json:"id"`
 
-	Usuario            string `xorm:"varchar(100) not null index" valid:"required" json:"usuario"`
-	Cargo              string `xorm:"varchar(200) not null" valid:"required" json:"cargo"`
-	Empresa            string `xorm:"varchar(100) not null" valid:"required" json:"empresa"`
-	AnoInicio          string `xorm:"int not null" valid:"required" json:"ano_inicio"`
-	MesInicio          string `xorm:"int not null" valid:"required" json:"mes_inicio"`
-	ContinuoTrabajando string `xorm:"int not null" valid:"required" json:"continuo_trabajando"`
-	AnoFin             string `xorm:"int not null" valid:"required" json:"ano_fin"`
-	MesFin             string `xorm:"int not null" valid:"required" json:"mes_fin"`
+	Usuario   string `xorm:"varchar(100) not null index" valid:"required" json:"usuario"`
+	Pais      string `xorm:"varchar(200) not null" valid:"required" json:"pais"`
+	Titulo    string `xorm:"varchar(100) not null" valid:"required" json:"titulo"`
+	Grado     string `xorm:"varchar(100) not null" valid:"required" json:"grado" valid:"in(bachillerato,tecnico,licenciatura,profesional,especialidad,maestria,doctorado)"`
+	AnoInicio string `xorm:"int not null" valid:"required" json:"ano_inicio"`
+	AnoFin    string `xorm:"int not null" valid:"required" json:"ano_fin"`
 
 	CreateAt time.Time `xorm:"created" json:"-"`
 	UpdateAt time.Time `xorm:"updated" json:"-"`

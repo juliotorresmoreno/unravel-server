@@ -9,7 +9,7 @@ import (
 )
 
 func StripPrefix(path string, handler http.Handler) http.Handler {
-	return http.StripPrefix("/api/v1/experience",
+	return http.StripPrefix(path,
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "" {
 				r.URL.Path = "/"

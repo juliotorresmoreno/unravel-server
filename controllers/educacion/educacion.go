@@ -24,8 +24,8 @@ type responseError struct {
 }
 
 type responseData struct {
-	Success bool                `json:"success"`
-	Data    []models.Experience `json:"data"`
+	Success bool               `json:"success"`
+	Data    []models.Educacion `json:"data"`
 }
 
 //NewRouter hola mundo
@@ -41,11 +41,11 @@ func NewRouter(hub *ws.Hub) http.Handler {
 
 // Read una nueva experiencia laboral
 func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	experiences := make([]models.Experience, 0)
+	educacions := make([]models.Educacion, 0)
 	orm := db.GetXORM()
 	defer orm.Close()
 
-	err := orm.Where("usuario = ?", session.Usuario).Find(&experiences)
+	err := orm.Where("usuario = ?", session.Usuario).Find(&educacions)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -56,7 +56,7 @@ func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(responseData{
 		Success: true,
-		Data:    experiences,
+		Data:    educacions,
 	})
 }
 
@@ -64,17 +64,16 @@ func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	data := helper.GetPostParams(r)
 
-	experience := models.Experience{}
-	experience.Usuario = session.Usuario
-	experience.Cargo = data.Get("cargo")
-	experience.Empresa = data.Get("empresa")
-	experience.AnoInicio = data.Get("ano_inicio")
-	experience.MesInicio = data.Get("mes_inicio")
-	experience.AnoFin = data.Get("ano_inicio")
-	experience.MesFin = data.Get("mes_fin")
+	educacion := models.Educacion{}
+	educacion.Usuario = session.Usuario
+	educacion.Pais = data.Get("pais")
+	educacion.Titulo = data.Get("titulo")
+	educacion.Grado = data.Get("grado")
+	educacion.AnoInicio = data.Get("ano_inicio")
+	educacion.AnoFin = data.Get("ano_fin")
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := models.Add(experience); err != nil {
+	if _, err := models.Add(educacion); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
@@ -94,17 +93,16 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	_id, _ := strconv.Atoi(vars["id"])
 	id := uint(_id)
 
-	experience := models.Experience{}
-	experience.Usuario = session.Usuario
-	experience.Cargo = data.Get("cargo")
-	experience.Empresa = data.Get("empresa")
-	experience.AnoInicio = data.Get("ano_inicio")
-	experience.MesInicio = data.Get("mes_inicio")
-	experience.AnoFin = data.Get("ano_fin")
-	experience.MesFin = data.Get("mes_fin")
+	educacion := models.Educacion{}
+	educacion.Usuario = session.Usuario
+	educacion.Pais = data.Get("pais")
+	educacion.Titulo = data.Get("titulo")
+	educacion.Grado = data.Get("grado")
+	educacion.AnoInicio = data.Get("ano_inicio")
+	educacion.AnoFin = data.Get("ano_fin")
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := models.Update(id, experience); err != nil {
+	if _, err := models.Update(id, educacion); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
@@ -121,7 +119,7 @@ func Delete(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	defer orm.Close()
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := orm.Delete(models.Experience{ID: 0}); err != nil {
+	if _, err := orm.Delete(models.Educacion{ID: 0}); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
