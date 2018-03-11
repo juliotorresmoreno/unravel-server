@@ -98,7 +98,7 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	experience.Empresa = data.Get("empresa")
 	experience.AnoInicio = data.Get("ano_inicio")
 	experience.MesInicio = data.Get("mes_inicio")
-	experience.AnoFin = data.Get("ano_inicio")
+	experience.AnoFin = data.Get("ano_fin")
 	experience.MesFin = data.Get("mes_fin")
 
 	w.Header().Set("Content-Type", "application/json")
