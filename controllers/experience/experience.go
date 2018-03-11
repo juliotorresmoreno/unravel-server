@@ -122,8 +122,12 @@ func Delete(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	orm := db.GetXORM()
 	defer orm.Close()
 
+	vars := mux.Vars(r)
+	_id, _ := strconv.Atoi(vars["id"])
+	id := uint(_id)
+
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := orm.Delete(models.Experience{ID: 0}); err != nil {
+	if _, err := orm.ID(id).Delete(models.Experience{ID: id}); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
