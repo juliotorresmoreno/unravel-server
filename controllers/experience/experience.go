@@ -70,6 +70,7 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	experience.Empresa = data.Get("empresa")
 	experience.AnoInicio = data.Get("ano_inicio")
 	experience.MesInicio = data.Get("mes_inicio")
+	experience.ContinuoTrabajando = data.Get("continuo_trabajando")
 	experience.AnoFin = data.Get("ano_inicio")
 	experience.MesFin = data.Get("mes_fin")
 
@@ -100,6 +101,7 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	experience.Empresa = data.Get("empresa")
 	experience.AnoInicio = data.Get("ano_inicio")
 	experience.MesInicio = data.Get("mes_inicio")
+	experience.ContinuoTrabajando = data.Get("continuo_trabajando")
 	experience.AnoFin = data.Get("ano_fin")
 	experience.MesFin = data.Get("mes_fin")
 
