@@ -28,18 +28,18 @@ func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User,
 	w.Write([]byte("{\"success\": true}"))
 }
 
-func getProfile(session *models.User) models.Profile {
+func getProfile(session *models.User) *models.Profile {
 	var perfil = make([]models.Profile, 0)
 	var orm = db.GetXORM()
 	defer orm.Close()
 	var err = orm.Where("Usuario = ?", session.Usuario).Find(&perfil)
 	if err != nil {
-		return models.Profile{}
+		return &models.Profile{}
 	}
 	if len(perfil) == 1 {
-		return perfil[0]
+		return &perfil[0]
 	}
-	return models.Profile{}
+	return &models.Profile{}
 }
 
 // Profile consulta de perfil.

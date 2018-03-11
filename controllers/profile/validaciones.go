@@ -1,12 +1,21 @@
 package profile
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
+
+type responseError struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+}
+type responseSuccess struct {
+	Success bool `json:"success"`
+}
 
 // Update actualiza los datos del perfil
 func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
@@ -17,91 +26,131 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		return
 	}
 
-	if data.Get("permiso_email") != "" && data.Get("email") != "" {
-		updateEmail(w, r, session, hub, perfil, data)
+	if err := updateEmail(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_nacimiento_dia") != "" && data.Get("nacimiento_dia") != "" &&
-		data.Get("nacimiento_mes") != "" {
-		updateNacimientoMes(w, r, session, hub, perfil, data)
+	if err := updateNacimientoMes(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_nacimiento_ano") != "" && data.Get("nacimiento_ano") != "" {
-		updateNacimientoAno(w, r, session, hub, perfil, data)
+	if err := updateNacimientoAno(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_sexo") != "" && data.Get("sexo") != "" {
-		updateNacimientoSexo(w, r, session, hub, perfil, data)
+	if err := updateNacimientoSexo(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_nacimiento_pais") != "" && data.Get("nacimiento_pais") != "" {
-		updateNacimientoPais(w, r, session, hub, perfil, data)
+	if err := updateNacimientoPais(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_nacimiento_ciudad") != "" && data.Get("nacimiento_ciudad") != "" {
-		updateNacimientoCiudad(w, r, session, hub, perfil, data)
+	if err := updateNacimientoCiudad(w, r, session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_residencia_pais") != "" && data.Get("residencia_pais") != "" {
-		updateResidenciaPais(w, r, session, hub, perfil, data)
+	if err := updateResidenciaPais(w, r, session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_residencia_ciudad") != "" && data.Get("residencia_ciudad") != "" {
-		updateResidenciaCiudad(w, r, session, hub, perfil, data)
+	if err := updateResidenciaCiudad(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_direccion") != "" && data.Get("direccion") != "" {
-		updateDireccion(w, r, session, hub, perfil, data)
+	if err := updateDireccion(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_telefono") != "" && data.Get("telefono") != "" {
-		updateTelefono(w, r, session, hub, perfil, data)
+	if err := updateTelefono(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_celular") != "" && data.Get("celular") != "" {
-		updateCelular(w, r, session, hub, perfil, data)
+	if err := updateCelular(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_personalidad") != "" && data.Get("personalidad") != "" {
-		updatePersonalidad(w, r, session, hub, perfil, data)
+	if err := updatePersonalidad(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_intereses") != "" && data.Get("intereses") != "" {
-		updateIntereses(w, r, session, hub, perfil, data)
+	if err := updateIntereses(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_series") != "" && data.Get("series") != "" {
-		updateSeries(w, r, session, hub, perfil, data)
+	if err := updateSeries(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_musica") != "" && data.Get("musica") != "" {
-		updateMusica(w, r, session, hub, perfil, data)
+	if err := updateMusica(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_creencias_religiosas") != "" && data.Get("creencias_religiosas") != "" {
-		updateCreenciasReligiosas(w, r, session, hub, perfil, data)
+	if err := updateCreenciasReligiosas(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	if data.Get("permiso_creencias_politicas") != "" && data.Get("creencias_politicas") != "" {
-		updateCreenciasPoliticas(w, r, session, hub, perfil, data)
+	if err := updateCreenciasPoliticas(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
 	}
 
-	updateAll(w, r, session, hub, perfil, data)
+	if err := updateAll(session, hub, perfil, data); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

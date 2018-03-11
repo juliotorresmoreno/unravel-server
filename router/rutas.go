@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/juliotorresmoreno/unravel-server/controllers/experience"
+
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/controllers/auth"
 	"github.com/juliotorresmoreno/unravel-server/controllers/auth/oauth"
@@ -25,7 +27,7 @@ import (
 
 // GetHandler aca se establecen las rutas del router
 func GetHandler() http.Handler {
-	var mux = mux.NewRouter().StrictSlash(false)
+	var mux = mux.NewRouter().StrictSlash(true)
 	var hub = ws.GetHub()
 
 	mux.PathPrefix("/").HandlerFunc(helper.HandleCors).Methods("OPTIONS")
@@ -107,6 +109,12 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.VideoLlamada, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/chats/rechazarvideollamada", protect(chats.RechazarVideoLlamada, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.GetConversacion, hub, true)).Methods("GET")
+
+	mux.PathPrefix("/api/v1/experience").
+		Handler(helper.StripPrefix(
+			"/api/v1/experience",
+			experience.NewRouter(hub),
+		))
 
 	// test
 	mux.HandleFunc("/test", test.Test).Methods("GET")

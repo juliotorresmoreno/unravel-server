@@ -1,0 +1,16 @@
+
+
+POST https://localhost:8443/api/v1/experience?token=MTUyMDY5ODI5NwgRmy1IPKG0EVhTSEq5HQa68xR77SUF1nmB9vwVk6DAY3DRx4JXw19efP8IiaBUkbl8g2NQib2dRtciGK3XcDgJ
+Host: localhost:8443
+Content-Type: application/json
+origin: http://localhost:3000
+
+{
+    "cargo":"Desarrollador",
+    "empresa":"Onna Soft",
+    "ano_inicio":"2013",
+    "mes_inicio":"1",
+    "continuo_trabajando":false,
+    "ano_fin":"0",
+    "mes_fin":"0"
+}

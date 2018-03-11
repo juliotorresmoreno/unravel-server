@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+func StripPrefix(path string, handler http.Handler) http.Handler {
+	return http.StripPrefix("/api/v1/experience",
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "" {
+				r.URL.Path = "/"
+			}
+			handler.ServeHTTP(w, r)
+		}))
+}
+
 // Cors permite el acceso desde otro servidor
 func Cors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Credentials", "true")

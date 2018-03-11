@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -9,378 +10,192 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
-func updateEmail(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	if !helper.IsValidPermision(data.Get("permiso_email")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateEmail(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_email") != "" && data.Get("email") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_email")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Email = data.Get("email")
+		perfil.PermisoEmail = data.Get("permiso_email")
 	}
-	var err error
-	perfil.Email = data.Get("email")
-	perfil.PermisoEmail = data.Get("permiso_email")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
 //
-func updateNacimientoMes(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_nacimiento_dia")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateNacimientoMes(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_nacimiento_dia") != "" && data.Get("nacimiento_dia") != "" &&
+		data.Get("nacimiento_mes") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_nacimiento_dia")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.NacimientoDia = data.Get("nacimiento_dia")
+		perfil.NacimientoMes = data.Get("nacimiento_mes")
+		perfil.PermisoNacimientoDia = data.Get("permiso_nacimiento_dia")
 	}
-	perfil.NacimientoDia = data.Get("nacimiento_dia")
-	perfil.NacimientoMes = data.Get("nacimiento_mes")
-	perfil.PermisoNacimientoDia = data.Get("permiso_nacimiento_dia")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateNacimientoAno(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_nacimiento_ano")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateNacimientoAno(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_nacimiento_ano") != "" && data.Get("nacimiento_ano") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_nacimiento_ano")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.NacimientoAno = data.Get("nacimiento_ano")
+		perfil.PermisoNacimientoAno = data.Get("permiso_nacimiento_ano")
 	}
-	perfil.NacimientoAno = data.Get("nacimiento_ano")
-	perfil.PermisoNacimientoAno = data.Get("permiso_nacimiento_ano")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateNacimientoSexo(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_sexo")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateNacimientoSexo(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_sexo") != "" && data.Get("sexo") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_sexo")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Sexo = data.Get("sexo")
+		perfil.PermisoSexo = data.Get("permiso_sexo")
 	}
-	perfil.Sexo = data.Get("sexo")
-	perfil.PermisoSexo = data.Get("permiso_sexo")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateNacimientoPais(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_nacimiento_pais")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateNacimientoPais(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_nacimiento_pais") != "" && data.Get("nacimiento_pais") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_nacimiento_pais")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.NacimientoPais = data.Get("nacimiento_pais")
+		perfil.PermisoNacimientoPais = data.Get("permiso_nacimiento_pais")
 	}
-	perfil.NacimientoPais = data.Get("nacimiento_pais")
-	perfil.PermisoNacimientoPais = data.Get("permiso_nacimiento_pais")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		println(err.Error())
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateNacimientoCiudad(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_nacimiento_ciudad")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateNacimientoCiudad(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_nacimiento_ciudad") != "" && data.Get("nacimiento_ciudad") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_nacimiento_ciudad")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.NacimientoCiudad = data.Get("nacimiento_ciudad")
+		perfil.PermisoNacimientoCiudad = data.Get("permiso_nacimiento_ciudad")
 	}
-	perfil.NacimientoCiudad = data.Get("nacimiento_ciudad")
-	perfil.PermisoNacimientoCiudad = data.Get("permiso_nacimiento_ciudad")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateResidenciaPais(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_residencia_pais")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateResidenciaPais(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_residencia_pais") != "" && data.Get("residencia_pais") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_residencia_pais")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.ResidenciaPais = data.Get("residencia_pais")
+		perfil.PermisoResidenciaPais = data.Get("permiso_residencia_pais")
 	}
-	perfil.ResidenciaPais = data.Get("residencia_pais")
-	perfil.PermisoResidenciaPais = data.Get("permiso_residencia_pais")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateResidenciaCiudad(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_residencia_ciudad")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateResidenciaCiudad(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_residencia_ciudad") != "" && data.Get("residencia_ciudad") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_residencia_ciudad")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.ResidenciaCiudad = data.Get("residencia_ciudad")
+		perfil.PermisoResidenciaCiudad = data.Get("permiso_residencia_ciudad")
 	}
-	perfil.ResidenciaCiudad = data.Get("residencia_ciudad")
-	perfil.PermisoResidenciaCiudad = data.Get("permiso_residencia_ciudad")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateDireccion(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_direccion")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateDireccion(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_direccion") != "" && data.Get("direccion") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_direccion")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Direccion = data.Get("direccion")
+		perfil.PermisoDireccion = data.Get("permiso_direccion")
 	}
-	perfil.Direccion = data.Get("direccion")
-	perfil.PermisoDireccion = data.Get("permiso_direccion")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateTelefono(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_telefono")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateTelefono(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_telefono") != "" && data.Get("telefono") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_telefono")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Telefono = data.Get("telefono")
+		perfil.PermisoTelefono = data.Get("permiso_telefono")
 	}
-	perfil.Telefono = data.Get("telefono")
-	perfil.PermisoTelefono = data.Get("permiso_telefono")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateCelular(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_celular")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateCelular(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_celular") != "" && data.Get("celular") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_celular")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Celular = data.Get("celular")
+		perfil.PermisoCelular = data.Get("permiso_celular")
 	}
-	perfil.Celular = data.Get("celular")
-	perfil.PermisoCelular = data.Get("permiso_celular")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updatePersonalidad(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_personalidad")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updatePersonalidad(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_personalidad") != "" && data.Get("personalidad") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_personalidad")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Personalidad = data.Get("personalidad")
+		perfil.PermisoPersonalidad = data.Get("permiso_personalidad")
 	}
-	perfil.Personalidad = data.Get("personalidad")
-	perfil.PermisoPersonalidad = data.Get("permiso_personalidad")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateIntereses(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_intereses")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateIntereses(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_intereses") != "" && data.Get("intereses") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_intereses")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Intereses = data.Get("intereses")
+		perfil.PermisoIntereses = data.Get("permiso_intereses")
 	}
-	perfil.Intereses = data.Get("intereses")
-	perfil.PermisoIntereses = data.Get("permiso_intereses")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateMusica(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_musica")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateMusica(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_musica") != "" && data.Get("musica") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_musica")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Musica = data.Get("musica")
+		perfil.PermisoMusica = data.Get("permiso_musica")
 	}
-	perfil.Musica = data.Get("musica")
-	perfil.PermisoMusica = data.Get("permiso_musica")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateSeries(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_series")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateSeries(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_series") != "" && data.Get("series") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_series")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.Series = data.Get("series")
+		perfil.PermisoSeries = data.Get("permiso_series")
 	}
-	perfil.Series = data.Get("series")
-	perfil.PermisoSeries = data.Get("permiso_series")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateCreenciasReligiosas(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_creencias_religiosas")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateCreenciasReligiosas(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_creencias_religiosas") != "" && data.Get("creencias_religiosas") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_creencias_religiosas")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.CreenciasReligiosas = data.Get("creencias_religiosas")
+		perfil.PermisoCreenciasReligiosas = data.Get("permiso_creencias_religiosas")
 	}
-	perfil.CreenciasReligiosas = data.Get("creencias_religiosas")
-	perfil.PermisoCreenciasReligiosas = data.Get("permiso_creencias_religiosas")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
 
-func updateCreenciasPoliticas(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, perfil models.Profile, data url.Values) {
-	var err error
-
-	if !helper.IsValidPermision(data.Get("permiso_creencias_politicas")) {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+func updateCreenciasPoliticas(session *models.User, hub *ws.Hub, perfil *models.Profile, data url.Values) error {
+	if data.Get("permiso_creencias_politicas") != "" && data.Get("creencias_politicas") != "" {
+		if !helper.IsValidPermision(data.Get("permiso_creencias_politicas")) {
+			return fmt.Errorf("El permiso especificado no es valido")
+		}
+		perfil.CreenciasPoliticas = data.Get("creencias_politicas")
+		perfil.PermisoCreenciasPoliticas = data.Get("permiso_creencias_politicas")
 	}
-	perfil.CreenciasPoliticas = data.Get("creencias_politicas")
-	perfil.PermisoCreenciasPoliticas = data.Get("permiso_creencias_politicas")
-	if perfil.Id == 0 {
-		perfil.Usuario = session.Usuario
-		_, err = models.Add(perfil)
-	} else {
-		_, err = models.Update(perfil.Id, perfil)
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
