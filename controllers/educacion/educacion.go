@@ -45,18 +45,19 @@ func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 	orm := db.GetXORM()
 	defer orm.Close()
 
-	if err := orm.Where("usuario = ?", session.Usuario).Find(&experiences); err != nil {
+	err := orm.Where("usuario = ?", session.Usuario).Find(&experiences)
+	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(responseData{
-			Success: true,
-			Data:    experiences,
-		})
+		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(responseData{
+		Success: true,
+		Data:    experiences,
+	})
 }
 
 // Create una nueva experiencia laboral
@@ -76,6 +77,7 @@ func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	if _, err := models.Add(experience); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(responseSuccess{
@@ -105,6 +107,7 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	if _, err := models.Update(id, experience); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(responseSuccess{
@@ -121,6 +124,7 @@ func Delete(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	if _, err := orm.Delete(models.Experience{ID: 0}); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(responseSuccess{
