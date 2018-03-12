@@ -21,6 +21,7 @@ func truncar(p models.Profile, relacion int8) profile {
 		models.EstadoDesconocido: "Desconocido",
 	}[relacion]
 
+	t.Usuario = p.Usuario
 	t.Legenda = p.Legenda
 	t.Descripcion = p.Descripcion
 	t.PrecioHora = p.PrecioHora
