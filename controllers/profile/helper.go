@@ -5,69 +5,80 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/models"
 )
 
-func truncar(p models.Profile, relacion int8) map[string]string {
-	var r = make(map[string]string)
+type profile struct {
+	models.Profile
+	Nombres   string `json:"nombres"`
+	Apellidos string `json:"apellidos"`
+	Estado    string `json:"estado"`
+}
 
-	r["estado"] = map[int8]string{
+func truncar(p models.Profile, relacion int8) profile {
+	var t = profile{}
+
+	t.Estado = map[int8]string{
 		models.EstadoAceptado:    "Amigos",
 		models.EstadoSolicitado:  "Solicitado",
 		models.EstadoDesconocido: "Desconocido",
 	}[relacion]
 
+	t.Legenda = p.Legenda
+	t.Descripcion = p.Descripcion
+	t.PrecioHora = p.PrecioHora
+
 	if helper.PuedoVer(relacion, p.PermisoEmail) {
-		r["email"] = p.Email
+		t.Email = p.Email
 	}
 	if helper.PuedoVer(relacion, p.PermisoNacimientoDia) {
-		r["nacimiento_mes"] = p.NacimientoMes
-		r["nacimiento_dia"] = p.NacimientoDia
+		t.NacimientoMes = p.NacimientoMes
+		t.NacimientoDia = p.NacimientoDia
 	}
 	if helper.PuedoVer(relacion, p.PermisoNacimientoAno) {
-		r["nacimiento_ano"] = p.NacimientoAno
+		t.NacimientoAno = p.NacimientoAno
 	}
 	if helper.PuedoVer(relacion, p.PermisoSexo) {
-		r["sexo"] = p.Sexo
+		t.Sexo = p.Sexo
 	}
 
 	if helper.PuedoVer(relacion, p.PermisoNacimientoPais) {
-		r["nacimiento_pais"] = p.NacimientoPais
+		t.NacimientoPais = p.NacimientoPais
 	}
 	if helper.PuedoVer(relacion, p.PermisoNacimientoCiudad) {
-		r["nacimiento_ciudad"] = p.NacimientoCiudad
+		t.NacimientoCiudad = p.NacimientoCiudad
 	}
 	if helper.PuedoVer(relacion, p.PermisoResidenciaPais) {
-		r["residencia_pais"] = p.ResidenciaPais
+		t.ResidenciaPais = p.ResidenciaPais
 	}
 	if helper.PuedoVer(relacion, p.PermisoResidenciaCiudad) {
-		r["residencia_ciudad"] = p.ResidenciaCiudad
+		t.ResidenciaCiudad = p.ResidenciaCiudad
 	}
 	if helper.PuedoVer(relacion, p.PermisoDireccion) {
-		r["direccion"] = p.Direccion
+		t.Direccion = p.Direccion
 	}
 	if helper.PuedoVer(relacion, p.PermisoTelefono) {
-		r["telefono"] = p.Telefono
+		t.Telefono = p.Telefono
 	}
 	if helper.PuedoVer(relacion, p.PermisoCelular) {
-		r["celular"] = p.Celular
+		t.Celular = p.Celular
 	}
 
 	if helper.PuedoVer(relacion, p.PermisoPersonalidad) {
-		r["personalidad"] = p.Personalidad
+		t.Personalidad = p.Personalidad
 	}
 	if helper.PuedoVer(relacion, p.PermisoIntereses) {
-		r["intereses"] = p.Intereses
+		t.Intereses = p.Intereses
 	}
 	if helper.PuedoVer(relacion, p.PermisoSeries) {
-		r["series"] = p.Series
+		t.Series = p.Series
 	}
 	if helper.PuedoVer(relacion, p.PermisoMusica) {
-		r["musica"] = p.Musica
+		t.Musica = p.Musica
 	}
 	if helper.PuedoVer(relacion, p.PermisoCreenciasReligiosas) {
-		r["creencias_religiosas"] = p.CreenciasReligiosas
+		t.CreenciasReligiosas = p.CreenciasReligiosas
 	}
 	if helper.PuedoVer(relacion, p.PermisoCreenciasPoliticas) {
-		r["creencias_politicas"] = p.CreenciasPoliticas
+		t.CreenciasPoliticas = p.CreenciasPoliticas
 	}
 
-	return r
+	return t
 }

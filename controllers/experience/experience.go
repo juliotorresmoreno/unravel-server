@@ -33,6 +33,7 @@ func NewRouter(hub *ws.Hub) http.Handler {
 	//session := &models.User{}
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/", middlewares.Protect(Read, hub, true)).Methods("GET")
+	router.HandleFunc("/{username}", middlewares.Protect(Read, hub, true)).Methods("GET")
 	router.HandleFunc("/", middlewares.Protect(Create, hub, true)).Methods("POST")
 	router.HandleFunc("/{id}", middlewares.Protect(Update, hub, true)).Methods("PUT")
 	router.HandleFunc("/{id}", middlewares.Protect(Delete, hub, true)).Methods("DELETE")
@@ -41,11 +42,19 @@ func NewRouter(hub *ws.Hub) http.Handler {
 
 // Read una nueva experiencia laboral
 func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	var vars = mux.Vars(r)
+	var usuario string
+	if vars["username"] != "" {
+		usuario = vars["username"]
+	} else {
+		usuario = session.Usuario
+	}
+
 	experiences := make([]models.Experience, 0)
 	orm := db.GetXORM()
 	defer orm.Close()
 
-	err := orm.Where("usuario = ?", session.Usuario).Find(&experiences)
+	err := orm.Where("usuario = ?", usuario).Find(&experiences)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -105,6 +114,16 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	experience.AnoFin = data.Get("ano_fin")
 	experience.MesFin = data.Get("mes_fin")
 
+	orm := db.GetXORM()
+	defer orm.Close()
+
+	usuario := session.Usuario
+	if c, _ := orm.ID(id).Where("usuario = ?", usuario).Count(models.Experience{}); c == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(responseError{Error: "Acceso no autorizado"})
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := models.Update(id, experience); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
@@ -125,6 +144,13 @@ func Delete(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	vars := mux.Vars(r)
 	_id, _ := strconv.Atoi(vars["id"])
 	id := uint(_id)
+
+	usuario := session.Usuario
+	if c, _ := orm.ID(id).Where("usuario = ?", usuario).Count(models.Experience{}); c == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(responseError{Error: "Acceso no autorizado"})
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := orm.ID(id).Delete(models.Experience{ID: id}); err != nil {

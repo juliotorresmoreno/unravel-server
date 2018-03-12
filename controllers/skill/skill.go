@@ -1,4 +1,4 @@
-package educacion
+package skill
 
 import (
 	"encoding/json"
@@ -24,8 +24,8 @@ type responseError struct {
 }
 
 type responseData struct {
-	Success bool               `json:"success"`
-	Data    []models.Educacion `json:"data"`
+	Success bool           `json:"success"`
+	Data    []models.Skill `json:"data"`
 }
 
 //NewRouter hola mundo
@@ -50,7 +50,7 @@ func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 		usuario = session.Usuario
 	}
 
-	educacions := make([]models.Educacion, 0)
+	educacions := make([]models.Skill, 0)
 	orm := db.GetXORM()
 	defer orm.Close()
 
@@ -73,16 +73,12 @@ func Read(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.
 func Create(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	data := helper.GetPostParams(r)
 
-	educacion := models.Educacion{}
-	educacion.Usuario = session.Usuario
-	educacion.Pais = data.Get("pais")
-	educacion.Titulo = data.Get("titulo")
-	educacion.Grado = data.Get("grado")
-	educacion.AnoInicio = data.Get("ano_inicio")
-	educacion.AnoFin = data.Get("ano_fin")
+	skill := models.Skill{}
+	skill.Usuario = session.Usuario
+	skill.Nombre = data.Get("nombre")
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := models.Add(educacion); err != nil {
+	if _, err := models.Add(skill); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
@@ -102,26 +98,22 @@ func Update(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	_id, _ := strconv.Atoi(vars["id"])
 	id := uint(_id)
 
-	educacion := models.Educacion{}
-	educacion.Usuario = session.Usuario
-	educacion.Pais = data.Get("pais")
-	educacion.Titulo = data.Get("titulo")
-	educacion.Grado = data.Get("grado")
-	educacion.AnoInicio = data.Get("ano_inicio")
-	educacion.AnoFin = data.Get("ano_fin")
+	skill := models.Skill{}
+	skill.Usuario = session.Usuario
+	skill.Nombre = data.Get("nombre")
 
 	orm := db.GetXORM()
 	defer orm.Close()
 
 	usuario := session.Usuario
-	if c, _ := orm.ID(id).Where("usuario = ?", usuario).Count(models.Educacion{}); c == 0 {
+	if c, _ := orm.ID(id).Where("usuario = ?", usuario).Count(models.Skill{}); c == 0 {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(responseError{Error: "Acceso no autorizado"})
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := models.Update(id, educacion); err != nil {
+	if _, err := models.Update(id, skill); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return
@@ -143,14 +135,14 @@ func Delete(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 	id := uint(_id)
 
 	usuario := session.Usuario
-	if c, _ := orm.ID(id).Where("usuario = ?", usuario).Count(models.Educacion{}); c == 0 {
+	if c, _ := orm.ID(id).Where("usuario = ?", usuario).Count(models.Skill{}); c == 0 {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(responseError{Error: "Acceso no autorizado"})
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := orm.ID(id).Delete(models.Educacion{ID: id}); err != nil {
+	if _, err := orm.ID(id).Delete(models.Skill{ID: id}); err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(responseError{Error: err.Error()})
 		return

@@ -65,14 +65,25 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		var jsonData []byte
 		if usuario != session.Usuario {
 			var estado = models.IsFriend(session.Usuario, perfil[0].Usuario)
+			var profile = truncar(perfil[0], estado)
+			user := models.User{}
+			orm.Where("usuario = ?", usuario).Get(&user)
+			profile.Nombres = user.Nombres
+			profile.Apellidos = user.Apellidos
 			jsonData, _ = json.Marshal(map[string]interface{}{
 				"success": true,
-				"data":    truncar(perfil[0], estado),
+				"data":    profile,
 			})
 		} else {
+			_perfil := profile{
+				Profile:   perfil[0],
+				Estado:    "Activo",
+				Nombres:   session.Nombres,
+				Apellidos: session.Apellidos,
+			}
 			jsonData, _ = json.Marshal(map[string]interface{}{
 				"success": true,
-				"data":    perfil[0],
+				"data":    _perfil,
 			})
 		}
 		w.Write(jsonData)

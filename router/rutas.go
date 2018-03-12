@@ -6,6 +6,7 @@ import (
 
 	"github.com/juliotorresmoreno/unravel-server/controllers/educacion"
 	"github.com/juliotorresmoreno/unravel-server/controllers/experience"
+	"github.com/juliotorresmoreno/unravel-server/controllers/skill"
 
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/controllers/auth"
@@ -121,6 +122,12 @@ func GetHandler() http.Handler {
 		Handler(helper.StripPrefix(
 			"/api/v1/educacion",
 			educacion.NewRouter(hub),
+		))
+
+	mux.PathPrefix("/api/v1/skills").
+		Handler(helper.StripPrefix(
+			"/api/v1/skills",
+			skill.NewRouter(hub),
 		))
 
 	// test
