@@ -61,33 +61,43 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if len(perfil) == 1 {
-		var jsonData []byte
-		if usuario != session.Usuario {
-			var estado = models.IsFriend(session.Usuario, perfil[0].Usuario)
-			var profile = truncar(perfil[0], estado)
-			user := models.User{}
-			orm.Where("usuario = ?", usuario).Get(&user)
-			profile.Nombres = user.Nombres
-			profile.Apellidos = user.Apellidos
-			jsonData, _ = json.Marshal(map[string]interface{}{
-				"success": true,
-				"data":    profile,
-			})
-		} else {
-			_perfil := profile{
-				Profile:   perfil[0],
-				Estado:    "Activo",
-				Nombres:   session.Nombres,
-				Apellidos: session.Apellidos,
-			}
-			jsonData, _ = json.Marshal(map[string]interface{}{
-				"success": true,
-				"data":    _perfil,
-			})
+	if usuario == session.Usuario {
+		_perfil := profile{
+			Profile:   perfil[0],
+			Estado:    "Activo",
+			Nombres:   session.Nombres,
+			Apellidos: session.Apellidos,
 		}
-		w.Write(jsonData)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"data":    _perfil,
+		})
 		return
 	}
-	w.Write([]byte("{\"success\": true, \"data\": {}}"))
+
+	user := models.User{}
+	if _, err := orm.Where("usuario = ?", usuario).Get(&user); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+	var _profile profile
+	if len(perfil) == 1 {
+		estado := models.IsFriend(session.Usuario, perfil[0].Usuario)
+		_profile = truncar(perfil[0], estado)
+	} else {
+		_profile.Profile = models.Profile{
+			Usuario: user.Usuario,
+		}
+	}
+
+	_profile.Nombres = user.Nombres
+	_profile.Apellidos = user.Apellidos
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data":    _profile,
+	})
 }

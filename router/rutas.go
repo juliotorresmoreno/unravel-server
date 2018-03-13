@@ -111,6 +111,7 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.VideoLlamada, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/chats/rechazarvideollamada", protect(chats.RechazarVideoLlamada, hub, true)).Methods("POST")
 	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.GetConversacion, hub, true)).Methods("GET")
+	mux.HandleFunc("/api/v1/chats", protect(chats.GetAll, hub, true)).Methods("GET")
 
 	mux.PathPrefix("/api/v1/experience").
 		Handler(helper.StripPrefix(

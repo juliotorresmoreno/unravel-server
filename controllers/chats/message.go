@@ -2,7 +2,7 @@ package chats
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,15 +13,16 @@ import (
 
 // Mensaje mensaje enviado por chat a los usuarios
 func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
-	usuario := r.PostFormValue("usuario")
-	mensaje := r.PostFormValue("mensaje")
-	tipo := r.PostFormValue("tipo")
+	data := helper.GetPostParams(r)
+	usuario := data.Get("usuario")
+	mensaje := data.Get("mensaje")
+	tipo := data.Get("tipo")
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
 	if tipo == "usuario" {
+		w.WriteHeader(http.StatusOK)
 		if usuario == session.Usuario {
-			err := errors.New("No puedes enviarte un mensaje a ti mismo")
+			err := fmt.Errorf("No puedes enviarte un mensaje a ti mismo")
 			helper.DespacharError(w, err, http.StatusInternalServerError)
 			return
 		}
@@ -51,5 +52,5 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		hub.Send(usuario, resp)
 		return
 	}
-	helper.DespacharError(w, errors.New("Not implemented"), http.StatusInternalServerError)
+	helper.DespacharError(w, fmt.Errorf("Not implemented"), http.StatusInternalServerError)
 }

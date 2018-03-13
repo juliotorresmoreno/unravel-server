@@ -12,6 +12,80 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
 
+type chat struct {
+	UsuarioEmisor   string `json:"usuario_emisor"`
+	UsuarioReceptor string `json:"usuario_receptor"`
+}
+
+// TableName establece el nombre de la tabla del modelo
+func (el chat) TableName() string {
+	return "chats"
+}
+
+// User modelo de usuario
+type user struct {
+	ID        uint   `json:"id" xorm:"id"`
+	Nombres   string `json:"nombres"`
+	Apellidos string `json:"apellidos"`
+	FullName  string `json:"fullname"`
+	Usuario   string `json:"usuario"`
+}
+
+// TableName establece el nombre de la tabla que usara el modelo
+func (el user) TableName() string {
+	return "users"
+}
+
+//GetAll d
+func GetAll(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
+	w.Header().Set("Content-Type", "application/json")
+	var orm = db.GetXORM()
+	defer orm.Close()
+
+	usuario := session.Usuario
+	chats := make([]chat, 0)
+	err := orm.
+		Distinct("usuario_emisor,usuario_receptor").
+		Where("usuario_emisor = ? OR usuario_receptor = ?", usuario, usuario).
+		Find(&chats)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+	length := len(chats)
+	users := make([]user, 0, length)
+	exists := map[string]bool{}
+	for i := 0; i < length; i++ {
+		usuarioChat := chats[i].UsuarioEmisor
+		if usuarioChat == usuario {
+			usuarioChat = chats[i].UsuarioReceptor
+		}
+		if _, ok := exists[usuarioChat]; ok {
+			continue
+		}
+		exists[usuarioChat] = true
+		user := user{}
+		if _, err := orm.Where("usuario = ?", usuarioChat).Get(&user); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
+			})
+			return
+		}
+		users = append(users, user)
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data":    users,
+	})
+}
+
 // GetConversacion obtiene la conversacion con el usuario solicitado
 func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
 	w.Header().Set("Content-Type", "application/json")
