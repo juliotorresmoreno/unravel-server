@@ -20,8 +20,12 @@ func StripPrefix(path string, handler http.Handler) http.Handler {
 
 // Cors permite el acceso desde otro servidor
 func Cors(w http.ResponseWriter, r *http.Request) {
+	/*origin := r.Header.Get("Origin")
+	if origin == "" {
+		origin = "*"
+	}*/
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 }

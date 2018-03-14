@@ -83,9 +83,9 @@ func IsValidPermision(permiso string) bool {
 
 // GetToken retorna el token
 func GetToken(r *http.Request) string {
-	var _token = GetCookie(r, "token")
+	var _token = r.URL.Query().Get("token")
 	if _token == "" {
-		return r.URL.Query().Get("token")
+		return GetCookie(r, "token")
 	}
 	return _token
 }

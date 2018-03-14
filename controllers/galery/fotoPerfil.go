@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/config"
+	"github.com/juliotorresmoreno/unravel-server/helper"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
@@ -25,7 +26,7 @@ func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 		http.ServeFile(w, r, path)
 		return
 	}
-	http.Redirect(w, r, "/static/svg/user-3.svg", http.StatusFound)
+	http.Redirect(w, r, "/icons/148705-essential-collection/png/user-3.png", http.StatusFound)
 }
 
 // SetFotoPerfil establece la foto de perfil.
@@ -37,15 +38,26 @@ func SetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 		println(err.Error())
 		return
 	}
-	var name = "fotoPerfil"
-	save, _ := os.Create(path + "/" + name)
-	defer save.Close()
-	_, err = io.Copy(save, file)
+
+	var ramd = helper.GenerateRandomString(20)
+	var tnme = "/tmp/" + ramd + ".tmp"
+	tmp, err := os.Create(tnme)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		println(err.Error())
+		helper.DespacharError(w, err, http.StatusInternalServerError)
 		return
 	}
+	defer func() {
+		tmp.Close()
+		os.Remove(tnme)
+	}()
+
+	if _, err = io.Copy(tmp, file); err != nil {
+		helper.DespacharError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	name := path + "/" + "fotoPerfil"
+	helper.BuildJPG(tnme, name)
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("{\"success\": true}"))
 }
