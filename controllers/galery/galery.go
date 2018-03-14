@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/config"
@@ -61,14 +62,24 @@ func ListarGalerias(w http.ResponseWriter, r *http.Request, session *models.User
 	w.Write([]byte(respuesta))
 }
 
-func listarImagenes(usuario, galeria string) []string {
+type image struct {
+	Src      string    `json:"src"`
+	Modified time.Time `json:"modified"`
+}
+
+func listarImagenes(usuario, galeria string) []image {
 	var path = config.PATH + "/" + usuario
 	var files, _ = ioutil.ReadDir(path + "/" + galeria + "/images")
 	var length = len(files)
-	var imagenes = make([]string, length)
+	var imagenes = make([]image, length)
+
 	for i := 0; i < length; i++ {
-		imagenes[i] = strings.Trim(files[i].Name(), "\n")
+		imagenes[i] = image{
+			Src:      strings.Trim(files[i].Name(), "\n"),
+			Modified: files[i].ModTime(),
+		}
 	}
+
 	return imagenes
 }
 

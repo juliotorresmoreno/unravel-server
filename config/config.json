@@ -9,7 +9,7 @@
     "redisHost": "localhost",
     "redisPort": "6379",
 
-    "path": "/var/www/gwebapp",
+    "path": "/home/juliotorres/galerias",
     
     "sessionDuration": "7200",
 

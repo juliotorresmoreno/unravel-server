@@ -61,7 +61,7 @@ func ViewPreview(w http.ResponseWriter, r *http.Request, session *models.User, h
 	if length == 0 {
 		url = "https://" + r.Host + defecto
 	} else {
-		imagen = imagenes[rand.Intn(length)]
+		imagen = imagenes[rand.Intn(length)].Src
 		auth = "?token=" + token
 		url = "https://" + r.Host + "/api/v1/" + usuario + "/galery/" + galeria + "/" + imagen + auth + "&mini=1"
 	}
