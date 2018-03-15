@@ -26,7 +26,7 @@ func GetFotoPerfil(w http.ResponseWriter, r *http.Request, session *models.User,
 		http.ServeFile(w, r, path)
 		return
 	}
-	http.Redirect(w, r, "/icons/148705-essential-collection/png/user-3.png", http.StatusFound)
+	http.Redirect(w, r, "/icons/148705-essential-collection/png/picture-2.png", http.StatusFound)
 }
 
 // SetFotoPerfil establece la foto de perfil.
