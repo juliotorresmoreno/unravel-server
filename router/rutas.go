@@ -15,6 +15,7 @@ import (
 	"github.com/juliotorresmoreno/unravel-server/controllers/chats"
 	"github.com/juliotorresmoreno/unravel-server/controllers/friends"
 	"github.com/juliotorresmoreno/unravel-server/controllers/galery"
+	"github.com/juliotorresmoreno/unravel-server/controllers/geo"
 	"github.com/juliotorresmoreno/unravel-server/controllers/groups"
 	"github.com/juliotorresmoreno/unravel-server/controllers/news"
 	"github.com/juliotorresmoreno/unravel-server/controllers/profile"
@@ -129,6 +130,12 @@ func GetHandler() http.Handler {
 		Handler(helper.StripPrefix(
 			"/api/v1/skills",
 			skill.NewRouter(hub),
+		))
+
+	mux.PathPrefix("/api/v1/geo").
+		Handler(helper.StripPrefix(
+			"/api/v1/geo",
+			geo.NewRouter(hub),
 		))
 
 	// test
