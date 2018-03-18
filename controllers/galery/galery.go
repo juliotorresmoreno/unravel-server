@@ -11,9 +11,40 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/config"
 	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/middlewares"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
+
+func NewRouter(hub *ws.Hub) http.Handler {
+	var mux = mux.NewRouter().StrictSlash(true)
+
+	mux.HandleFunc("/", middlewares.Protect(ListarGalerias, hub, true)).Methods("GET")
+	mux.HandleFunc("/", middlewares.Protect(Save, hub, true)).Methods("POST")
+	mux.HandleFunc("/delete", middlewares.Protect(EliminarImagen, hub, true)).Methods("POST", "DELETE")
+	mux.HandleFunc("/fotoPerfil", middlewares.Protect(GetFotoPerfil, hub, true)).Methods("GET")
+	mux.HandleFunc("/upload", middlewares.Protect(Upload, hub, true)).Methods("POST")
+	mux.HandleFunc("/fotoPerfil", middlewares.Protect(SetFotoPerfil, hub, true)).Methods("POST")
+	mux.HandleFunc("/fotoPerfil/{usuario}", middlewares.Protect(GetFotoPerfil, hub, true)).Methods("GET")
+	mux.HandleFunc("/{galery}/describe", middlewares.Protect(DescribeGaleria, hub, true)).Methods("GET")
+	mux.HandleFunc("/{galery}/preview", middlewares.Protect(ViewPreview, hub, true)).Methods("GET")
+	mux.HandleFunc("/{galery}/{imagen}", middlewares.Protect(ViewImagen, hub, true)).Methods("GET")
+	mux.HandleFunc("/{galery}", middlewares.Protect(ListarImagenes, hub, true)).Methods("GET")
+
+	return mux
+}
+
+func NewUserRouter(hub *ws.Hub) http.Handler {
+	var mux = mux.NewRouter().StrictSlash(true)
+
+	mux.HandleFunc("/{usuario}/galery", middlewares.Protect(ListarGalerias, hub, true)).Methods("GET")
+	mux.HandleFunc("/{usuario}/galery/fotoPerfil", middlewares.Protect(GetFotoPerfil, hub, true)).Methods("GET")
+	mux.HandleFunc("/{usuario}/galery/{galery}", middlewares.Protect(ListarImagenes, hub, true)).Methods("GET")
+	mux.HandleFunc("/{usuario}/galery/{galery}/preview", middlewares.Protect(ViewPreview, hub, true)).Methods("GET")
+	mux.HandleFunc("/{usuario}/galery/{galery}/{imagen}", middlewares.Protect(ViewImagen, hub, true)).Methods("GET")
+
+	return mux
+}
 
 func describeGaleria(usuario, galeria string) (string, string, error) {
 	var path = config.PATH + "/" + usuario

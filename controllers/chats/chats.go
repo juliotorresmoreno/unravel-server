@@ -2,15 +2,28 @@ package chats
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/go-xorm/xorm"
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/db"
+	"github.com/juliotorresmoreno/unravel-server/middlewares"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
+
+func NewRouter(hub *ws.Hub) http.Handler {
+	var mux = mux.NewRouter().StrictSlash(true)
+
+	mux.HandleFunc("/mensaje", middlewares.Protect(Mensaje, hub, true)).Methods("POST")
+	mux.HandleFunc("/videollamada", middlewares.Protect(VideoLlamada, hub, true)).Methods("POST")
+	mux.HandleFunc("/rechazarvideollamada", middlewares.Protect(RechazarVideoLlamada, hub, true)).Methods("POST")
+	mux.HandleFunc("/{user}", middlewares.Protect(GetConversacion, hub, true)).Methods("GET")
+	mux.HandleFunc("/", middlewares.Protect(GetAll, hub, true)).Methods("GET")
+
+	return mux
+}
 
 type chat struct {
 	UsuarioEmisor   string `json:"usuario_emisor"`
@@ -23,7 +36,7 @@ func (el chat) TableName() string {
 }
 
 // User modelo de usuario
-type user struct {
+type User struct {
 	ID        uint   `json:"id" xorm:"id"`
 	Nombres   string `json:"nombres"`
 	Apellidos string `json:"apellidos"`
@@ -31,8 +44,13 @@ type user struct {
 	Usuario   string `json:"usuario"`
 }
 
+type userChat struct {
+	User
+	Count int64 `json:"count"`
+}
+
 // TableName establece el nombre de la tabla que usara el modelo
-func (el user) TableName() string {
+func (el User) TableName() string {
 	return "users"
 }
 
@@ -57,7 +75,7 @@ func GetAll(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 		return
 	}
 	length := len(chats)
-	users := make([]user, 0, length)
+	users := make([]userChat, 0, length)
 	exists := map[string]bool{}
 	for i := 0; i < length; i++ {
 		usuarioChat := chats[i].UsuarioEmisor
@@ -68,7 +86,7 @@ func GetAll(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 			continue
 		}
 		exists[usuarioChat] = true
-		user := user{}
+		user := User{}
 		if _, err := orm.Where("usuario = ?", usuarioChat).Get(&user); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]interface{}{
@@ -77,7 +95,17 @@ func GetAll(w http.ResponseWriter, r *http.Request, session *models.User, hub *w
 			})
 			return
 		}
-		users = append(users, user)
+		where := "usuario_receptor = ? and usuario_emisor = ? and leido = 0"
+		total, err := orm.Where(where, usuario, usuarioChat).Count(chat{})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"success": false,
+				"error":   err.Error(),
+			})
+			return
+		}
+		users = append(users, userChat{User: user, Count: total})
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -97,28 +125,29 @@ func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.Use
 	var antesDe = r.URL.Query().Get("antesDe")
 	var despuesDe = r.URL.Query().Get("despuesDe")
 
-	var cond = "(usuario_receptor = ? and usuario_emisor = ?) or (usuario_receptor = ? and usuario_emisor = ?)"
+	updater := orm.NewSession()
+	consultor := orm.NewSession()
+	leido := models.Chat{Leido: 1}
 
-	var updater *xorm.Session
-	var consultor *xorm.Session
-	var leido = models.Chat{Leido: 1}
+	cond := "usuario_receptor = ? and usuario_emisor = ?"
+	updater = updater.Where(cond, usuario, session.Usuario)
+	consultor = consultor.Where(cond, usuario, session.Usuario).
+		Or(cond, session.Usuario, usuario)
 	if antesDe != "" {
 		tmp, _ := time.Parse(time.RFC3339, antesDe)
 		tiempo := tmp.String()[0:19]
-		cond = "(" + cond + ") AND create_at < ?"
-		updater = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
-		consultor = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
+
+		updater = updater.And("create_at < ?", tiempo)
+		consultor = consultor.And("create_at < ?", tiempo)
 	} else if despuesDe != "" {
 		tmp, _ := time.Parse(time.RFC3339, despuesDe)
 		tiempo := tmp.String()[0:19]
-		cond = "(" + cond + ") AND create_at > ?"
-		updater = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
-		consultor = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario, tiempo)
-	} else {
-		updater = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario)
-		consultor = orm.Where(cond, usuario, session.Usuario, session.Usuario, usuario)
+		updater = updater.And("create_at < ?", tiempo)
+		consultor = consultor.And("create_at > ?", tiempo)
 	}
+
 	updater.Cols("leido").Update(leido)
+	fmt.Println(updater.LastSQL())
 	consultor.OrderBy("id desc").Limit(10).Find(&resultado)
 	length := len(resultado)
 	conversacion := make([]map[string]interface{}, length)

@@ -43,6 +43,7 @@ func Mensaje(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 		w.Write(resp)
 		resp, _ = json.Marshal(map[string]interface{}{
 			"action":          "mensaje",
+			"type":            "@chats/messagesAdd",
 			"usuario":         session.Usuario,
 			"usuarioReceptor": usuario,
 			"mensaje":         mensaje,

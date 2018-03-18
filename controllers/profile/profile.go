@@ -8,9 +8,20 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/db"
 	"github.com/juliotorresmoreno/unravel-server/helper"
+	"github.com/juliotorresmoreno/unravel-server/middlewares"
 	"github.com/juliotorresmoreno/unravel-server/models"
 	"github.com/juliotorresmoreno/unravel-server/ws"
 )
+
+func NewRouter(hub *ws.Hub) http.Handler {
+	var mux = mux.NewRouter().StrictSlash(true)
+
+	mux.HandleFunc("/profile", middlewares.Protect(Profile, hub, true)).Methods("GET")
+	mux.HandleFunc("/profile/{user}", middlewares.Protect(Profile, hub, true)).Methods("GET")
+	mux.HandleFunc("/profile", middlewares.Protect(Update, hub, true)).Methods("POST", "PUT", "OPTIONS")
+
+	return mux
+}
 
 func updateProfile(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub, data url.Values) {
 	user := &models.User{}
@@ -88,6 +99,7 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 	if len(perfil) == 1 {
 		estado := models.IsFriend(session.Usuario, perfil[0].Usuario)
 		_profile = truncar(perfil[0], estado)
+		_profile.UpdateAt = perfil[0].UpdateAt
 	} else {
 		_profile.Profile = models.Profile{
 			Usuario: user.Usuario,
@@ -96,6 +108,7 @@ func Profile(w http.ResponseWriter, r *http.Request, session *models.User, hub *
 
 	_profile.Nombres = user.Nombres
 	_profile.Apellidos = user.Apellidos
+	_profile.CreateAt = user.CreateAt
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 		"data":    _profile,

@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/juliotorresmoreno/unravel-server/controllers/educacion"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/controllers/auth"
-	"github.com/juliotorresmoreno/unravel-server/controllers/auth/oauth"
 	"github.com/juliotorresmoreno/unravel-server/controllers/category"
 	"github.com/juliotorresmoreno/unravel-server/controllers/chats"
 	"github.com/juliotorresmoreno/unravel-server/controllers/friends"
@@ -42,28 +42,25 @@ func GetHandler() http.Handler {
 	}, hub, true))
 
 	// auth
-	mux.HandleFunc("/api/v1/auth/registrar", auth.Registrar).Methods("POST")
-	mux.HandleFunc("/api/v1/auth/login", auth.Login).Methods("POST")
-	mux.HandleFunc("/api/v1/auth/session", protect(auth.Session, hub, false)).Methods("GET")
-	mux.HandleFunc("/api/v1/auth/logout", auth.Logout).Methods("GET")
-	mux.HandleFunc("/api/v1/auth/recovery", auth.Recovery).Methods("POST")
-	mux.HandleFunc("/api/v1/auth/password", auth.Password).Methods("POST")
-	mux.HandleFunc("/api/v1/auth/password_change", protect(auth.PasswordChange, hub, true)).Methods("POST")
-	mux.HandleFunc("/oauth2callback", auth.Oauth2Callback).Methods("GET")
-	mux.HandleFunc("/auth/facebook", oauth.HandleFacebook).Methods("GET")
-	mux.HandleFunc("/auth/github", oauth.HandleGithub).Methods("GET")
-	mux.HandleFunc("/auth/google", oauth.HandleGoogle).Methods("GET")
+	mux.PathPrefix("/api/v1/auth").
+		Handler(helper.StripPrefix(
+			"/api/v1/auth",
+			auth.NewRouter(hub),
+		))
 
 	// profile
-	mux.HandleFunc("/api/v1/profile", protect(profile.Profile, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/profile/{user}", protect(profile.Profile, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/profile", protect(profile.Update, hub, true)).Methods("POST", "PUT", "OPTIONS")
+	mux.PathPrefix("/api/v1/profile").
+		Handler(helper.StripPrefix(
+			"/api/v1/profile",
+			profile.NewRouter(hub),
+		))
 
 	// friends
-	mux.HandleFunc("/api/v1/friends", protect(friends.ListFriends, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/friends/{usuario}", protect(friends.ListFriends, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/friends/add", protect(friends.Add, hub, true)).Methods("POST", "PUT")
-	mux.HandleFunc("/api/v1/friends/reject", protect(friends.RejectFriend, hub, true)).Methods("POST", "DELETE")
+	mux.PathPrefix("/api/v1/friends").
+		Handler(helper.StripPrefix(
+			"/api/v1/friends",
+			friends.NewRouter(hub),
+		))
 
 	// users
 	mux.HandleFunc("/api/v1/users", protect(users.Find, hub, true)).Methods("GET")
@@ -76,25 +73,16 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/{usuario}/news", protect(news.GetNews, hub, true)).Methods("GET")
 
 	// galery
-	mux.HandleFunc("/api/v1/galery", protect(galery.ListarGalerias, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/galery", protect(galery.Save, hub, true)).Methods("POST")
-
-	mux.HandleFunc("/api/v1/galery/delete", protect(galery.EliminarImagen, hub, true)).Methods("POST", "DELETE")
-
-	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/galery/upload", protect(galery.Upload, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/galery/fotoPerfil", protect(galery.SetFotoPerfil, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/galery/fotoPerfil/{usuario}", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/galery/{galery}/describe", protect(galery.DescribeGaleria, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/galery/{galery}/preview", protect(galery.ViewPreview, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/galery/{galery}/{imagen}", protect(galery.ViewImagen, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
-
-	mux.HandleFunc("/api/v1/{usuario}/galery", protect(galery.ListarGalerias, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/{usuario}/galery/fotoPerfil", protect(galery.GetFotoPerfil, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}", protect(galery.ListarImagenes, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}/preview", protect(galery.ViewPreview, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/{usuario}/galery/{galery}/{imagen}", protect(galery.ViewImagen, hub, true)).Methods("GET")
+	mux.PathPrefix("/api/v1/galery").
+		Handler(helper.StripPrefix(
+			"/api/v1/galery",
+			galery.NewRouter(hub),
+		))
+	mux.PathPrefix("/api/v1/{usuario}/galery").
+		Handler(helper.StripPrefix(
+			"/api/v1",
+			galery.NewUserRouter(hub),
+		))
 
 	// groups
 	mux.HandleFunc("/api/v1/groups", protect(groups.ObtenerGrupos, hub, true)).Methods("GET")
@@ -108,11 +96,11 @@ func GetHandler() http.Handler {
 	mux.HandleFunc("/api/v1/category", protect(category.GetCategorys, hub, true)).Methods("GET")
 
 	// chat
-	mux.HandleFunc("/api/v1/chats/mensaje", protect(chats.Mensaje, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/videollamada", protect(chats.VideoLlamada, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/rechazarvideollamada", protect(chats.RechazarVideoLlamada, hub, true)).Methods("POST")
-	mux.HandleFunc("/api/v1/chats/{user}", protect(chats.GetConversacion, hub, true)).Methods("GET")
-	mux.HandleFunc("/api/v1/chats", protect(chats.GetAll, hub, true)).Methods("GET")
+	mux.PathPrefix("/api/v1/chats").
+		Handler(helper.StripPrefix(
+			"/api/v1/chats",
+			chats.NewRouter(hub),
+		))
 
 	mux.PathPrefix("/api/v1/experience").
 		Handler(helper.StripPrefix(
@@ -156,5 +144,8 @@ func GetHandler() http.Handler {
 	withGz := gziphandler.GzipHandler(withoutGz)
 	mux.PathPrefix("/").Handler(withGz).Methods("GET")
 
-	return mux
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.Method, r.URL.Path)
+		mux.ServeHTTP(w, r)
+	})
 }
