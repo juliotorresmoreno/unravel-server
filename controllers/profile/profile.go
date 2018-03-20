@@ -16,9 +16,9 @@ import (
 func NewRouter(hub *ws.Hub) http.Handler {
 	var mux = mux.NewRouter().StrictSlash(true)
 
-	mux.HandleFunc("/profile", middlewares.Protect(Profile, hub, true)).Methods("GET")
-	mux.HandleFunc("/profile/{user}", middlewares.Protect(Profile, hub, true)).Methods("GET")
-	mux.HandleFunc("/profile", middlewares.Protect(Update, hub, true)).Methods("POST", "PUT", "OPTIONS")
+	mux.HandleFunc("/", middlewares.Protect(Profile, hub, true)).Methods("GET")
+	mux.HandleFunc("/{user}", middlewares.Protect(Profile, hub, true)).Methods("GET")
+	mux.HandleFunc("/", middlewares.Protect(Update, hub, true)).Methods("POST", "PUT")
 
 	return mux
 }

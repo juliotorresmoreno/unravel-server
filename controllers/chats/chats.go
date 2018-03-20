@@ -2,7 +2,6 @@ package chats
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -16,7 +15,8 @@ import (
 func NewRouter(hub *ws.Hub) http.Handler {
 	var mux = mux.NewRouter().StrictSlash(true)
 
-	mux.HandleFunc("/mensaje", middlewares.Protect(Mensaje, hub, true)).Methods("POST")
+	mux.HandleFunc("/mensaje", middlewares.Protect(MensajeAdd, hub, true)).Methods("POST")
+	mux.HandleFunc("/mensaje", middlewares.Protect(MensajeEdit, hub, true)).Methods("PUT")
 	mux.HandleFunc("/videollamada", middlewares.Protect(VideoLlamada, hub, true)).Methods("POST")
 	mux.HandleFunc("/rechazarvideollamada", middlewares.Protect(RechazarVideoLlamada, hub, true)).Methods("POST")
 	mux.HandleFunc("/{user}", middlewares.Protect(GetConversacion, hub, true)).Methods("GET")
@@ -133,6 +133,7 @@ func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.Use
 	updater = updater.Where(cond, usuario, session.Usuario)
 	consultor = consultor.Where(cond, usuario, session.Usuario).
 		Or(cond, session.Usuario, usuario)
+	videoCall := consultor.Where("message = '@chats/videocall' and status in (1, 4)")
 	if antesDe != "" {
 		tmp, _ := time.Parse(time.RFC3339, antesDe)
 		tiempo := tmp.String()[0:19]
@@ -145,16 +146,25 @@ func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.Use
 		updater = updater.And("create_at < ?", tiempo)
 		consultor = consultor.And("create_at > ?", tiempo)
 	}
-
+	count, err := videoCall.Count(models.Chat{})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
 	updater.Cols("leido").Update(leido)
-	fmt.Println(updater.LastSQL())
-	consultor.OrderBy("id desc").Limit(10).Find(&resultado)
+	consultor.Limit(10).Asc("id").Find(&resultado)
 	length := len(resultado)
 	conversacion := make([]map[string]interface{}, length)
 	if length > 0 {
 		for i := 0; i < length; i++ {
 			conversacion[i] = map[string]interface{}{
 				"action":          "mensaje",
+				"id":              resultado[i].Id,
+				"status":          resultado[i].Status,
 				"usuario":         resultado[i].UsuarioEmisor,
 				"usuarioReceptor": resultado[i].UsuarioReceptor,
 				"mensaje":         resultado[i].Message,
@@ -163,8 +173,9 @@ func GetConversacion(w http.ResponseWriter, r *http.Request, session *models.Use
 		}
 	}
 	respuesta, _ := json.Marshal(map[string]interface{}{
-		"success": true,
-		"data":    conversacion,
+		"success":   true,
+		"data":      conversacion,
+		"videoCall": count > int64(0),
 	})
 	w.Write(respuesta)
 }
