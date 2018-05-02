@@ -2,6 +2,7 @@ package helper
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -53,7 +54,10 @@ func GetPostParams(r *http.Request) url.Values {
 		params := map[string]interface{}{}
 		result := url.Values{}
 		decoder := json.NewDecoder(r.Body)
-		decoder.Decode(&params)
+		err := decoder.Decode(&params)
+		if err != nil {
+			fmt.Println(err)
+		}
 		for k, v := range params {
 			if reflect.ValueOf(v).Kind().String() == "string" {
 				result.Set(k, v.(string))

@@ -8,11 +8,17 @@ import (
 	"strings"
 	"time"
 
+	"regexp"
+
 	"github.com/asaskevich/govalidator"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func init() {
+	alphaSpaces, _ := regexp.Compile("^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$")
+	govalidator.TagMap["alphaSpaces"] = govalidator.Validator(func(str string) bool {
+		return alphaSpaces.MatchString(str)
+	})
 	govalidator.TagMap["password"] = govalidator.Validator(func(str string) bool {
 		return true
 	})
@@ -73,7 +79,10 @@ func Encript(password string) string {
 
 // IsValid Verifica si la contraseña y el hash corresponden, es decir, si esa es la contraseña en bd
 func IsValid(hash string, password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+	return bcrypt.CompareHashAndPassword(
+		[]byte(hash),
+		[]byte(password),
+	) == nil
 }
 
 // IsValidPermision valida si el permiso mencionado corresponde a uno de los permitidos

@@ -21,7 +21,10 @@ func MensajeAdd(w http.ResponseWriter, r *http.Request, session *models.User, hu
 	tipo := data.Get("tipo")
 	w.Header().Set("Content-Type", "application/json")
 
-	if tipo == "usuario" {
+	fmt.Println(usuario)
+
+	switch tipo {
+	case "usuario":
 		w.WriteHeader(http.StatusOK)
 		if usuario == session.Usuario {
 			err := fmt.Errorf("No puedes enviarte un mensaje a ti mismo")
@@ -53,6 +56,20 @@ func MensajeAdd(w http.ResponseWriter, r *http.Request, session *models.User, hu
 			"fecha":           time.Now(),
 		})
 		hub.Send(session.Usuario, resp)
+		hub.Send(usuario, resp)
+		return
+	case "remote":
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"message": "Enviado correctamente.",
+		})
+		resp, _ := json.Marshal(map[string]interface{}{
+			"action":  "mensaje",
+			"type":    "@chats/remote",
+			"mensaje": mensaje,
+			"fecha":   time.Now(),
+		})
 		hub.Send(usuario, resp)
 		return
 	}
