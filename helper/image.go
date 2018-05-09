@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"image"
 	"image/jpeg"
 	"os"
@@ -29,8 +30,8 @@ func BuildJPG(source, destino string) error {
 	if err != nil {
 		return err
 	}
-	var X = img.Bounds().Size().X
-	var Y = img.Bounds().Size().Y
+	X := img.Bounds().Size().X
+	Y := img.Bounds().Size().Y
 	var rst *image.NRGBA
 	if X > Y {
 		rst = imaging.Resize(img, 700, 0, imaging.Lanczos)
@@ -41,7 +42,10 @@ func BuildJPG(source, destino string) error {
 	if err != nil {
 		return err
 	}
+	var e interface{} = "hola"
+	fmt.Println(fmt.Sprintf("%v", e))
+
 	defer fle.Close()
-	jpeg.Encode(fle, rst, nil)
-	return nil
+	err = jpeg.Encode(fle, rst, nil)
+	return err
 }
