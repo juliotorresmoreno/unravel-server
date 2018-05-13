@@ -31,12 +31,6 @@ func Cors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,Content-Type,Cache-Control")
 }
 
-//HandleCors permite el acceso desde otro servidor
-func HandleCors(w http.ResponseWriter, r *http.Request) {
-	Cors(w, r)
-	w.WriteHeader(http.StatusOK)
-}
-
 func getContentType(r *http.Request) string {
 	for key := range r.Header {
 		if strings.ToLower(key) == "content-type" {

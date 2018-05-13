@@ -2,12 +2,12 @@ package router
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/juliotorresmoreno/unravel-server/controllers/educacion"
 	"github.com/juliotorresmoreno/unravel-server/controllers/experience"
 	"github.com/juliotorresmoreno/unravel-server/controllers/skill"
+	"github.com/juliotorresmoreno/unravel-server/middlewares"
 
 	"github.com/gorilla/mux"
 	"github.com/juliotorresmoreno/unravel-server/controllers/auth"
@@ -28,12 +28,14 @@ import (
 	"github.com/nytimes/gziphandler"
 )
 
-// GetHandler aca se establecen las rutas del router
-func GetHandler() http.Handler {
+// NewRouter aca se establecen las rutas del router
+func NewRouter() http.Handler {
 	var mux = mux.NewRouter().StrictSlash(true)
 	var hub = ws.GetHub()
 
-	mux.PathPrefix("/").HandlerFunc(helper.HandleCors).Methods("OPTIONS")
+	mux.Use(middlewares.Logger)
+	mux.Use(middlewares.Cors)
+	mux.Use(gziphandler.GzipHandler)
 
 	//graphql
 	mux.HandleFunc("/api/v2/graphql", protect(func(w http.ResponseWriter, r *http.Request, session *models.User, hub *ws.Hub) {
@@ -140,12 +142,7 @@ func GetHandler() http.Handler {
 	})
 
 	// archivos estaticos
-	withoutGz := http.HandlerFunc(publicHandler)
-	withGz := gziphandler.GzipHandler(withoutGz)
-	mux.PathPrefix("/").Handler(withGz).Methods("GET")
+	mux.PathPrefix("/").HandlerFunc(publicHandler).Methods("GET")
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.Method, r.URL.Path)
-		mux.ServeHTTP(w, r)
-	})
+	return mux
 }
