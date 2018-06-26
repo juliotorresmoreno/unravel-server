@@ -47,6 +47,7 @@ func PuedoVer(relacion int8, permiso string) bool {
 
 // getLetterRandom genera una letra aleatoria
 func getLetterRandom() string {
+	rand.Seed(time.Now().UTC().UnixNano())
 	var r = rand.Intn(60)
 	var b = make([]byte, 1)
 	if r < 10 {
@@ -58,6 +59,15 @@ func getLetterRandom() string {
 		b[0] = byte(r + 62)
 	}
 	return string(b)
+}
+
+// GenerateRandomString genera un conjunto de caracteres aleatorios
+func GenerateRandomStringWithowTime(s int) string {
+	r := ""
+	for i := 0; i < s; i++ {
+		r += getLetterRandom()
+	}
+	return r
 }
 
 // GenerateRandomString genera un conjunto de caracteres aleatorios

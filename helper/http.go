@@ -43,6 +43,7 @@ func getContentType(r *http.Request) string {
 //GetPostParams Get the parameters sent by the post method in an http request
 func GetPostParams(r *http.Request) url.Values {
 	contentType := getContentType(r)
+	fmt.Println("Content-Type", contentType)
 	switch {
 	case contentType == "application/json":
 		params := map[string]interface{}{}
